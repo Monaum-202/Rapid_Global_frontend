@@ -11,6 +11,7 @@
         --icon-bg-opacity: 0.1;
         --border-radius: 12px;
         --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        
       }
 
       body {
@@ -20,11 +21,10 @@
         padding-top: 20px;
       }
 
-.dashboard-container {
-  padding: 1rem;
-  width: 100%;
-  box-sizing: border-box;
-}
+      .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
 
       .dashboard-header {
         display: flex;
@@ -48,16 +48,14 @@
       /* Card Styles */
       .metric-card {
         background: var(--card-bg);
-        border-radius: var(--border-radius);
+        border-radius: 16px;
         box-shadow: var(--box-shadow);
         transition: all 0.3s ease-in-out;
         overflow: hidden;
-        height: auto;
+        height: 100%;
         border: 1px solid transparent;
-        margin-bottom: 1rem;
+        margin-bottom: 20px;
       }
-
-
 
       .metric-card:hover {
         transform: translateY(-5px);
@@ -66,16 +64,16 @@
       }
 
       .card-body {
-        padding: 20px;
+        padding: 15px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-          flex-direction: row;
-  flex-wrap: wrap; /* allow content to wrap if small */
       }
+
       .card-content {
-        flex: 1 1 auto;
+        flex: 1;
       }
+
       .card h6 {
         font-size: 14px;
         font-weight: 500;
@@ -102,7 +100,63 @@
         justify-content: center;
         margin-left: 15px;
       }
+/* SFDSFDSFDSFSFSF */
 
+
+
+        .metric-card-small {
+  background: var(--card-bg);
+  border-radius: 16px;   /* smoother corners */
+  box-shadow: var(--box-shadow);
+  transition: all 0.3s ease-in-out;
+  overflow: hidden;
+  height: 75%;
+  border: 1px solid transparent;
+  margin-bottom: 20px;
+}
+
+        .metric-card-small:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.185);
+        border: 1px solid #8d8d8d; /* highlight border (Bootstrap primary color) */
+      } 
+      .card-body-small {
+        padding: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .card-content {
+        flex: 1;
+      }
+
+      .card h6 {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin: 0 0 8px 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .card h5 {
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0;
+        color: var(--text-primary);
+      }
+
+      .card-icon {
+        font-size: 32px;
+        width: 60px;
+        height: 60px;
+        border-radius: var(--border-radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 15px;
+      }
       /* Metric Card Colors */
       .revenue .card-icon {
         background-color: rgba(10, 179, 156, var(--icon-bg-opacity));

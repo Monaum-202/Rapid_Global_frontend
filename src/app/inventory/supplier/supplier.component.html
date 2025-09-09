@@ -1,12 +1,11 @@
-<div class="container my-1">
-    <h1 class="mb-4">Sales List</h1>
+
+<div class="container my-4">
+    <h1 class="mb-1">Suppliers List</h1>
     <div class="container-fluid pb-4">
         <div class="row">
             <div class="col-12">
-
                         <div class="row mb-3">
                             <div class="row align-items-center">
-                                <!-- Show Entries -->
                                 <div class="row g-2 p-3">
                                     <!-- Show Entries -->
                                     <div class="col-md-4 d-flex align-items-center">
@@ -33,36 +32,32 @@
 
                                     <!-- Add Sell Button -->
                                     <div class="col-md-4 d-flex justify-content-md-end">
-                                        <button type="button" class="btn rounded-pill shadow-sm px-4"
-                                            data-bs-toggle="modal" data-bs-target="#expadd"
-                                            style="background-color: #000000; color: #ffffff;">
-                                            <i class="bi bi-plus-lg me-1"></i> Add Sell
+                                        <button class="btn filter-btn text-white" style="background-color: #ff6b6b">
+                                            <i class="fas fa-filter text-white"></i> Filter
                                         </button>
                                     </div>
                                 </div>
 
                                 <div class="table-responsive">
-                                    <table class="table table-hover mb-0">
-                                        <thead class="rounded-pill" style="background-color: #000000; ">
+                                    <table class="table table-hover mb-0 align-middle text-nowrap">
+                                        <thead>
                                             <tr>
                                                 <th>ID</th>
-                                                <th>ITEMS</th>
-                                                <th>DATE</th>
-                                                <th>BUYER</th>
-                                                <th>TOTAL</th>
-                                                <th>PAYMENT STATUS</th>
-                                                <th>ACTIONS</th>
+                                                <th>NAME</th>
+                                                <th>PHONE</th>
+                                                <th>ADDRESS</th>
+                                                <th>DUE</th>
+                                                <th class="text-center">ACTIONS</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
                                                 <td>#PR-00002</td>
-                                                <td>Cloth</td>
-                                                <td>12/03/2021</td>
-                                                <td>Cloth Supplier</td>
+                                                <td>John Doe</td>
+                                                <td>+8801712345678</td>
+                                                <td>Dhaka, Bangladesh</td>
                                                 <td>$1551</td>
-                                                <td><span class="status bad">Pending</span></td>
-                                                <td>
+                                                <td class="text-center">
                                                     <div class="btn-group">
                                                         <!-- View button -->
                                                         <button type="button" class="btn btn-outline-primary btn-sm"
@@ -80,42 +75,16 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td>#PR-00004</td>
-                                                <td>Cycle</td>
-                                                <td>16/03/2021</td>
-                                                <td>Toy Supplier</td>
-                                                <td>$1551</td>
-
-                                                <td><span class="status bad">Pending</span></td>
-                                                <td>
-                                                    <div class="btn-group">
-                                                        <!-- View button -->
-                                                        <button type="button" class="btn btn-outline-primary btn-sm"
-                                                            data-bs-toggle="modal" data-bs-target="#purchaseModal"
-                                                            data-purchase-id="PR-00005">
-                                                            <i class="fa fa-eye"></i> View
-                                                        </button>
-
-                                                        <!-- Edit button -->
-                                                        <button type="button" class="btn btn-outline-success btn-sm"
-                                                            data-bs-toggle="modal" data-bs-target="#expadd">
-                                                            <i class="fa fa-pen"></i> Edit
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>#PR-00005</td>
-                                                <td>Footwear</td>
-                                                <td>12/03/2021</td>
-                                                <td>Footwear Suf</td>
-                                                <td>$1200</td>
-                                                <td><span class="status good">Paid</span></td>
-                                                <td>
+                                                <td>#PR-00003</td>
+                                                <td>Jane Smith</td>
+                                                <td>+8801999888777</td>
+                                                <td>Chattogram, Bangladesh</td>
+                                                <td>$2200</td>
+                                                <td class="text-center">
                                                     <div class="btn-group">
                                                         <button type="button" class="btn btn-outline-primary btn-sm"
                                                             data-bs-toggle="modal" data-bs-target="#purchaseModal"
-                                                            data-purchase-id="PR-00005">
+                                                            data-purchase-id="PR-00006">
                                                             <i class="fa fa-eye"></i> View
                                                         </button>
                                                         <button type="button" class="btn btn-outline-success btn-sm"
@@ -128,6 +97,7 @@
                                         </tbody>
                                     </table>
                                 </div>
+
                                 <p class="text-muted mb-0 mt-3">Showing 1 to 3 of 3 entries</p>
                                 <div class="d-flex justify-content-center mt-3">
                                     <div class="btn-group">
@@ -141,9 +111,7 @@
                                     </div>
                                 </div>
                             </div>
-
-                </div>
-
+                        </div>
                 <!-- input modal -->
                 <div class="modal fade" id="expadd" tabindex="-1" aria-labelledby="expaddLabel" aria-hidden="true">
                     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -231,7 +199,7 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="purchaseModalLabel">
-                                    Sell Item Details
+                                    Customer Details
                                 </h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
@@ -243,56 +211,31 @@
                                         <div class="compact-value">#PR-00002</div>
                                     </div>
                                     <div class="compact-item">
-                                        <div class="compact-label">ITEMS</div>
-                                        <div class="compact-value">Cloth</div>
+                                        <div class="compact-label">Name</div>
+                                        <div class="compact-value">John Doe</div>
                                     </div>
                                     <div class="compact-item">
-                                        <div class="compact-label">PURCHASE STATUS</div>
-                                        <div class="compact-value">
-                                            <span class="status-badge status-received">Received</span>
-                                        </div>
+                                        <div class="compact-label">PHONE</div>
+                                        <div class="compact-value">+8801712345678</div>
                                     </div>
                                     <div class="compact-item">
-                                        <div class="compact-label">ORDER BY</div>
-                                        <div class="compact-value">Jean Dyer</div>
+                                        <div class="compact-label">ADDRESS</div>
+                                        <div class="compact-value">Dhaka, Bangladesh</div>
                                     </div>
                                     <div class="compact-item">
-                                        <div class="compact-label">DATE</div>
-                                        <div class="compact-value">12/03/2021</div>
+                                        <div class="compact-label">Total Transection</div>
+                                        <div class="compact-value">18400</div>
                                     </div>
                                     <div class="compact-item">
-                                        <div class="compact-label">SUPPLIER</div>
-                                        <div class="compact-value">Cloth Supplier</div>
+                                        <div class="compact-label">Due</div>
+                                        <span class="status-badge status-pending">$1551</span>
                                     </div>
-                                    <div class="compact-item">
-                                        <div class="compact-label">TOTAL</div>
-                                        <div class="compact-value">$1551</div>
-                                    </div>
-                                    <div class="compact-item">
-                                        <div class="compact-label">PAID</div>
-                                        <div class="compact-value">$1500</div>
-                                    </div>
-                                    <div class="compact-item">
-                                        <div class="compact-label">BALANCE</div>
-                                        <div class="compact-value">$551</div>
-                                    </div>
-                                    <div class="compact-item">
-                                        <div class="compact-label">PAYMENT STATUS</div>
-                                        <div class="compact-value">
-                                            <span class="status-badge status-pending">Pending</span>
-                                        </div>
-                                    </div>
+                                    
                                 </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-danger action-btn" data-bs-dismiss="modal">
                                     Close
-                                </button>
-                                <button type="button" class="btn btn-primary action-btn">
-                                    Edit Details
-                                </button>
-                                <button type="button" class="btn btn-success action-btn">
-                                    Approve Payment
                                 </button>
                             </div>
                         </div>
