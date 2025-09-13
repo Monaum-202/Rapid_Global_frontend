@@ -31,7 +31,6 @@ import { SupplierPaymentComponent } from './inventory/purchases/supplier-payment
     SideNavComponent,
     CustomerComponent,
     SupplierComponent,
-<<<<<<< Updated upstream
     SalesListComponent,
     CustomerPaymentComponent,
     SalesReturnComponent,
@@ -40,11 +39,7 @@ import { SupplierPaymentComponent } from './inventory/purchases/supplier-payment
     PurchasesReturnsComponent,
     SuppliersComponent,
     SupplierPaymentComponent
-=======
-    InventoryMenuComponent,
-    StockListComponent,
-    PurchaseComponent
->>>>>>> Stashed changes
+
   ],
   imports: [
     BrowserModule,
