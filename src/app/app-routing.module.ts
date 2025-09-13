@@ -14,22 +14,23 @@ import { PurchasesListComponent } from './inventory/purchases/purchases-list/pur
 import { SupplierPaymentComponent } from './inventory/purchases/supplier-payment/supplier-payment.component';
 import { PurchasesReturnsComponent } from './inventory/purchases/purchases-returns/purchases-returns.component';
 import { SuppliersComponent } from './inventory/purchases/suppliers/suppliers.component';
+import { InventoryReportsComponent } from './inventory/report/inventory-reports/inventory-reports.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: 'inventory',component: InventoryComponent,children: [
     { path: '', component: DashboardComponent },
 
 
     //Dashboard
     {path: 'dashboard', component: DashboardComponent},
-    
+
     //Sales
     {path: 'sales-list',component:SalesListComponent},
     {path: 'customer',component:CustomersComponent},
     {path: 'customer-payment',component:CustomerPaymentComponent},
     {path: 'sales-return',component:SalesReturnComponent},
-  
+
     //Purchases
     {path: 'purchase-list',component:PurchasesListComponent},
     {path: 'supplier',component:SuppliersComponent},
@@ -37,7 +38,13 @@ const routes: Routes = [
     {path: 'purchase-return',component:PurchasesReturnsComponent},
 
 
-        
+    //Reports
+
+    {path: 'inventory-report',component:InventoryReportsComponent},
+    {path: 'purchase-report',component:SuppliersComponent},
+    {path: 'sales-report',component:SupplierPaymentComponent},
+    {path: 'payment-report',component:PurchasesReturnsComponent},
+
     {path: 'all-orders',component: AllOrdersComponent},
     {path: 'side-bar',component:SideNavComponent},
     {path: 'suppliers',component:SupplierComponent},

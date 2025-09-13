@@ -5,10 +5,7 @@
 
     .sidebar {
         flex-shrink: 0;
-        /* sidebar keeps its width */
         max-width: 80%;
-        /* prevent overflow on small screens */
-
         height: 100vh;
         width: 250px;
         transition: all 0.3s;
@@ -17,7 +14,21 @@
         position: fixed;
         padding: 1rem;
         box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+
+        overflow-y: auto;
+        /* ✅ scrolling enabled */
+        overflow-x: hidden;
+        /* ✅ prevent sideways scroll */
     }
+
+    /* .sidebar h2 {
+  position: sticky;
+  top: 0;
+  background: #000;
+  z-index: 10;
+  padding: 1rem 0;
+  margin: 0;
+} */
 
 
     .sidebar.dark {
@@ -89,8 +100,6 @@
     .sidebar.collapsed input {
         display: none;
     }
-
-
 
     .toggle-btn {
         position: absolute;

@@ -19,6 +19,10 @@ import { PurchasesListComponent } from './inventory/purchases/purchases-list/pur
 import { PurchasesReturnsComponent } from './inventory/purchases/purchases-returns/purchases-returns.component';
 import { SuppliersComponent } from './inventory/purchases/suppliers/suppliers.component';
 import { SupplierPaymentComponent } from './inventory/purchases/supplier-payment/supplier-payment.component';
+import { InventoryReportsComponent } from './inventory/report/inventory-reports/inventory-reports.component';
+import { PurchaseReportsComponent } from './inventory/report/purchase-reports/purchase-reports.component';
+import { SalesReportsComponent } from './inventory/report/sales-reports/sales-reports.component';
+import { PaymentReportsComponent } from './inventory/report/payment-reports/payment-reports.component';
 
 @NgModule({
   declarations: [
@@ -38,7 +42,11 @@ import { SupplierPaymentComponent } from './inventory/purchases/supplier-payment
     PurchasesListComponent,
     PurchasesReturnsComponent,
     SuppliersComponent,
-    SupplierPaymentComponent
+    SupplierPaymentComponent,
+    InventoryReportsComponent,
+    PurchaseReportsComponent,
+    SalesReportsComponent,
+    PaymentReportsComponent
 
   ],
   imports: [
