@@ -10,6 +10,7 @@ import { PendingOrdersComponent } from './inventory/orders/pending-orders/pendin
 import { CompleteOrdersComponent } from './inventory/orders/complete-orders/complete-orders.component';
 import { SideNavComponent } from './inventory/side-nav/side-nav.component';
 import { SupplierComponent } from './inventory/supplier/supplier.component';
+<<<<<<< Updated upstream
 import { SalesListComponent } from './inventory/sales/sales-list/sales-list.component';
 import { CustomerPaymentComponent } from './inventory/sales/customer-payment/customer-payment.component';
 import { SalesReturnComponent } from './inventory/sales/sales-return/sales-return.component';
@@ -19,6 +20,11 @@ import { PurchasesListComponent } from './inventory/purchases/purchases-list/pur
 import { PurchasesReturnsComponent } from './inventory/purchases/purchases-returns/purchases-returns.component';
 import { SuppliersComponent } from './inventory/purchases/suppliers/suppliers.component';
 import { SupplierPaymentComponent } from './inventory/purchases/supplier-payment/supplier-payment.component';
+=======
+import { InventoryMenuComponent } from './inventory/inventory-menu/inventory-menu.component';
+import { StockListComponent } from './inventory/inventoryMenu/stock-list/stock-list.component';
+import { PurchaseComponent } from './inventory/inventoryMenu/purchase/purchase.component';
+>>>>>>> Stashed changes
 
 @NgModule({
   declarations: [
@@ -31,6 +37,7 @@ import { SupplierPaymentComponent } from './inventory/purchases/supplier-payment
     SideNavComponent,
     CustomerComponent,
     SupplierComponent,
+<<<<<<< Updated upstream
     SalesListComponent,
     CustomerPaymentComponent,
     SalesReturnComponent,
@@ -39,6 +46,11 @@ import { SupplierPaymentComponent } from './inventory/purchases/supplier-payment
     PurchasesReturnsComponent,
     SuppliersComponent,
     SupplierPaymentComponent
+=======
+    InventoryMenuComponent,
+    StockListComponent,
+    PurchaseComponent
+>>>>>>> Stashed changes
   ],
   imports: [
     BrowserModule,
