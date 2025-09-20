@@ -159,15 +159,9 @@
                                 <form id="purchaseForm">
                                     <div class="row g-3">
                                         <div class="col-md-6">
-                                            <label for="items" class="form-label">Items</label>
-                                            <input type="text" class="form-control" id="items" required />
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="status" class="form-label">Sell Status</label>
+                                            <label for="status" class="form-label">Items</label>
                                             <select class="form-select" id="status">
-                                                <option value="Pending">Pending</option>
-                                                <option value="Received">Received</option>
-                                                <option value="Cancelled">Cancelled</option>
+                                                <option value="Pending">Printed Cloth</option>
                                             </select>
                                         </div>
                                         <div class="col-md-6">
@@ -175,12 +169,12 @@
                                             <input type="text" class="form-control" id="orderBy" />
                                         </div>
                                         <div class="col-md-6">
-                                            <label for="date" class="form-label">Date</label>
-                                            <input type="date" class="form-control" id="date" required />
+                                            <label for="orderBy" class="form-label">Customer Phone</label>
+                                            <input type="text" class="form-control" id="orderBy" />
                                         </div>
                                         <div class="col-md-6">
-                                            <label for="supplier" class="form-label">Supplier</label>
-                                            <input type="text" class="form-control" id="supplier" />
+                                            <label for="date" class="form-label">Date</label>
+                                            <input type="date" class="form-control" id="date" required />
                                         </div>
                                         <div class="col-md-6">
                                             <label for="total" class="form-label">Total</label>
@@ -243,13 +237,7 @@
                                     </div>
                                     <div class="compact-item">
                                         <div class="compact-label">ITEMS</div>
-                                        <div class="compact-value">Cloth</div>
-                                    </div>
-                                    <div class="compact-item">
-                                        <div class="compact-label">PURCHASE STATUS</div>
-                                        <div class="compact-value">
-                                            <span class="status-badge status-received">Received</span>
-                                        </div>
+                                        <div class="compact-value">Printed Cloth</div>
                                     </div>
                                     <div class="compact-item">
                                         <div class="compact-label">ORDER BY</div>
@@ -258,10 +246,6 @@
                                     <div class="compact-item">
                                         <div class="compact-label">DATE</div>
                                         <div class="compact-value">12/03/2021</div>
-                                    </div>
-                                    <div class="compact-item">
-                                        <div class="compact-label">SUPPLIER</div>
-                                        <div class="compact-value">Cloth Supplier</div>
                                     </div>
                                     <div class="compact-item">
                                         <div class="compact-label">TOTAL</div>

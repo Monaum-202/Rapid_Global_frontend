@@ -16,7 +16,7 @@
         <li><a routerLink="/inventory/sales-list" class="nav-link text-white">Sales List</a></li>
         <li><a routerLink="/inventory/customer" class="nav-link text-white">Customers List</a></li>
         <li><a routerLink="/inventory/customer-payment" class="nav-link text-white">Customer Payments</a></li>
-        <li><a href="#" class="nav-link text-white">Sales Returns</a></li>
+        <li><a routerLink="/inventory/sales-return" class="nav-link text-white">Sales Returns</a></li>
       </ul>
     </div>
 
@@ -43,10 +43,10 @@
     </a>
     <div class="collapse" id="inventoryMenu" data-bs-parent="#sidebarAccordion">
       <ul class="nav flex-column">
-        <li><a href="#" class="nav-link text-white">Stock List</a></li>
-        <li><a href="#" class="nav-link text-white">Stock In</a></li>
-        <li><a href="#" class="nav-link text-white">Stock Out</a></li>
-        <li><a href="#" class="nav-link text-white">Wastage Management</a></li>
+        <li><a routerLink="stock-details" class="nav-link text-white">Stock List</a></li>
+        <li><a routerLink="#" class="nav-link text-white">Stock In</a></li>
+        <li><a routerLink="#" class="nav-link text-white">Stock Out</a></li>
+        <li><a routerLink="#" class="nav-link text-white">Wastage Management</a></li>
       </ul>
     </div>
 
@@ -58,11 +58,11 @@
     </a>
     <div class="collapse" id="accountsMenu" data-bs-parent="#sidebarAccordion">
       <ul class="nav flex-column">
-        <li><a href="#" class="nav-link text-white">Incomes</a></li>
-        <li><a href="#" class="nav-link text-white">Expenses</a></li>
-        <li><a href="#" class="nav-link text-white">Vendor Ledger</a></li>
-        <li><a href="#" class="nav-link text-white">Customer Ledger</a></li>
-        <li><a href="#" class="nav-link text-white">Profit &amp; Loss</a></li>
+        <li><a routerLink="#" class="nav-link text-white">Incomes</a></li>
+        <li><a routerLink="#" class="nav-link text-white">Expenses</a></li>
+        <li><a routerLink="#" class="nav-link text-white">Vendor Ledger</a></li>
+        <li><a routerLink="#" class="nav-link text-white">Customer Ledger</a></li>
+        <li><a routerLink="#" class="nav-link text-white">Profit &amp; Loss</a></li>
       </ul>
     </div>
 
@@ -75,10 +75,10 @@
     <div class="collapse" id="reportsMenu" data-bs-parent="#sidebarAccordion">
       <ul class="nav flex-column">
         <li><a routerLink="inventory-report" class="nav-link text-white">Inventory Reports</a></li>
-        <li><a href="purchase-report" class="nav-link text-white">Purchase Reports</a></li>
-        <li><a href="sales-report" class="nav-link text-white">Sales Reports</a></li>
-        <!-- <li><a href="#" class="nav-link text-white">Production Reports</a></li> -->
-        <li><a href="payment-report" class="nav-link text-white">Payment Reports</a></li>
+        <li><a routerLink="purchase-report" class="nav-link text-white">Purchase Reports</a></li>
+        <li><a routerLink="sales-report" class="nav-link text-white">Sales Reports</a></li>
+        <!-- <li><a routerLink="#" class="nav-link text-white">Production Reports</a></li> -->
+        <li><a routerLink="payment-report" class="nav-link text-white">Payment Reports</a></li>
       </ul>
     </div>
   </div>
@@ -86,10 +86,10 @@
   <hr style="background-color: white;" />
 
   <!-- Settings & Support -->
-  <a href="#" class="nav-link text-white">
+  <a routerLink="#" class="nav-link text-white">
     <i class="fa fa-cog"></i> <span> Settings</span>
   </a>
-  <a href="#" class="nav-link text-white">
+  <a routerLink="#" class="nav-link text-white">
     <i class="fa fa-circle-info"></i> <span> Support</span>
   </a>
 </div>
