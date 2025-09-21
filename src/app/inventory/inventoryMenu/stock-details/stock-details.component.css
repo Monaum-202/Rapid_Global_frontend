@@ -1,0 +1,33 @@
+table {
+      border-collapse: collapse;
+      text-align: center;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid #000;
+      padding: 6px 10px;
+    }
+    thead th {
+      background: #f0f0f0;
+    }
+
+    /* Group colors */
+    .cyan { background-color: #d9eaf7; }
+    .magenta { background-color: #f9d6f9; }
+    .yellow { background-color: #fffacc; }
+    .black { background-color: #e0e0e0; }
+
+    /* Bold borders between groups */
+    td:nth-child(3), th:nth-child(3),   /* Sublimation */
+    td:nth-child(7), th:nth-child(7),   /* Supporting */
+    td:nth-child(10), th:nth-child(10), /* Cyan */
+    td:nth-child(13), th:nth-child(13), /* Magenta */
+    td:nth-child(16), th:nth-child(16), /* Yellow */
+    td:nth-child(19), th:nth-child(19)  /* Black */
+    {
+      border-right: 3px solid #000;
+    }
+
+    td:nth-child(2), th:nth-child(2) {
+      border-left: 3px solid #000; /* left border for first group */
+    }
