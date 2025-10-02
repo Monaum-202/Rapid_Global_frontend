@@ -44,7 +44,7 @@
                                             <div class="btn-group">
                                                 <!-- View button -->
                                                 <button type="button" class="btn btn-outline-primary btn-sm"
-                                                    data-bs-toggle="modal" data-bs-target="#purchaseModal"
+                                                    data-bs-toggle="modal" data-bs-target="#sublimationModal"
                                                     data-purchase-id="PR-00005">
                                                     <i class="fa fa-eye"></i> View
                                                 </button>
@@ -61,7 +61,7 @@
                                             <div class="btn-group">
                                                 <!-- View button -->
                                                 <button type="button" class="btn btn-outline-primary btn-sm"
-                                                    data-bs-toggle="modal" data-bs-target="#purchaseModal"
+                                                    data-bs-toggle="modal" data-bs-target="#supportingModal"
                                                     data-purchase-id="PR-00005">
                                                     <i class="fa fa-eye"></i> View
                                                 </button>
@@ -78,7 +78,7 @@
                                             <div class="btn-group">
                                                 <!-- View button -->
                                                 <button type="button" class="btn btn-outline-primary btn-sm"
-                                                    data-bs-toggle="modal" data-bs-target="#purchaseModal"
+                                                    data-bs-toggle="modal" data-bs-target="#cyanModal"
                                                     data-purchase-id="PR-00005">
                                                     <i class="fa fa-eye"></i> View
                                                 </button>
@@ -95,7 +95,7 @@
                                             <div class="btn-group">
                                                 <!-- View button -->
                                                 <button type="button" class="btn btn-outline-primary btn-sm"
-                                                    data-bs-toggle="modal" data-bs-target="#purchaseModal"
+                                                    data-bs-toggle="modal" data-bs-target="#magentaModal"
                                                     data-purchase-id="PR-00005">
                                                     <i class="fa fa-eye"></i> View
                                                 </button>
@@ -112,7 +112,7 @@
                                             <div class="btn-group">
                                                 <!-- View button -->
                                                 <button type="button" class="btn btn-outline-primary btn-sm"
-                                                    data-bs-toggle="modal" data-bs-target="#purchaseModal"
+                                                    data-bs-toggle="modal" data-bs-target="#yellowModal"
                                                     data-purchase-id="PR-00005">
                                                     <i class="fa fa-eye"></i> View
                                                 </button>
@@ -129,7 +129,7 @@
                                             <div class="btn-group">
                                                 <!-- View button -->
                                                 <button type="button" class="btn btn-outline-primary btn-sm"
-                                                    data-bs-toggle="modal" data-bs-target="#purchaseModal"
+                                                    data-bs-toggle="modal" data-bs-target="#blackModal"
                                                     data-purchase-id="PR-00005">
                                                     <i class="fa fa-eye"></i> View
                                                 </button>
@@ -143,53 +143,799 @@
                 </div>
 
                 <!-- MODAL -->
-                <div class="modal fade" id="purchaseModal" tabindex="-1" aria-labelledby="purchaseModalLabel"
+                <!-- sublimationModal -->
+                <div class="modal fade" id="sublimationModal" tabindex="-1" aria-labelledby="purchaseModalLabel"
                     aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-dialog modal-xl modal-dialog-centered">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="purchaseModalLabel">
-                                    Sell Item Details
+                                <h5 class="modal-title fw-bold" id="purchaseModalLabel">
+                                    Item Details - Sublimation Paper
                                 </h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <div class="compact-view">
-                                    <div class="compact-item">
-                                        <div class="compact-label">ID</div>
-                                        <div class="compact-value">#PR-00002</div>
-                                    </div>
-                                    <div class="compact-item">
-                                        <div class="compact-label">ITEMS</div>
-                                        <div class="compact-value">Printed Cloth</div>
-                                    </div>
-                                    <div class="compact-item">
-                                        <div class="compact-label">ORDER BY</div>
-                                        <div class="compact-value">Jean Dyer</div>
-                                    </div>
-                                    <div class="compact-item">
-                                        <div class="compact-label">DATE</div>
-                                        <div class="compact-value">12/03/2021</div>
-                                    </div>
-                                    <div class="compact-item">
-                                        <div class="compact-label">TOTAL</div>
-                                        <div class="compact-value">$1551</div>
-                                    </div>
-                                    <div class="compact-item">
-                                        <div class="compact-label">PAID</div>
-                                        <div class="compact-value">$1500</div>
-                                    </div>
-                                    <div class="compact-item">
-                                        <div class="compact-label">BALANCE</div>
-                                        <div class="compact-value">$551</div>
-                                    </div>
-                                    <div class="compact-item">
-                                        <div class="compact-label">PAYMENT STATUS</div>
-                                        <div class="compact-value">
-                                            <span class="status-badge status-pending">Pending</span>
-                                        </div>
-                                    </div>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover text-center align-middle">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th rowspan="2" class="align-middle">Date</th>
+                                            </tr>
+                                            <tr>
+                                                <th class="bg-warning text-dark">In</th>
+                                                <th class="bg-warning text-dark">Use</th>
+                                                <th class="bg-warning text-dark">Stock</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>01-09-25</td>
+                                                <td>10</td>
+                                                <td>3</td>
+                                                <td>7</td>
+                                            </tr>
+                                            <tr>
+                                                <td>02-09-25</td>
+                                                <td>-</td>
+                                                <td>2</td>
+                                                <td>5</td>
+                                            </tr>
+                                            <tr>
+                                                <td>03-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>4</td>
+                                            </tr>
+                                            <tr>
+                                                <td>04-09-25</td>
+                                                <td>9</td>
+                                                <td>2</td>
+                                                <td>11</td>
+                                            </tr>
+                                            <tr>
+                                                <td>05-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>10</td>
+                                            </tr>
+                                            <tr>
+                                                <td>06-09-25</td>
+                                                <td>5</td>
+                                                <td>2</td>
+                                                <td>13</td>
+                                            </tr>
+                                            <tr>
+                                                <td>07-09-25</td>
+                                                <td>-</td>
+                                                <td>3</td>
+                                                <td>10</td>
+                                            </tr>
+                                            <tr>
+                                                <td>08-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>9</td>
+                                            </tr>
+                                            <tr>
+                                                <td>09-09-25</td>
+                                                <td>8</td>
+                                                <td>2</td>
+                                                <td>15</td>
+                                            </tr>
+                                            <tr>
+                                                <td>10-09-25</td>
+                                                <td>-</td>
+                                                <td>4</td>
+                                                <td>11</td>
+                                            </tr>
+                                            <tr>
+                                                <td>11-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>10</td>
+                                            </tr>
+                                            <tr>
+                                                <td>12-09-25</td>
+                                                <td>6</td>
+                                                <td>2</td>
+                                                <td>14</td>
+                                            </tr>
+                                            <tr>
+                                                <td>13-09-25</td>
+                                                <td>-</td>
+                                                <td>3</td>
+                                                <td>11</td>
+                                            </tr>
+                                            <tr>
+                                                <td>14-09-25</td>
+                                                <td>4</td>
+                                                <td>2</td>
+                                                <td>13</td>
+                                            </tr>
+                                            <tr>
+                                                <td>15-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>12</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger action-btn" data-bs-dismiss="modal">
+                                    Close
+                                </button>
+                                <button type="button" class="btn btn-primary action-btn">
+                                    Edit Details
+                                </button>
+                                <button type="button" class="btn btn-success action-btn">
+                                    Approve Payment
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- supportingModal -->
+                <div class="modal fade" id="supportingModal" tabindex="-1" aria-labelledby="purchaseModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-xl modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title fw-bold" id="purchaseModalLabel">
+                                    Item Details - Supporting Paper
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover text-center align-middle">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th rowspan="2" class="align-middle">Date</th>
+                                            </tr>
+                                            <tr>
+                                                <th class="bg-warning text-dark">In</th>
+                                                <th class="bg-warning text-dark">Use</th>
+                                                <th class="bg-warning text-dark">Stock</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>01-09-25</td>
+                                                <td>10</td>
+                                                <td>3</td>
+                                                <td>7</td>
+                                            </tr>
+                                            <tr>
+                                                <td>02-09-25</td>
+                                                <td>-</td>
+                                                <td>2</td>
+                                                <td>5</td>
+                                            </tr>
+                                            <tr>
+                                                <td>03-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>4</td>
+                                            </tr>
+                                            <tr>
+                                                <td>04-09-25</td>
+                                                <td>9</td>
+                                                <td>2</td>
+                                                <td>11</td>
+                                            </tr>
+                                            <tr>
+                                                <td>05-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>10</td>
+                                            </tr>
+                                            <tr>
+                                                <td>06-09-25</td>
+                                                <td>5</td>
+                                                <td>2</td>
+                                                <td>13</td>
+                                            </tr>
+                                            <tr>
+                                                <td>07-09-25</td>
+                                                <td>-</td>
+                                                <td>3</td>
+                                                <td>10</td>
+                                            </tr>
+                                            <tr>
+                                                <td>08-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>9</td>
+                                            </tr>
+                                            <tr>
+                                                <td>09-09-25</td>
+                                                <td>8</td>
+                                                <td>2</td>
+                                                <td>15</td>
+                                            </tr>
+                                            <tr>
+                                                <td>10-09-25</td>
+                                                <td>-</td>
+                                                <td>4</td>
+                                                <td>11</td>
+                                            </tr>
+                                            <tr>
+                                                <td>11-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>10</td>
+                                            </tr>
+                                            <tr>
+                                                <td>12-09-25</td>
+                                                <td>6</td>
+                                                <td>2</td>
+                                                <td>14</td>
+                                            </tr>
+                                            <tr>
+                                                <td>13-09-25</td>
+                                                <td>-</td>
+                                                <td>3</td>
+                                                <td>11</td>
+                                            </tr>
+                                            <tr>
+                                                <td>14-09-25</td>
+                                                <td>4</td>
+                                                <td>2</td>
+                                                <td>13</td>
+                                            </tr>
+                                            <tr>
+                                                <td>15-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>12</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger action-btn" data-bs-dismiss="modal">
+                                    Close
+                                </button>
+                                <button type="button" class="btn btn-primary action-btn">
+                                    Edit Details
+                                </button>
+                                <button type="button" class="btn btn-success action-btn">
+                                    Approve Payment
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- cyanModal -->
+                <div class="modal fade" id="cyanModal" tabindex="-1" aria-labelledby="purchaseModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-xl modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title fw-bold" id="purchaseModalLabel">
+                                    Item Details - Cyan Color
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover text-center align-middle">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th rowspan="2" class="align-middle">Date</th>
+                                            </tr>
+                                            <tr>
+                                                <th class="bg-warning text-dark">In</th>
+                                                <th class="bg-warning text-dark">Use</th>
+                                                <th class="bg-warning text-dark">Stock</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>01-09-25</td>
+                                                <td>10</td>
+                                                <td>3</td>
+                                                <td>7</td>
+                                            </tr>
+                                            <tr>
+                                                <td>02-09-25</td>
+                                                <td>-</td>
+                                                <td>2</td>
+                                                <td>5</td>
+                                            </tr>
+                                            <tr>
+                                                <td>03-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>4</td>
+                                            </tr>
+                                            <tr>
+                                                <td>04-09-25</td>
+                                                <td>9</td>
+                                                <td>2</td>
+                                                <td>11</td>
+                                            </tr>
+                                            <tr>
+                                                <td>05-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>10</td>
+                                            </tr>
+                                            <tr>
+                                                <td>06-09-25</td>
+                                                <td>5</td>
+                                                <td>2</td>
+                                                <td>13</td>
+                                            </tr>
+                                            <tr>
+                                                <td>07-09-25</td>
+                                                <td>-</td>
+                                                <td>3</td>
+                                                <td>10</td>
+                                            </tr>
+                                            <tr>
+                                                <td>08-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>9</td>
+                                            </tr>
+                                            <tr>
+                                                <td>09-09-25</td>
+                                                <td>8</td>
+                                                <td>2</td>
+                                                <td>15</td>
+                                            </tr>
+                                            <tr>
+                                                <td>10-09-25</td>
+                                                <td>-</td>
+                                                <td>4</td>
+                                                <td>11</td>
+                                            </tr>
+                                            <tr>
+                                                <td>11-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>10</td>
+                                            </tr>
+                                            <tr>
+                                                <td>12-09-25</td>
+                                                <td>6</td>
+                                                <td>2</td>
+                                                <td>14</td>
+                                            </tr>
+                                            <tr>
+                                                <td>13-09-25</td>
+                                                <td>-</td>
+                                                <td>3</td>
+                                                <td>11</td>
+                                            </tr>
+                                            <tr>
+                                                <td>14-09-25</td>
+                                                <td>4</td>
+                                                <td>2</td>
+                                                <td>13</td>
+                                            </tr>
+                                            <tr>
+                                                <td>15-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>12</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger action-btn" data-bs-dismiss="modal">
+                                    Close
+                                </button>
+                                <button type="button" class="btn btn-primary action-btn">
+                                    Edit Details
+                                </button>
+                                <button type="button" class="btn btn-success action-btn">
+                                    Approve Payment
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- magentaModal -->
+                <div class="modal fade" id="magentaModal" tabindex="-1" aria-labelledby="purchaseModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-xl modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title fw-bold" id="purchaseModalLabel">
+                                    Item Details - Magenta Color
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover text-center align-middle">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th rowspan="2" class="align-middle">Date</th>
+                                            </tr>
+                                            <tr>
+                                                <th class="bg-warning text-dark">In</th>
+                                                <th class="bg-warning text-dark">Use</th>
+                                                <th class="bg-warning text-dark">Stock</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>01-09-25</td>
+                                                <td>10</td>
+                                                <td>3</td>
+                                                <td>7</td>
+                                            </tr>
+                                            <tr>
+                                                <td>02-09-25</td>
+                                                <td>-</td>
+                                                <td>2</td>
+                                                <td>5</td>
+                                            </tr>
+                                            <tr>
+                                                <td>03-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>4</td>
+                                            </tr>
+                                            <tr>
+                                                <td>04-09-25</td>
+                                                <td>9</td>
+                                                <td>2</td>
+                                                <td>11</td>
+                                            </tr>
+                                            <tr>
+                                                <td>05-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>10</td>
+                                            </tr>
+                                            <tr>
+                                                <td>06-09-25</td>
+                                                <td>5</td>
+                                                <td>2</td>
+                                                <td>13</td>
+                                            </tr>
+                                            <tr>
+                                                <td>07-09-25</td>
+                                                <td>-</td>
+                                                <td>3</td>
+                                                <td>10</td>
+                                            </tr>
+                                            <tr>
+                                                <td>08-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>9</td>
+                                            </tr>
+                                            <tr>
+                                                <td>09-09-25</td>
+                                                <td>8</td>
+                                                <td>2</td>
+                                                <td>15</td>
+                                            </tr>
+                                            <tr>
+                                                <td>10-09-25</td>
+                                                <td>-</td>
+                                                <td>4</td>
+                                                <td>11</td>
+                                            </tr>
+                                            <tr>
+                                                <td>11-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>10</td>
+                                            </tr>
+                                            <tr>
+                                                <td>12-09-25</td>
+                                                <td>6</td>
+                                                <td>2</td>
+                                                <td>14</td>
+                                            </tr>
+                                            <tr>
+                                                <td>13-09-25</td>
+                                                <td>-</td>
+                                                <td>3</td>
+                                                <td>11</td>
+                                            </tr>
+                                            <tr>
+                                                <td>14-09-25</td>
+                                                <td>4</td>
+                                                <td>2</td>
+                                                <td>13</td>
+                                            </tr>
+                                            <tr>
+                                                <td>15-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>12</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger action-btn" data-bs-dismiss="modal">
+                                    Close
+                                </button>
+                                <button type="button" class="btn btn-primary action-btn">
+                                    Edit Details
+                                </button>
+                                <button type="button" class="btn btn-success action-btn">
+                                    Approve Payment
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- yellowModal -->
+                <div class="modal fade" id="yellowModal" tabindex="-1" aria-labelledby="purchaseModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-xl modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title fw-bold" id="purchaseModalLabel">
+                                    Item Details - Yellow Color
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover text-center align-middle">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th rowspan="2" class="align-middle">Date</th>
+                                            </tr>
+                                            <tr>
+                                                <th class="bg-warning text-dark">In</th>
+                                                <th class="bg-warning text-dark">Use</th>
+                                                <th class="bg-warning text-dark">Stock</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>01-09-25</td>
+                                                <td>10</td>
+                                                <td>3</td>
+                                                <td>7</td>
+                                            </tr>
+                                            <tr>
+                                                <td>02-09-25</td>
+                                                <td>-</td>
+                                                <td>2</td>
+                                                <td>5</td>
+                                            </tr>
+                                            <tr>
+                                                <td>03-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>4</td>
+                                            </tr>
+                                            <tr>
+                                                <td>04-09-25</td>
+                                                <td>9</td>
+                                                <td>2</td>
+                                                <td>11</td>
+                                            </tr>
+                                            <tr>
+                                                <td>05-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>10</td>
+                                            </tr>
+                                            <tr>
+                                                <td>06-09-25</td>
+                                                <td>5</td>
+                                                <td>2</td>
+                                                <td>13</td>
+                                            </tr>
+                                            <tr>
+                                                <td>07-09-25</td>
+                                                <td>-</td>
+                                                <td>3</td>
+                                                <td>10</td>
+                                            </tr>
+                                            <tr>
+                                                <td>08-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>9</td>
+                                            </tr>
+                                            <tr>
+                                                <td>09-09-25</td>
+                                                <td>8</td>
+                                                <td>2</td>
+                                                <td>15</td>
+                                            </tr>
+                                            <tr>
+                                                <td>10-09-25</td>
+                                                <td>-</td>
+                                                <td>4</td>
+                                                <td>11</td>
+                                            </tr>
+                                            <tr>
+                                                <td>11-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>10</td>
+                                            </tr>
+                                            <tr>
+                                                <td>12-09-25</td>
+                                                <td>6</td>
+                                                <td>2</td>
+                                                <td>14</td>
+                                            </tr>
+                                            <tr>
+                                                <td>13-09-25</td>
+                                                <td>-</td>
+                                                <td>3</td>
+                                                <td>11</td>
+                                            </tr>
+                                            <tr>
+                                                <td>14-09-25</td>
+                                                <td>4</td>
+                                                <td>2</td>
+                                                <td>13</td>
+                                            </tr>
+                                            <tr>
+                                                <td>15-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>12</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger action-btn" data-bs-dismiss="modal">
+                                    Close
+                                </button>
+                                <button type="button" class="btn btn-primary action-btn">
+                                    Edit Details
+                                </button>
+                                <button type="button" class="btn btn-success action-btn">
+                                    Approve Payment
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- blackModal -->
+                <div class="modal fade" id="blackModal" tabindex="-1" aria-labelledby="purchaseModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-xl modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title fw-bold" id="purchaseModalLabel">
+                                    Item Details - Black Color
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover text-center align-middle">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th rowspan="2" class="align-middle">Date</th>
+                                            </tr>
+                                            <tr>
+                                                <th class="bg-warning text-dark">In</th>
+                                                <th class="bg-warning text-dark">Use</th>
+                                                <th class="bg-warning text-dark">Stock</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>01-09-25</td>
+                                                <td>10</td>
+                                                <td>3</td>
+                                                <td>7</td>
+                                            </tr>
+                                            <tr>
+                                                <td>02-09-25</td>
+                                                <td>-</td>
+                                                <td>2</td>
+                                                <td>5</td>
+                                            </tr>
+                                            <tr>
+                                                <td>03-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>4</td>
+                                            </tr>
+                                            <tr>
+                                                <td>04-09-25</td>
+                                                <td>9</td>
+                                                <td>2</td>
+                                                <td>11</td>
+                                            </tr>
+                                            <tr>
+                                                <td>05-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>10</td>
+                                            </tr>
+                                            <tr>
+                                                <td>06-09-25</td>
+                                                <td>5</td>
+                                                <td>2</td>
+                                                <td>13</td>
+                                            </tr>
+                                            <tr>
+                                                <td>07-09-25</td>
+                                                <td>-</td>
+                                                <td>3</td>
+                                                <td>10</td>
+                                            </tr>
+                                            <tr>
+                                                <td>08-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>9</td>
+                                            </tr>
+                                            <tr>
+                                                <td>09-09-25</td>
+                                                <td>8</td>
+                                                <td>2</td>
+                                                <td>15</td>
+                                            </tr>
+                                            <tr>
+                                                <td>10-09-25</td>
+                                                <td>-</td>
+                                                <td>4</td>
+                                                <td>11</td>
+                                            </tr>
+                                            <tr>
+                                                <td>11-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>10</td>
+                                            </tr>
+                                            <tr>
+                                                <td>12-09-25</td>
+                                                <td>6</td>
+                                                <td>2</td>
+                                                <td>14</td>
+                                            </tr>
+                                            <tr>
+                                                <td>13-09-25</td>
+                                                <td>-</td>
+                                                <td>3</td>
+                                                <td>11</td>
+                                            </tr>
+                                            <tr>
+                                                <td>14-09-25</td>
+                                                <td>4</td>
+                                                <td>2</td>
+                                                <td>13</td>
+                                            </tr>
+                                            <tr>
+                                                <td>15-09-25</td>
+                                                <td>-</td>
+                                                <td>1</td>
+                                                <td>12</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                             <div class="modal-footer">

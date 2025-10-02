@@ -24,6 +24,7 @@ import { PurchaseReportsComponent } from './inventory/report/purchase-reports/pu
 import { SalesReportsComponent } from './inventory/report/sales-reports/sales-reports.component';
 import { PaymentReportsComponent } from './inventory/report/payment-reports/payment-reports.component';
 import { StockDetailsComponent } from './inventory/inventoryMenu/stock-details/stock-details.component';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -53,7 +54,8 @@ import { StockDetailsComponent } from './inventory/inventoryMenu/stock-details/s
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
