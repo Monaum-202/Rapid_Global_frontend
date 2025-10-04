@@ -17,6 +17,7 @@ import { SuppliersComponent } from './inventory/purchases/suppliers/suppliers.co
 import { InventoryReportsComponent } from './inventory/report/inventory-reports/inventory-reports.component';
 import { StockListComponent } from './inventory/inventoryMenu/stock-list/stock-list.component';
 import { StockDetailsComponent } from './inventory/inventoryMenu/stock-details/stock-details.component';
+import { PurchaseReportsComponent } from './inventory/report/purchase-reports/purchase-reports.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -43,7 +44,7 @@ const routes: Routes = [
     //Reports
 
     {path: 'inventory-report',component:InventoryReportsComponent},
-    {path: 'purchase-report',component:SuppliersComponent},
+    {path: 'purchase-report',component:PurchaseReportsComponent},
     {path: 'sales-report',component:SupplierPaymentComponent},
     {path: 'payment-report',component:PurchasesReturnsComponent},
 
