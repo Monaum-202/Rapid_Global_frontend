@@ -1,10 +1,5 @@
-<div class="container mt-4">
-  <h2 class="text-center mb-4">📅 Purchase Report</h2>
-
-  <!-- View Type Selector -->
-  <div class="row g-3 justify-content-center mb-3">
-
-  </div>
+<div class="container mt-1">
+  <h2 class="text-center mb-3">📅 Purchase Report</h2>
 
   <!-- Date Filters -->
   <div class="row g-3 justify-content-between mb-3">
@@ -22,6 +17,21 @@
     <div class="col-md-3">
       <label class="form-label fw-semibold">End Date</label>
       <input type="date" class="form-control" [(ngModel)]="endDate" (change)="filterByDate()">
+    </div>
+  </div>
+
+  <!-- Export Buttons -->
+  <div class="row mb-3">
+    <div class="col-12 d-flex gap-2 justify-content-end">
+      <button class="btn btn-danger btn-sm" (click)="exportToPDF()" title="Export to PDF">
+        <i class="bi bi-file-pdf"></i> PDF
+      </button>
+      <button class="btn btn-primary btn-sm" (click)="exportToWord()" title="Export to Word">
+        <i class="bi bi-file-word"></i> Word
+      </button>
+      <button class="btn btn-success btn-sm" (click)="exportToExcel()" title="Export to Excel">
+        <i class="bi bi-file-excel"></i> Excel
+      </button>
     </div>
   </div>
 

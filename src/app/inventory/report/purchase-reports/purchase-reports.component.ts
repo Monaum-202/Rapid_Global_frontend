@@ -117,4 +117,160 @@ export class PurchaseReportsComponent {
     // Sort by day
     this.dateWiseData = summaries.sort((a, b) => a.day - b.day);
   }
+
+  exportToPDF() {
+    const printWindow = window.open('', '', 'height=600,width=800');
+    if (!printWindow) return;
+
+    const htmlContent = this.generatePrintableHTML();
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 250);
+  }
+
+  exportToWord() {
+    const htmlContent = this.generateExportHTML();
+    const blob = new Blob(['\ufeff', htmlContent], {
+      type: 'application/msword'
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Purchase_Report_${new Date().toISOString().split('T')[0]}.doc`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  exportToExcel() {
+    let csvContent = '';
+    
+    if (this.viewType === 'item') {
+      csvContent = 'Date,Supplier,Item,Quantity,Unit Price,Total\n';
+      this.filteredPurchases.forEach(p => {
+        csvContent += `${p.date},${p.supplier},${p.item},${p.quantity},${p.unitPrice},${p.total}\n`;
+      });
+      csvContent += `,,,,Total,${this.totalAmount}\n`;
+    } else {
+      csvContent = 'Day,Date,Number of Purchases,Total Amount\n';
+      this.dateWiseData.forEach(d => {
+        csvContent += `${d.day},${d.date},${d.purchaseCount},${d.totalAmount}\n`;
+      });
+      csvContent += `,,,Total,${this.totalAmount}\n`;
+    }
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Purchase_Report_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  private generatePrintableHTML(): string {
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Purchase Report</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; }
+          h2 { text-align: center; color: #333; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+          th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+          th { background-color: #343a40; color: white; }
+          tfoot { font-weight: bold; }
+          .meta { margin-bottom: 15px; }
+        </style>
+      </head>
+      <body>
+        ${this.generateExportHTML()}
+      </body>
+      </html>
+    `;
+  }
+
+  private generateExportHTML(): string {
+    const dateRange = this.startDate && this.endDate 
+      ? `<p class="meta"><strong>Period:</strong> ${this.startDate} to ${this.endDate}</p>`
+      : '';
+    
+    let tableHTML = '';
+    
+    if (this.viewType === 'item') {
+      tableHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Supplier</th>
+              <th>Item</th>
+              <th>Qty</th>
+              <th>Unit Price</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${this.filteredPurchases.map(p => `
+              <tr>
+                <td>${p.date}</td>
+                <td>${p.supplier}</td>
+                <td>${p.item}</td>
+                <td>${p.quantity}</td>
+                <td>${p.unitPrice.toFixed(2)}</td>
+                <td>${p.total.toFixed(2)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="5" style="text-align: right;">Total:</td>
+              <td>${this.totalAmount.toFixed(2)}</td>
+            </tr>
+          </tfoot>
+        </table>
+      `;
+    } else {
+      tableHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Date</th>
+              <th>Number of Purchases</th>
+              <th>Total Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${this.dateWiseData.map(d => `
+              <tr>
+                <td>${d.day}</td>
+                <td>${d.date}</td>
+                <td>${d.purchaseCount}</td>
+                <td>${d.totalAmount.toFixed(2)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" style="text-align: right;">Total:</td>
+              <td>${this.totalAmount.toFixed(2)}</td>
+            </tr>
+          </tfoot>
+        </table>
+      `;
+    }
+
+    return `
+      <h2>📅 Purchase Report</h2>
+      <p class="meta"><strong>Report Type:</strong> ${this.viewType === 'item' ? 'Item Wise' : 'Date Wise'}</p>
+      ${dateRange}
+      ${tableHTML}
+    `;
+  }
+
 }
