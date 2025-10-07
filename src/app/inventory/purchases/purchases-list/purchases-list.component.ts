@@ -78,125 +78,125 @@ export class PurchasesListComponent implements OnInit {
         orderBy: 'Alice Brown'
       },
       {
-  id: '#PR-00006',
-  items: 'Electronics',
-  date: '18/03/2021',
-  supplier: 'Tech World',
-  total: 3250,
-  paid: 3000,
-  balance: 250,
-  paymentStatus: 'Partial',
-  purchaseStatus: 'Received',
-  orderBy: 'Michael Green',
-},
-{
-  id: '#PR-00007',
-  items: 'Furniture',
-  date: '20/03/2021',
-  supplier: 'Home Decor',
-  total: 8200,
-  paid: 8200,
-  balance: 0,
-  paymentStatus: 'Paid',
-  purchaseStatus: 'Received',
-  orderBy: 'Rachel Adams',
-},
-{
-  id: '#PR-00008',
-  items: 'Stationery',
-  date: '22/03/2021',
-  supplier: 'Office Mart',
-  total: 780,
-  paid: 0,
-  balance: 780,
-  paymentStatus: 'Pending',
-  purchaseStatus: 'Pending',
-  orderBy: 'Alex Carter',
-},
-{
-  id: '#PR-00009',
-  items: 'Groceries',
-  date: '25/03/2021',
-  supplier: 'SuperMart',
-  total: 2150,
-  paid: 2150,
-  balance: 0,
-  paymentStatus: 'Paid',
-  purchaseStatus: 'Received',
-  orderBy: 'Emma White',
-},
-{
-  id: '#PR-00010',
-  items: 'Beverages',
-  date: '27/03/2021',
-  supplier: 'Cool Drinks',
-  total: 1340,
-  paid: 1000,
-  balance: 340,
-  paymentStatus: 'Partial',
-  purchaseStatus: 'Received',
-  orderBy: 'Daniel Moore',
-},
-{
-  id: '#PR-00011',
-  items: 'Cosmetics',
-  date: '30/03/2021',
-  supplier: 'Beauty Corner',
-  total: 2760,
-  paid: 0,
-  balance: 2760,
-  paymentStatus: 'Pending',
-  purchaseStatus: 'Pending',
-  orderBy: 'Sophia Davis',
-},
-{
-  id: '#PR-00012',
-  items: 'Books',
-  date: '02/04/2021',
-  supplier: 'City Library',
-  total: 1900,
-  paid: 1900,
-  balance: 0,
-  paymentStatus: 'Paid',
-  purchaseStatus: 'Pending',
-  orderBy: 'Ethan Walker',
-},
-{
-  id: '#PR-00013',
-  items: 'Kitchenware',
-  date: '04/04/2021',
-  supplier: 'Home Essentials',
-  total: 2480,
-  paid: 2000,
-  balance: 480,
-  paymentStatus: 'Partial',
-  purchaseStatus: 'Received',
-  orderBy: 'Lily Roberts',
-},
-{
-  id: '#PR-00014',
-  items: 'Toys',
-  date: '06/04/2021',
-  supplier: 'Kids Planet',
-  total: 3650,
-  paid: 0,
-  balance: 3650,
-  paymentStatus: 'Pending',
-  purchaseStatus: 'Pending',
-  orderBy: 'James Turner',
-},
-{
-  id: '#PR-00015',
-  items: 'Medicines',
-  date: '08/04/2021',
-  supplier: 'Health Plus',
-  total: 4800,
-  paid: 4800,
-  balance: 0,
-  paymentStatus: 'Paid',
-  purchaseStatus: 'Received',
-  orderBy: 'Olivia Martin',
-},
+        id: '#PR-00006',
+        items: 'Electronics',
+        date: '2021-03-18',
+        supplier: 'Tech World',
+        total: 3250,
+        paid: 3000,
+        balance: 250,
+        paymentStatus: 'Partial',
+        purchaseStatus: 'Received',
+        orderBy: 'Michael Green',
+      },
+      {
+        id: '#PR-00007',
+        items: 'Furniture',
+        date: '2021-03-20',
+        supplier: 'Home Decor',
+        total: 8200,
+        paid: 8200,
+        balance: 0,
+        paymentStatus: 'Paid',
+        purchaseStatus: 'Received',
+        orderBy: 'Rachel Adams',
+      },
+      {
+        id: '#PR-00008',
+        items: 'Stationery',
+        date: '2021-03-22',
+        supplier: 'Office Mart',
+        total: 780,
+        paid: 0,
+        balance: 780,
+        paymentStatus: 'Pending',
+        purchaseStatus: 'Pending',
+        orderBy: 'Alex Carter',
+      },
+      {
+        id: '#PR-00009',
+        items: 'Groceries',
+        date: '2021-03-25',
+        supplier: 'SuperMart',
+        total: 2150,
+        paid: 2150,
+        balance: 0,
+        paymentStatus: 'Paid',
+        purchaseStatus: 'Received',
+        orderBy: 'Emma White',
+      },
+      {
+        id: '#PR-00010',
+        items: 'Beverages',
+        date: '2021-03-27',
+        supplier: 'Cool Drinks',
+        total: 1340,
+        paid: 1000,
+        balance: 340,
+        paymentStatus: 'Partial',
+        purchaseStatus: 'Received',
+        orderBy: 'Daniel Moore',
+      },
+      {
+        id: '#PR-00011',
+        items: 'Cosmetics',
+        date: '2021-03-30',
+        supplier: 'Beauty Corner',
+        total: 2760,
+        paid: 0,
+        balance: 2760,
+        paymentStatus: 'Pending',
+        purchaseStatus: 'Pending',
+        orderBy: 'Sophia Davis',
+      },
+      {
+        id: '#PR-00012',
+        items: 'Books',
+        date: '2021-04-02',
+        supplier: 'City Library',
+        total: 1900,
+        paid: 1900,
+        balance: 0,
+        paymentStatus: 'Paid',
+        purchaseStatus: 'Pending',
+        orderBy: 'Ethan Walker',
+      },
+      {
+        id: '#PR-00013',
+        items: 'Kitchenware',
+        date: '2021-04-04',
+        supplier: 'Home Essentials',
+        total: 2480,
+        paid: 2000,
+        balance: 480,
+        paymentStatus: 'Partial',
+        purchaseStatus: 'Received',
+        orderBy: 'Lily Roberts',
+      },
+      {
+        id: '#PR-00014',
+        items: 'Toys',
+        date: '2021-04-06',
+        supplier: 'Kids Planet',
+        total: 3650,
+        paid: 0,
+        balance: 3650,
+        paymentStatus: 'Pending',
+        purchaseStatus: 'Pending',
+        orderBy: 'James Turner',
+      },
+      {
+        id: '#PR-00015',
+        items: 'Medicines',
+        date: '2021-04-08',
+        supplier: 'Health Plus',
+        total: 4800,
+        paid: 4800,
+        balance: 0,
+        paymentStatus: 'Paid',
+        purchaseStatus: 'Received',
+        orderBy: 'Olivia Martin',
+      },
 
     ];
   }
@@ -339,17 +339,17 @@ export class PurchasesListComponent implements OnInit {
     }
   }
 
- // Print PDF Memo
-printPurchaseMemo(): void {
-  if (!this.selectedPurchase) return;
+  // Print PDF Memo
+  printPurchaseMemo(): void {
+    if (!this.selectedPurchase) return;
 
-  const printWindow = window.open('', '_blank');
-  if (!printWindow) return;
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
 
-  const purchase = this.selectedPurchase;
-  const currentDate = new Date().toLocaleDateString('en-GB');
+    const purchase = this.selectedPurchase;
+    const currentDate = new Date().toLocaleDateString('en-GB');
 
-  const printContent = `
+    const printContent = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -597,9 +597,9 @@ printPurchaseMemo(): void {
     </html>
   `;
 
-  printWindow.document.write(printContent);
-  printWindow.document.close();
-}
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+  }
 
   // Utility methods
   closeModal(modalId: string): void {
