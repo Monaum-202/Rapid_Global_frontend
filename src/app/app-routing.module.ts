@@ -20,6 +20,7 @@ import { StockDetailsComponent } from './inventory/inventoryMenu/stock-details/s
 import { PurchaseReportsComponent } from './inventory/report/purchase-reports/purchase-reports.component';
 import { SalesReportsComponent } from './inventory/report/sales-reports/sales-reports.component';
 import { ProfitAndLossComponent } from './inventory/report/profit-and-loss/profit-and-loss.component';
+import { ExpensesComponent } from './inventory/accounts/expenses/expenses.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -57,6 +58,9 @@ const routes: Routes = [
     {path: 'purchase-report',component:SuppliersComponent},
     {path: 'sales-report',component:SupplierPaymentComponent},
     {path: 'payment-report',component:PurchasesReturnsComponent},
+
+    //Accounts
+    {path: 'expenses',component:ExpensesComponent},
 
     {path: 'all-orders',component: AllOrdersComponent},
     {path: 'side-bar',component:SideNavComponent},

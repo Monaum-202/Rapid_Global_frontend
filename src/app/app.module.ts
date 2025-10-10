@@ -26,6 +26,7 @@ import { PaymentReportsComponent } from './inventory/report/payment-reports/paym
 import { StockDetailsComponent } from './inventory/inventoryMenu/stock-details/stock-details.component';
 import { FormsModule } from '@angular/forms';
 import { ProfitAndLossComponent } from './inventory/report/profit-and-loss/profit-and-loss.component';
+import { ExpensesComponent } from './inventory/accounts/expenses/expenses.component';
 
 @NgModule({
   declarations: [
@@ -51,7 +52,8 @@ import { ProfitAndLossComponent } from './inventory/report/profit-and-loss/profi
     SalesReportsComponent,
     PaymentReportsComponent,
     StockDetailsComponent,
-    ProfitAndLossComponent
+    ProfitAndLossComponent,
+    ExpensesComponent
 
   ],
   imports: [
