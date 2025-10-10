@@ -1,17 +1,28 @@
 import { Component, OnInit } from '@angular/core';
 
+interface PurchaseItem {
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+}
+
 interface Purchase {
   id: string;
-  items: string;
+  items: PurchaseItem[];
   date: string;
   supplier: string;
+  subtotal: number;
+  vat: number;
+  tax: number;
+  discount: number;
   total: number;
   paid: number;
   balance: number;
   paymentStatus: 'Paid' | 'Pending' | 'Partial' | 'Unpaid';
   purchaseStatus: 'Received' | 'Pending' | 'Cancelled';
   orderBy: string;
-  other?: number;
+  notes?: string;
 }
 
 @Component({
@@ -25,8 +36,16 @@ export class PurchasesListComponent implements OnInit {
   selectedPurchase: Purchase | null = null;
 
   // Form data
-  formData: Purchase = this.getEmptyFormData();
+  formData: any = this.getEmptyFormData();
   isEditMode = false;
+
+  // Items management
+  currentItem: PurchaseItem = {
+    name: '',
+    quantity: 1,
+    unitPrice: 0,
+    total: 0
+  };
 
   // Table settings
   pageSize = 10;
@@ -39,13 +58,17 @@ export class PurchasesListComponent implements OnInit {
   }
 
   loadInitialData(): void {
-    // Initial sample data
+    // Convert old data format to new format
     this.purchases = [
       {
         id: '#PR-00002',
-        items: 'Cloth',
+        items: [{ name: 'Cloth', quantity: 10, unitPrice: 155.1, total: 1551 }],
         date: '2021-03-12',
         supplier: 'Cloth Supplier',
+        subtotal: 1551,
+        vat: 0,
+        tax: 0,
+        discount: 0,
         total: 1551,
         paid: 1500,
         balance: 51,
@@ -54,167 +77,287 @@ export class PurchasesListComponent implements OnInit {
         orderBy: 'Jean Dyer'
       },
       {
+        id: '#PR-00003',
+        items: [
+          { name: 'Printer Ink', quantity: 5, unitPrice: 320.5, total: 1602.5 },
+          { name: 'A4 Paper (Ream)', quantity: 10, unitPrice: 180, total: 1800 }
+        ],
+        date: '2021-03-15',
+        supplier: 'Office Supplies Co.',
+        subtotal: 3402.5,
+        vat: 0,
+        tax: 0,
+        discount: 100,
+        total: 3302.5,
+        paid: 3302.5,
+        balance: 0,
+        paymentStatus: 'Paid',
+        purchaseStatus: 'Received',
+        orderBy: 'Maria Gomez'
+      },
+      {
         id: '#PR-00004',
-        items: 'Cycle',
-        date: '2021-03-16',
-        supplier: 'Toy Supplier',
-        total: 1551,
-        paid: 0,
-        balance: 1551,
-        paymentStatus: 'Pending',
-        purchaseStatus: 'Pending',
-        orderBy: 'John Smith'
+        items: [
+          { name: 'Steel Rods', quantity: 50, unitPrice: 110.75, total: 5537.5 },
+          { name: 'Nails Pack', quantity: 100, unitPrice: 15, total: 1500 }
+        ],
+        date: '2021-04-02',
+        supplier: 'BuildRight Hardware',
+        subtotal: 7037.5,
+        vat: 0,
+        tax: 0,
+        discount: 37.5,
+        total: 7000,
+        paid: 5000,
+        balance: 2000,
+        paymentStatus: 'Partial',
+        purchaseStatus: 'Received',
+        orderBy: 'Richard Hale'
       },
       {
         id: '#PR-00005',
-        items: 'Footwear',
-        date: '2021-03-12',
-        supplier: 'Footwear Suf',
-        total: 1200,
-        paid: 1200,
+        items: [
+          { name: 'Laptop', quantity: 2, unitPrice: 75000, total: 150000 },
+          { name: 'Mouse', quantity: 5, unitPrice: 800, total: 4000 }
+        ],
+        date: '2021-04-12',
+        supplier: 'Tech Haven',
+        subtotal: 154000,
+        vat: 0,
+        tax: 0,
+        discount: 4000,
+        total: 150000,
+        paid: 150000,
         balance: 0,
         paymentStatus: 'Paid',
         purchaseStatus: 'Received',
-        orderBy: 'Alice Brown'
+        orderBy: 'Sarah Wilson'
       },
       {
         id: '#PR-00006',
-        items: 'Electronics',
-        date: '2021-03-18',
-        supplier: 'Tech World',
-        total: 3250,
-        paid: 3000,
-        balance: 250,
-        paymentStatus: 'Partial',
+        items: [
+          { name: 'Cotton Fabric Roll', quantity: 25, unitPrice: 210.25, total: 5256.25 },
+          { name: 'Buttons (Pack of 100)', quantity: 15, unitPrice: 150, total: 2250 }
+        ],
+        date: '2021-04-20',
+        supplier: 'Cloth World',
+        subtotal: 7506.25,
+        vat: 0,
+        tax: 0,
+        discount: 0,
+        total: 7506.25,
+        paid: 7000,
+        balance: 506.25,
+        paymentStatus: 'Pending',
         purchaseStatus: 'Received',
-        orderBy: 'Michael Green',
+        orderBy: 'Jean Dyer'
       },
       {
         id: '#PR-00007',
-        items: 'Furniture',
-        date: '2021-03-20',
-        supplier: 'Home Decor',
-        total: 8200,
-        paid: 8200,
-        balance: 0,
-        paymentStatus: 'Paid',
+        items: [
+          { name: 'Plastic Bottles', quantity: 200, unitPrice: 18.5, total: 3700 },
+          { name: 'Bottle Caps', quantity: 200, unitPrice: 2, total: 400 }
+        ],
+        date: '2021-05-01',
+        supplier: 'EcoPack Ltd.',
+        subtotal: 4100,
+        vat: 0,
+        tax: 0,
+        discount: 100,
+        total: 4000,
+        paid: 2000,
+        balance: 2000,
+        paymentStatus: 'Partial',
         purchaseStatus: 'Received',
-        orderBy: 'Rachel Adams',
+        orderBy: 'Tom Harris'
       },
       {
         id: '#PR-00008',
-        items: 'Stationery',
-        date: '2021-03-22',
-        supplier: 'Office Mart',
-        total: 780,
-        paid: 0,
-        balance: 780,
-        paymentStatus: 'Pending',
-        purchaseStatus: 'Pending',
-        orderBy: 'Alex Carter',
+        items: [
+          { name: 'PVC Pipe', quantity: 60, unitPrice: 95, total: 5700 },
+          { name: 'Pipe Connector', quantity: 30, unitPrice: 45, total: 1350 }
+        ],
+        date: '2021-05-14',
+        supplier: 'PipeZone',
+        subtotal: 7050,
+        vat: 0,
+        tax: 0,
+        discount: 50,
+        total: 7000,
+        paid: 7000,
+        balance: 0,
+        paymentStatus: 'Paid',
+        purchaseStatus: 'Received',
+        orderBy: 'Sophie Lane'
       },
       {
         id: '#PR-00009',
-        items: 'Groceries',
-        date: '2021-03-25',
-        supplier: 'SuperMart',
-        total: 2150,
-        paid: 2150,
-        balance: 0,
-        paymentStatus: 'Paid',
+        items: [
+          { name: 'Toner Cartridge', quantity: 4, unitPrice: 3500, total: 14000 },
+          { name: 'Stapler', quantity: 10, unitPrice: 250, total: 2500 }
+        ],
+        date: '2021-05-25',
+        supplier: 'Stationery World',
+        subtotal: 16500,
+        vat: 0,
+        tax: 0,
+        discount: 500,
+        total: 16000,
+        paid: 8000,
+        balance: 8000,
+        paymentStatus: 'Partial',
         purchaseStatus: 'Received',
-        orderBy: 'Emma White',
+        orderBy: 'Michael Ross'
       },
       {
         id: '#PR-00010',
-        items: 'Beverages',
-        date: '2021-03-27',
-        supplier: 'Cool Drinks',
-        total: 1340,
-        paid: 1000,
-        balance: 340,
-        paymentStatus: 'Partial',
+        items: [
+          { name: 'Wood Planks', quantity: 80, unitPrice: 220, total: 17600 },
+          { name: 'Glue Pack', quantity: 25, unitPrice: 90, total: 2250 }
+        ],
+        date: '2021-06-10',
+        supplier: 'WoodCraft Depot',
+        subtotal: 19850,
+        vat: 0,
+        tax: 0,
+        discount: 850,
+        total: 19000,
+        paid: 19000,
+        balance: 0,
+        paymentStatus: 'Paid',
         purchaseStatus: 'Received',
-        orderBy: 'Daniel Moore',
+        orderBy: 'Olivia Chen'
       },
       {
         id: '#PR-00011',
-        items: 'Cosmetics',
-        date: '2021-03-30',
-        supplier: 'Beauty Corner',
-        total: 2760,
-        paid: 0,
-        balance: 2760,
+        items: [
+          { name: 'LED Light', quantity: 40, unitPrice: 250, total: 10000 },
+          { name: 'Wiring Cable (Roll)', quantity: 10, unitPrice: 1200, total: 12000 }
+        ],
+        date: '2021-06-22',
+        supplier: 'ElectroMart',
+        subtotal: 22000,
+        vat: 0,
+        tax: 0,
+        discount: 2000,
+        total: 20000,
+        paid: 15000,
+        balance: 5000,
         paymentStatus: 'Pending',
-        purchaseStatus: 'Pending',
-        orderBy: 'Sophia Davis',
+        purchaseStatus: 'Received',
+        orderBy: 'James Carter'
       },
       {
         id: '#PR-00012',
-        items: 'Books',
-        date: '2021-04-02',
-        supplier: 'City Library',
-        total: 1900,
-        paid: 1900,
+        items: [
+          { name: 'Paint Bucket (20L)', quantity: 6, unitPrice: 950, total: 5700 },
+          { name: 'Paint Brush Set', quantity: 8, unitPrice: 300, total: 2400 },
+          { name: 'Thinner (5L)', quantity: 4, unitPrice: 600, total: 2400 }
+        ],
+        date: '2021-07-05',
+        supplier: 'ColorMix Supplies',
+        subtotal: 10500,
+        vat: 0,
+        tax: 0,
+        discount: 500,
+        total: 10000,
+        paid: 10000,
         balance: 0,
         paymentStatus: 'Paid',
-        purchaseStatus: 'Pending',
-        orderBy: 'Ethan Walker',
+        purchaseStatus: 'Received',
+        orderBy: 'Emma Brown'
       },
       {
         id: '#PR-00013',
-        items: 'Kitchenware',
-        date: '2021-04-04',
-        supplier: 'Home Essentials',
-        total: 2480,
-        paid: 2000,
-        balance: 480,
+        items: [
+          { name: 'Cleaning Mop', quantity: 10, unitPrice: 350, total: 3500 },
+          { name: 'Detergent (5L)', quantity: 5, unitPrice: 500, total: 2500 },
+          { name: 'Gloves (Pair)', quantity: 15, unitPrice: 100, total: 1500 }
+        ],
+        date: '2021-07-15',
+        supplier: 'Clean & Care Ltd.',
+        subtotal: 7500,
+        vat: 0,
+        tax: 0,
+        discount: 0,
+        total: 7500,
+        paid: 5000,
+        balance: 2500,
         paymentStatus: 'Partial',
         purchaseStatus: 'Received',
-        orderBy: 'Lily Roberts',
-      },
-      {
-        id: '#PR-00014',
-        items: 'Toys',
-        date: '2021-04-06',
-        supplier: 'Kids Planet',
-        total: 3650,
-        paid: 0,
-        balance: 3650,
-        paymentStatus: 'Pending',
-        purchaseStatus: 'Pending',
-        orderBy: 'James Turner',
-      },
-      {
-        id: '#PR-00015',
-        items: 'Medicines',
-        date: '2021-04-08',
-        supplier: 'Health Plus',
-        total: 4800,
-        paid: 4800,
-        balance: 0,
-        paymentStatus: 'Paid',
-        purchaseStatus: 'Received',
-        orderBy: 'Olivia Martin',
-      },
-
+        orderBy: 'Daniel Edwards'
+      }
     ];
   }
 
-  getEmptyFormData(): Purchase {
+  getEmptyFormData(): any {
     return {
       id: '',
-      items: '',
+      items: [],
       date: '',
       supplier: '',
+      subtotal: 0,
+      vat: 0,
+      tax: 0,
+      discount: 0,
       total: 0,
       paid: 0,
       balance: 0,
       paymentStatus: 'Unpaid',
       purchaseStatus: 'Pending',
       orderBy: '',
-      other: 0
+      notes: ''
     };
+  }
+
+  // Item management
+  calculateItemTotal(): void {
+    this.currentItem.total = this.currentItem.quantity * this.currentItem.unitPrice;
+  }
+
+  addItemToList(): void {
+    if (this.currentItem.name && this.currentItem.quantity > 0 && this.currentItem.unitPrice > 0) {
+      this.formData.items.push({ ...this.currentItem });
+      this.currentItem = {
+        name: '',
+        quantity: 1,
+        unitPrice: 0,
+        total: 0
+      };
+      this.calculateTotals();
+    }
+  }
+
+  removeItem(index: number): void {
+    this.formData.items.splice(index, 1);
+    this.calculateTotals();
+  }
+
+  // Price calculations
+  calculateTotals(): void {
+    // Calculate subtotal from items
+    this.formData.subtotal = this.formData.items.reduce(
+      (sum: number, item: PurchaseItem) => sum + item.total,
+      0
+    );
+
+    // Calculate total with VAT, tax, and discount
+    const vatAmount = (this.formData.subtotal * this.formData.vat) / 100;
+    const taxAmount = (this.formData.subtotal * this.formData.tax) / 100;
+
+    this.formData.total = this.formData.subtotal + vatAmount + taxAmount - this.formData.discount;
+
+    // Calculate balance
+    this.formData.balance = this.formData.total - this.formData.paid;
+
+    // Auto-update payment status
+    if (this.formData.balance <= 0 && this.formData.paid > 0) {
+      this.formData.paymentStatus = 'Paid';
+    } else if (this.formData.paid > 0 && this.formData.balance > 0) {
+      this.formData.paymentStatus = 'Partial';
+    } else if (this.formData.paid === 0) {
+      this.formData.paymentStatus = 'Unpaid';
+    }
   }
 
   // Search and filter
@@ -231,9 +374,8 @@ export class PurchasesListComponent implements OnInit {
     } else {
       this.filteredPurchases = this.purchases.filter(p =>
         p.id.toLowerCase().includes(this.searchTerm) ||
-        p.items.toLowerCase().includes(this.searchTerm) ||
         p.supplier.toLowerCase().includes(this.searchTerm) ||
-        p.paymentStatus.toLowerCase().includes(this.searchTerm)
+        p.items.some(item => item.name.toLowerCase().includes(this.searchTerm))
       );
     }
   }
@@ -265,41 +407,36 @@ export class PurchasesListComponent implements OnInit {
   openAddModal(): void {
     this.isEditMode = false;
     this.formData = this.getEmptyFormData();
+    this.currentItem = {
+      name: '',
+      quantity: 1,
+      unitPrice: 0,
+      total: 0
+    };
   }
 
   openEditModal(purchase: Purchase): void {
     this.isEditMode = true;
-    this.formData = { ...purchase };
+    this.formData = { ...purchase, items: [...purchase.items] };
   }
 
   openViewModal(purchase: Purchase): void {
     this.selectedPurchase = purchase;
   }
 
-  // Calculate balance when total or paid changes
-  calculateBalance(): void {
-    this.formData.balance = this.formData.total - this.formData.paid;
-
-    // Auto-update payment status
-    if (this.formData.balance === 0 && this.formData.paid > 0) {
-      this.formData.paymentStatus = 'Paid';
-    } else if (this.formData.paid > 0 && this.formData.balance > 0) {
-      this.formData.paymentStatus = 'Partial';
-    } else if (this.formData.paid === 0) {
-      this.formData.paymentStatus = 'Unpaid';
-    }
-  }
-
   // Form submission
   onSubmit(): void {
+    if (this.formData.items.length === 0) {
+      alert('Please add at least one item');
+      return;
+    }
+
     if (this.isEditMode) {
-      // Update existing purchase
       const index = this.purchases.findIndex(p => p.id === this.formData.id);
       if (index !== -1) {
         this.purchases[index] = { ...this.formData };
       }
     } else {
-      // Create new purchase
       const newId = this.generateNewId();
       this.formData.id = newId;
       this.purchases.unshift({ ...this.formData });
@@ -317,15 +454,32 @@ export class PurchasesListComponent implements OnInit {
     return `#PR-${String(maxId + 1).padStart(5, '0')}`;
   }
 
-  // Delete purchase
-  deletePurchase(id: string): void {
-    if (confirm('Are you sure you want to delete this purchase?')) {
-      this.purchases = this.purchases.filter(p => p.id !== id);
-      this.filterPurchases();
+  // Utility methods
+  closeModal(modalId: string): void {
+    const modalElement = document.getElementById(modalId);
+    if (modalElement) {
+      const modal = (window as any).bootstrap.Modal.getInstance(modalElement);
+      if (modal) {
+        modal.hide();
+      }
     }
   }
 
-  // Approve payment
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB');
+  }
+
+  getItemsDisplay(items: PurchaseItem[]): string {
+    return items.map(item => `${item.name} (${item.quantity})`).join(', ');
+  }
+
+  get showingText(): string {
+    const start = (this.currentPage - 1) * this.pageSize + 1;
+    const end = Math.min(this.currentPage * this.pageSize, this.filteredPurchases.length);
+    return `Showing ${start} to ${end} of ${this.filteredPurchases.length} entries`;
+  }
+
   approvePayment(): void {
     if (this.selectedPurchase) {
       const purchase = this.purchases.find(p => p.id === this.selectedPurchase!.id);
@@ -339,7 +493,6 @@ export class PurchasesListComponent implements OnInit {
     }
   }
 
-  // Print PDF Memo
   printPurchaseMemo(): void {
     if (!this.selectedPurchase) return;
 
@@ -601,33 +754,7 @@ export class PurchasesListComponent implements OnInit {
     printWindow.document.close();
   }
 
-  // Utility methods
-  closeModal(modalId: string): void {
-    // This would typically use Bootstrap's modal API
-    // For Angular, you might use ViewChild or a service
-    const modalElement = document.getElementById(modalId);
-    if (modalElement) {
-      const modal = (window as any).bootstrap.Modal.getInstance(modalElement);
-      if (modal) {
-        modal.hide();
-      }
-    }
-  }
-
-  formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB');
-  }
-
-  // For template binding
-  get showingText(): string {
-    const start = (this.currentPage - 1) * this.pageSize + 1;
-    const end = Math.min(this.currentPage * this.pageSize, this.filteredPurchases.length);
-    return `Showing ${start} to ${end} of ${this.filteredPurchases.length} entries`;
-  }
 }
-
-
 
 
 
