@@ -1,286 +1,490 @@
-<div class="container my-1">
-    <h1>Sales List</h1>
-    <div class="container-fluid pb-4">
-        <div class="row">
-            <div class="col-12">
-                        <div class="row">
-                            <div class="row align-items-center">
-                                <!-- Show Entries -->
-                                <div class="row g-2 p-3">
-                                    <!-- Show Entries -->
-                                    <div class="col-md-4 d-flex align-items-center">
-                                        <label class="me-2 text-muted fw-semibold">Show</label>
-                                        <select class="form-select form-select-sm w-auto rounded-pill shadow-sm">
-                                            <option>10</option>
-                                            <option>25</option>
-                                            <option>50</option>
-                                            <option>100</option>
-                                        </select>
-                                    </div>
+<div class="container-fluid my-1">
 
-                                    <!-- Search -->
-                                    <div class="col-md-4 d-flex justify-content-center">
-                                        <div class="input-group input-group-sm shadow-sm rounded-pill bg-light border border-dark"
-                                            style="max-width: 300px;">
-                                            <span class="input-group-text bg-transparent border-0 text-dark">
-                                                <i class="bi bi-search"></i>
-                                            </span>
-                                            <input type="text" class="form-control border-0 bg-transparent"
-                                                placeholder="Search..." aria-label="Search" />
-                                        </div>
-                                    </div>
+  <!-- Header: Title + Search + Add Button -->
+  <div class="row align-items-center gy-2 mb-3">
+    <!-- Left: Sales List -->
+    <div class="col-md-3 col-sm-12">
+      <h1 class="m-0">Sales List</h1>
+    </div>
 
-                                    <!-- Add Sell Button -->
-                                    <div class="col-md-4 d-flex justify-content-md-end">
-                                        <button type="button" class="btn rounded-pill shadow-sm px-4"
-                                            data-bs-toggle="modal" data-bs-target="#expadd"
-                                            style="background-color: #000000; color: #ffffff;">
-                                            <i class="bi bi-plus-lg me-1"></i> Add Sales
-                                        </button>
-                                    </div>
-                                </div>
+    <!-- Middle: Search (Centered) -->
+    <div class="col-md-5 col-sm-12 d-flex justify-content-center">
+      <div class="w-100" style="max-width: 25rem;">
+        <div class="input-group input-group-sm shadow-sm rounded-pill bg-light border border-dark">
+          <span class="input-group-text bg-transparent border-0 text-dark">
+            <i class="bi bi-search"></i>
+          </span>
+          <input
+            type="text"
+            class="form-control border-0 bg-transparent"
+            placeholder="Search..."
+            (input)="onSearchChange($event)"
+          />
+        </div>
+      </div>
+    </div>
 
-                                <div class="table-responsive">
-                                    <table class="table table-hover mb-0">
-                                        <thead class="rounded-pill" style="background-color: #000000; ">
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>ITEMS</th>
-                                                <th>DATE</th>
-                                                <th>BUYER</th>
-                                                <th>TOTAL</th>
-                                                <th>PAYMENT STATUS</th>
-                                                <th>ACTIONS</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>#PR-00002</td>
-                                                <td>Cloth</td>
-                                                <td>12/03/2021</td>
-                                                <td>Cloth Supplier</td>
-                                                <td>$1551</td>
-                                                <td><span class="status bad">Pending</span></td>
-                                                <td>
-                                                    <div class="btn-group">
-                                                        <!-- View button -->
-                                                        <button type="button" class="btn btn-outline-primary btn-sm"
-                                                            data-bs-toggle="modal" data-bs-target="#purchaseModal"
-                                                            data-purchase-id="PR-00005">
-                                                            <i class="fa fa-eye"></i> View
-                                                        </button>
 
-                                                        <!-- Edit button -->
-                                                        <button type="button" class="btn btn-outline-success btn-sm"
-                                                            data-bs-toggle="modal" data-bs-target="#expadd">
-                                                            <i class="fa fa-pen"></i> Edit
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>#PR-00004</td>
-                                                <td>Cycle</td>
-                                                <td>16/03/2021</td>
-                                                <td>Toy Supplier</td>
-                                                <td>$1551</td>
+  </div>
 
-                                                <td><span class="status bad">Pending</span></td>
-                                                <td>
-                                                    <div class="btn-group">
-                                                        <!-- View button -->
-                                                        <button type="button" class="btn btn-outline-primary btn-sm"
-                                                            data-bs-toggle="modal" data-bs-target="#purchaseModal"
-                                                            data-purchase-id="PR-00005">
-                                                            <i class="fa fa-eye"></i> View
-                                                        </button>
+  <!-- Toolbar: Show Entries + Columns + Add Sell -->
+  <div class="row g-2 justify-content-between align-items-center mb-3">
+    <!-- Show Entries -->
+    <div class="col-md-3 d-flex align-items-center">
+      <label class="me-2 text-muted fw-semibold">Show</label>
+      <select class="form-select form-select-sm w-auto rounded-pill shadow-sm"
+              (change)="onPageSizeChange($event)">
+        <option [value]="10">10</option>
+        <option [value]="5">5</option>
+        <option [value]="25">25</option>
+        <option [value]="50">50</option>
+        <option [value]="100">100</option>
+      </select>
+    </div>
 
-                                                        <!-- Edit button -->
-                                                        <button type="button" class="btn btn-outline-success btn-sm"
-                                                            data-bs-toggle="modal" data-bs-target="#expadd">
-                                                            <i class="fa fa-pen"></i> Edit
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>#PR-00005</td>
-                                                <td>Footwear</td>
-                                                <td>12/03/2021</td>
-                                                <td>Footwear Suf</td>
-                                                <td>$1200</td>
-                                                <td><span class="status good">Paid</span></td>
-                                                <td>
-                                                    <div class="btn-group">
-                                                        <button type="button" class="btn btn-outline-primary btn-sm"
-                                                            data-bs-toggle="modal" data-bs-target="#purchaseModal"
-                                                            data-purchase-id="PR-00005">
-                                                            <i class="fa fa-eye"></i> View
-                                                        </button>
-                                                        <button type="button" class="btn btn-outline-success btn-sm"
-                                                            data-bs-toggle="modal" data-bs-target="#expadd">
-                                                            <i class="fa fa-pen"></i> Edit
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <p class="text-muted mb-0 mt-3">Showing 1 to 3 of 3 entries</p>
-                                <div class="d-flex justify-content-center mt-3">
-                                    <div class="btn-group">
-                                        <button class="btn btn-outline-dark btn-sm"><i
-                                                class="bi bi-chevron-left">..</i></button>
-                                        <button class="btn btn-success btn-sm">1</button>
-                                        <button class="btn btn-outline-dark btn-sm">2</button>
-                                        <button class="btn btn-outline-dark btn-sm">3</button>
-                                        <button class="btn btn-outline-dark btn-sm"><i
-                                                class="bi bi-chevron-right">..</i></button>
-                                    </div>
-                                </div>
+    <!-- Column Selector -->
+    <div class="col-md-2 d-flex align-items-center">
+      <div class="dropdown">
+        <button class="btn btn-outline-secondary btn-sm rounded-pill shadow-sm dropdown-toggle"
+                type="button"
+                (click)="toggleColumnDropdown()">
+          <i class="bi bi-columns-gap me-1"></i> Columns
+        </button>
+        <div class="dropdown-menu p-3 shadow" [class.show]="showColumnDropdown" style="min-width: 200px;">
+          <div class="form-check" *ngFor="let column of columns">
+            <input class="form-check-input"
+                   type="checkbox"
+                   [id]="'column-' + column.key"
+                   [(ngModel)]="column.visible" />
+            <label class="form-check-label" [for]="'column-' + column.key">
+              {{ column.label }}
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Sales Button again for quick access -->
+    <div class="col-md-4 d-flex justify-content-md-end justify-content-center">
+      <button type="button"
+              class="btn rounded-pill shadow-sm px-4"
+              data-bs-toggle="modal"
+              data-bs-target="#expadd"
+              (click)="openAddModal()"
+              style="background-color: #000000; color: #ffffff;">
+        <i class="bi bi-plus-lg me-1"></i> Add Sell
+      </button>
+    </div>
+  </div>
+
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="rounded-pill" style="background-color: #000000;">
+                    <tr>
+                        <th *ngFor="let column of visibleColumns">{{ column.label }}</th>
+                        <th>ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let sell of paginatedSales">
+                        <td *ngFor="let column of visibleColumns">
+                            <span *ngIf="column.key !== 'paymentStatus'">
+                                {{ getCellValue(sell, column.key) }}
+                            </span>
+                            <span *ngIf="column.key === 'paymentStatus'" class="status"
+                                [ngClass]="sell.paymentStatus === 'Paid' ? 'good' : 'bad'">
+                                {{ sell.paymentStatus }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#sellModal" (click)="openViewModal(sell)">
+                                    <i class="fa fa-eye"></i> View
+                                </button>
+                                <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#expadd" (click)="openEditModal(sell)">
+                                    <i class="fa fa-pen"></i> Edit
+                                </button>
                             </div>
+                        </td>
+                    </tr>
+                    <tr *ngIf="paginatedSales.length === 0">
+                        <td [attr.colspan]="getVisibleColumnsCount()" class="text-center">No sales found</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-                </div>
+        <!-- Pagination Info -->
+        <p class="text-muted mb-0 mt-3">{{ showingText }}</p>
 
-                <!-- input modal -->
-                <div class="modal fade" id="expadd" tabindex="-1" aria-labelledby="expaddLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg modal-dialog-centered">
-                        <div class="modal-content">
-                            <!-- Modal Header -->
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="expaddLabel">Add Sell</h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
+        <!-- Pagination -->
+        <div class="d-flex justify-content-center mt-3">
+            <div class="btn-group">
+                <button class="btn btn-outline-dark btn-sm" (click)="goToPage(currentPage - 1)"
+                    [disabled]="currentPage === 1">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button *ngFor="let page of [].constructor(totalPages); let i = index" class="btn btn-sm"
+                    [ngClass]="currentPage === i + 1 ? 'btn-success' : 'btn-outline-dark'" (click)="goToPage(i + 1)">
+                    {{ i + 1 }}
+                </button>
+                <button class="btn btn-outline-dark btn-sm" (click)="goToPage(currentPage + 1)"
+                    [disabled]="currentPage === totalPages">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
 
-                            <!-- Modal Body -->
-                            <div class="modal-body">
-                                <form id="purchaseForm">
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label for="status" class="form-label">Items</label>
-                                            <select class="form-select" id="status">
-                                                <option value="Pending">Printed Cloth</option>
+
+
+<!-- Add/Edit Modal with Split Layout -->
+<div class="modal fade" id="expadd" tabindex="-1" aria-labelledby="expaddLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="expaddLabel">
+                    {{ isEditMode ? 'Edit Sell' : 'Add New Sell' }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body p-1">
+                <form id="sellForm" (ngSubmit)="onSubmit()">
+                    <div class="row g-4">
+
+                        <!-- LEFT SIDE - Sell Details -->
+                        <div class="col-md-5">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary mb-3 pb-2 border-bottom">
+                                        <i class="bi bi-info-circle me-2"></i>Sell Information
+                                    </h6>
+
+                                    <div class="mb-3">
+                                        <label for="supplier" class="form-label fw-semibold">Supplier *</label>
+                                        <input type="text" class="form-control" id="supplier"
+                                            [(ngModel)]="formData.supplier" name="supplier"
+                                            placeholder="Enter supplier name" required />
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="date" class="form-label fw-semibold">Sell Date *</label>
+                                        <input type="date" class="form-control" id="date" [(ngModel)]="formData.date"
+                                            name="date" required />
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="orderBy" class="form-label fw-semibold">Ordered By</label>
+                                        <input type="text" class="form-control" id="orderBy"
+                                            [(ngModel)]="formData.orderBy" name="orderBy"
+                                            placeholder="Person who ordered" />
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="status" class="form-label fw-semibold">Sell Status</label>
+                                            <select class="form-select" id="status" [(ngModel)]="formData.sellStatus"
+                                                name="status">
+                                                <option value="Pending">Pending</option>
+                                                <option value="Received">Received</option>
+                                                <option value="Cancelled">Cancelled</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-6">
-                                            <label for="orderBy" class="form-label">Order By</label>
-                                            <input type="text" class="form-control" id="orderBy" />
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="orderBy" class="form-label">Customer Phone</label>
-                                            <input type="text" class="form-control" id="orderBy" />
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="date" class="form-label">Date</label>
-                                            <input type="date" class="form-control" id="date" required />
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="total" class="form-label">Total</label>
-                                            <input type="number" class="form-control" id="total" required />
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="paid" class="form-label">Paid</label>
-                                            <input type="number" class="form-control" id="paid" />
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="balance" class="form-label">Balance</label>
-                                            <input type="number" class="form-control" id="balance" readonly />
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="paymentStatus" class="form-label">Payment Status</label>
-                                            <select class="form-select" id="paymentStatus">
+
+                                        <div class="col-md-6 mb-3">
+                                            <label for="paymentStatus" class="form-label fw-semibold">Payment
+                                                Status</label>
+                                            <select class="form-select" id="paymentStatus"
+                                                [(ngModel)]="formData.paymentStatus" name="paymentStatus">
                                                 <option value="Unpaid">Unpaid</option>
                                                 <option value="Partial">Partial</option>
                                                 <option value="Paid">Paid</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-6">
-                                            <label for="total" class="form-label">Other</label>
-                                            <input type="number" class="form-control" id="total" required />
-                                        </div>
                                     </div>
-                                </form>
-                            </div>
 
-                            <!-- Modal Footer -->
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-                                    Close
-                                </button>
-                                <button type="submit" form="purchaseForm" class="btn btn-success">
-                                    Save Sell
-                                </button>
+                                    <div class="mb-3">
+                                        <label for="notes" class="form-label fw-semibold">Notes</label>
+                                        <textarea class="form-control" id="notes" rows="3" [(ngModel)]="formData.notes"
+                                            name="notes" placeholder="Additional notes..."></textarea>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- View Modal -->
-                <div class="modal fade" id="purchaseModal" tabindex="-1" aria-labelledby="purchaseModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="purchaseModalLabel">
-                                    Sell Item Details
-                                </h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="compact-view">
-                                    <div class="compact-item">
-                                        <div class="compact-label">ID</div>
-                                        <div class="compact-value">#PR-00002</div>
+                        <!-- RIGHT SIDE - Items & Pricing -->
+                        <div class="col-md-7">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+
+                                    <!-- Add Item Section -->
+                                    <div class="bg-light p-3 rounded-3 mb-3">
+                                        <div class="row g-2">
+                                            <div class="col-md-5">
+                                                <label class="form-label fw-semibold small">Item Name</label>
+                                                <input type="text" class="form-control form-control-sm"
+                                                    [(ngModel)]="currentItem.name" name="itemName"
+                                                    placeholder="Enter item name" />
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label class="form-label fw-semibold small">Qty</label>
+                                                <input type="number" class="form-control form-control-sm"
+                                                    [(ngModel)]="currentItem.quantity" name="itemQty"
+                                                    (ngModelChange)="calculateItemTotal()" min="1" />
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label fw-semibold small">Unit Price</label>
+                                                <input type="number" class="form-control form-control-sm"
+                                                    [(ngModel)]="currentItem.unitPrice" name="itemPrice"
+                                                    (ngModelChange)="calculateItemTotal()" min="0" step="0.01" />
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label class="form-label fw-semibold small">Total</label>
+                                                <input type="text" class="form-control form-control-sm bg-white"
+                                                    [value]="currentItem.total.toFixed(2)" readonly />
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-success btn-sm mt-2 w-100"
+                                            (click)="addItemToList()">
+                                            <i class="bi bi-plus-circle me-1"></i> Add Item
+                                        </button>
                                     </div>
-                                    <div class="compact-item">
-                                        <div class="compact-label">ITEMS</div>
-                                        <div class="compact-value">Printed Cloth</div>
+
+                                    <!-- Items List -->
+                                    <div class="table-responsive mb-3" style="max-height: 200px; overflow-y: auto;">
+                                        <table class="table table-sm table-hover">
+                                            <thead class="table-light sticky-top">
+                                                <tr>
+                                                    <th>Item</th>
+                                                    <th class="text-center">Qty</th>
+                                                    <th class="text-end">Unit Price</th>
+                                                    <th class="text-end">Total</th>
+                                                    <th class="text-center">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr *ngFor="let item of formData.items; let i = index">
+                                                    <td>{{ item.name }}</td>
+                                                    <td class="text-center">{{ item.quantity }}</td>
+                                                    <td class="text-end">${{ item.unitPrice.toFixed(2) }}</td>
+                                                    <td class="text-end fw-bold">${{ item.total.toFixed(2) }}</td>
+                                                    <td class="text-center">
+                                                        <button type="button" class="btn btn-danger btn-sm"
+                                                            (click)="removeItem(i)">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                <tr *ngIf="formData.items.length === 0">
+                                                    <td colspan="5" class="text-center text-muted">
+                                                        No items added yet
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
-                                    <div class="compact-item">
-                                        <div class="compact-label">ORDER BY</div>
-                                        <div class="compact-value">Jean Dyer</div>
-                                    </div>
-                                    <div class="compact-item">
-                                        <div class="compact-label">DATE</div>
-                                        <div class="compact-value">12/03/2021</div>
-                                    </div>
-                                    <div class="compact-item">
-                                        <div class="compact-label">TOTAL</div>
-                                        <div class="compact-value">$1551</div>
-                                    </div>
-                                    <div class="compact-item">
-                                        <div class="compact-label">PAID</div>
-                                        <div class="compact-value">$1500</div>
-                                    </div>
-                                    <div class="compact-item">
-                                        <div class="compact-label">BALANCE</div>
-                                        <div class="compact-value">$551</div>
-                                    </div>
-                                    <div class="compact-item">
-                                        <div class="compact-label">PAYMENT STATUS</div>
-                                        <div class="compact-value">
-                                            <span class="status-badge status-pending">Pending</span>
+
+                                    <!-- Price Calculation -->
+                                    <div class="border-top pt-3">
+                                        <div class="row g-2 mb-2">
+                                            <div class="col-6">
+                                                <label class="form-label fw-semibold small">VAT (%)</label>
+                                                <input type="number" class="form-control form-control-sm"
+                                                    [(ngModel)]="formData.vat" name="vat"
+                                                    (ngModelChange)="calculateTotals()" min="0" step="0.1" />
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label fw-semibold small">Tax (%)</label>
+                                                <input type="number" class="form-control form-control-sm"
+                                                    [(ngModel)]="formData.tax" name="tax"
+                                                    (ngModelChange)="calculateTotals()" min="0" step="0.1" />
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <label class="form-label fw-semibold small">Discount</label>
+                                            <input type="number" class="form-control form-control-sm"
+                                                [(ngModel)]="formData.discount" name="discount"
+                                                (ngModelChange)="calculateTotals()" min="0" step="0.01" />
+                                        </div>
+
+                                        <!-- Summary -->
+                                        <div class="bg-dark text-white p-3 rounded-3">
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <span>Subtotal:</span>
+                                                <span class="fw-bold">${{ formData.subtotal.toFixed(2) }}</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <span>VAT ({{ formData.vat }}%):</span>
+                                                <span>${{ ((formData.subtotal * formData.vat) / 100).toFixed(2)
+                                                    }}</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <span>Tax ({{ formData.tax }}%):</span>
+                                                <span>${{ ((formData.subtotal * formData.tax) / 100).toFixed(2)
+                                                    }}</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Discount:</span>
+                                                <span>-${{ formData.discount.toFixed(2) }}</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between border-top pt-2">
+                                                <span class="fs-5 fw-bold">Grand Total:</span>
+                                                <span class="fs-5 fw-bold">${{ formData.total.toFixed(2) }}</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Payment Section -->
+                                        <div class="row g-2 mt-3">
+                                            <div class="col-6">
+                                                <label class="form-label fw-semibold small">Paid Amount</label>
+                                                <input type="number" class="form-control" [(ngModel)]="formData.paid"
+                                                    name="paid" (ngModelChange)="calculateTotals()" min="0"
+                                                    step="0.01" />
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label fw-semibold small">Balance</label>
+                                                <input type="text" class="form-control bg-light"
+                                                    [value]="formData.balance.toFixed(2)" readonly />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-danger action-btn" data-bs-dismiss="modal">
-                                    Close
-                                </button>
-                                <button type="button" class="btn btn-primary action-btn">
-                                    Edit Details
-                                </button>
-                                <button type="button" class="btn btn-success action-btn">
-                                    Approve Payment
-                                </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i> Cancel
+                </button>
+                <button type="submit" form="sellForm" class="btn btn-success">
+                    <i class="bi bi-save me-1"></i>
+                    {{ isEditMode ? 'Update Sell' : 'Save Sell' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Modal -->
+<div class="modal fade" id="sellModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sell Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" *ngIf="selectedSell">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary border-bottom pb-2 mb-3">Sell Information</h6>
+                        <div class="mb-2">
+                            <strong>ID:</strong> {{ selectedSell.id }}
+                        </div>
+                        <div class="mb-2">
+                            <strong>Supplier:</strong> {{ selectedSell.supplier }}
+                        </div>
+                        <div class="mb-2">
+                            <strong>Date:</strong> {{ formatDate(selectedSell.date) }}
+                        </div>
+                        <div class="mb-2">
+                            <strong>Ordered By:</strong> {{ selectedSell.orderBy }}
+                        </div>
+                        <div class="mb-2">
+                            <strong>Sell Status:</strong>
+                            <span class="badge bg-info ms-2">{{ selectedSell.sellStatus }}</span>
+                        </div>
+                        <div class="mb-2">
+                            <strong>Payment Status:</strong>
+                            <span class="badge ms-2"
+                                [ngClass]="selectedSell.paymentStatus === 'Paid' ? 'bg-success' : 'bg-warning'">
+                                {{ selectedSell.paymentStatus }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="table-responsive mb-3">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Qty</th>
+                                        <th class="text-end">Price</th>
+                                        <th class="text-end">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of selectedSell.items">
+                                        <td>{{ item.name }}</td>
+                                        <td>{{ item.quantity }}</td>
+                                        <td class="text-end">${{ item.unitPrice.toFixed(2) }}</td>
+                                        <td class="text-end">${{ item.total.toFixed(2) }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="bg-light p-3 rounded">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Subtotal:</span>
+                                <span>${{ selectedSell.subtotal.toFixed(2) }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>VAT:</span>
+                                <span>${{ ((selectedSell.subtotal * selectedSell.vat) / 100).toFixed(2) }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Tax:</span>
+                                <span>${{ ((selectedSell.subtotal * selectedSell.tax) / 100).toFixed(2) }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Discount:</span>
+                                <span>-${{ selectedSell.discount.toFixed(2) }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between border-top pt-2 fw-bold">
+                                <span>Total:</span>
+                                <span>${{ selectedSell.total.toFixed(2) }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Paid:</span>
+                                <span>${{ selectedSell.paid.toFixed(2) }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Balance:</span>
+                                <span class="text-danger fw-bold">${{ selectedSell.balance.toFixed(2) }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <div *ngIf="selectedSell.notes" class="mt-3">
+                    <strong>Notes:</strong>
+                    <p class="bg-light p-2 rounded mt-1">{{ selectedSell.notes }}</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                    Close
+                </button>
+                <button type="button" class="btn btn-info" (click)="printSellMemo()">
+                    <i class="fa fa-print"></i> Print PDF
+                </button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bs-toggle="modal"
+                    data-bs-target="#expadd" (click)="openEditModal(selectedSell!)">
+                    Edit Details
+                </button>
+                <button type="button" class="btn btn-success" (click)="approvePayment()"
+                    *ngIf="selectedSell?.paymentStatus !== 'Paid'">
+                    Approve Payment
+                </button>
             </div>
         </div>
     </div>

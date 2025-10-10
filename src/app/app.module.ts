@@ -27,6 +27,7 @@ import { StockDetailsComponent } from './inventory/inventoryMenu/stock-details/s
 import { FormsModule } from '@angular/forms';
 import { ProfitAndLossComponent } from './inventory/report/profit-and-loss/profit-and-loss.component';
 import { ExpensesComponent } from './inventory/accounts/expenses/expenses.component';
+import { EstimateComponent } from './inventory/sales/estimate/estimate.component';
 
 @NgModule({
   declarations: [
@@ -53,7 +54,8 @@ import { ExpensesComponent } from './inventory/accounts/expenses/expenses.compon
     PaymentReportsComponent,
     StockDetailsComponent,
     ProfitAndLossComponent,
-    ExpensesComponent
+    ExpensesComponent,
+    EstimateComponent
 
   ],
   imports: [
