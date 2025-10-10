@@ -53,12 +53,8 @@ import { ExpensesComponent } from './inventory/accounts/expenses/expenses.compon
     PaymentReportsComponent,
     StockDetailsComponent,
     ProfitAndLossComponent,
-<<<<<<< HEAD
     ExpensesComponent
 
-=======
-    
->>>>>>> f5bcd24 (1144887)
   ],
   imports: [
     BrowserModule,
