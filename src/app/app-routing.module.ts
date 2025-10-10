@@ -20,7 +20,11 @@ import { StockDetailsComponent } from './inventory/inventoryMenu/stock-details/s
 import { PurchaseReportsComponent } from './inventory/report/purchase-reports/purchase-reports.component';
 import { SalesReportsComponent } from './inventory/report/sales-reports/sales-reports.component';
 import { ProfitAndLossComponent } from './inventory/report/profit-and-loss/profit-and-loss.component';
+<<<<<<< HEAD
 import { ExpensesComponent } from './inventory/accounts/expenses/expenses.component';
+=======
+import { EstimateComponent } from './inventory/sales/estimate/estimate.component';
+>>>>>>> f5bcd24 (1144887)
 
 const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -36,6 +40,7 @@ const routes: Routes = [
     {path: 'customer',component:CustomersComponent},
     {path: 'customer-payment',component:CustomerPaymentComponent},
     {path: 'sales-return',component:SalesReturnComponent},
+    {path: 'estimate',component:EstimateComponent},
 
     //Purchases
     {path: 'purchase-list',component:PurchasesListComponent},

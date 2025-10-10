@@ -20,406 +20,385 @@
                                     </select>
                                 </div>
 
-                                <!-- Search -->
-                                <div class="col-md-4 d-flex justify-content-center">
-                                    <div class="input-group input-group-sm shadow-sm rounded-pill bg-light border border-dark"
-                                        style="max-width: 300px;">
-                                        <span class="input-group-text bg-transparent border-0 text-dark">
-                                            <i class="bi bi-search"></i>
-                                        </span>
-                                        <input type="text" class="form-control border-0 bg-transparent"
-                                            placeholder="Search..." aria-label="Search" />
-                                    </div>
-                                </div>
-
-                                <!-- Add Expense Button -->
-                                <div class="col-md-4 d-flex justify-content-md-end">
-                                    <button type="button" class="btn rounded-pill shadow-sm px-4"
-                                        data-bs-toggle="modal" data-bs-target="#expenseModal"
-                                        style="background-color: #000000; color: #ffffff;">
-                                        <i class="bi bi-plus-lg me-1"></i> Add Expense
-                                    </button>
+                            <!-- Search -->
+                            <div class="col-md-4 d-flex justify-content-center">
+                                <div class="input-group input-group-sm shadow-sm rounded-pill bg-light border border-dark"
+                                    style="max-width: 300px;">
+                                    <span class="input-group-text bg-transparent border-0 text-dark">
+                                        <i class="bi bi-search"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-0 bg-transparent"
+                                        placeholder="Search..." aria-label="Search" />
                                 </div>
                             </div>
 
-                           <div class="table-responsive">
-    <table class="table table-hover mb-0">
-        <thead class="rounded-pill" style="background-color: #000000; ">
-            <tr>
-                <th>ID</th>
-                <th>Expense Type</th>
-                <th>DATE</th>
-                <th>Amount</th>
-                <th>Paid To</th>
-                <th>Approved By</th>
-                <th>ACTIONS</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>#EXP-00001</td>
-                <td>Office Supplies</td>
-                <td>12/03/2024</td>
-                <td>$1551</td>
-                <td>Office Depot</td>
-                <td>John Manager</td>
-                <td>
-                    <div class="btn-group">
-                        <!-- Edit button -->
-                        <button type="button" class="btn btn-outline-success btn-sm"
-                            data-bs-toggle="modal" data-bs-target="#expenseModal"
-                            title="Edit">
-                            <i class="fa fa-pencil"></i>
-                        </button>
+                            <!-- Add Expense Button -->
+                            <div class="col-md-4 d-flex justify-content-md-end">
+                                <button type="button" class="btn rounded-pill shadow-sm px-4" data-bs-toggle="modal"
+                                    data-bs-target="#expenseModal" style="background-color: #000000; color: #ffffff;">
+                                    <i class="bi bi-plus-lg me-1"></i> Add Expense
+                                </button>
+                            </div>
+                        </div>
 
-                        <!-- View button -->
-                        <button type="button" class="btn btn-outline-primary btn-sm"
-                            data-bs-toggle="modal" data-bs-target="#expenseViewModal"
-                            data-expense-id="EXP-00001"
-                            title="View">
-                            <i class="fa fa-eye"></i>
-                        </button>
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="rounded-pill" style="background-color: #000000; ">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Expense Type</th>
+                                        <th>DATE</th>
+                                        <th>Amount</th>
+                                        <th>Paid To</th>
+                                        <th>Approved By</th>
+                                        <th>ACTIONS</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>#EXP-00001</td>
+                                        <td>Office Supplies</td>
+                                        <td>12/03/2024</td>
+                                        <td>$1551</td>
+                                        <td>Office Depot</td>
+                                        <td>John Manager</td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <!-- Edit button -->
+                                                <button type="button" class="btn btn-outline-success btn-sm"
+                                                    data-bs-toggle="modal" data-bs-target="#expenseModal" title="Edit">
+                                                    <i class="fa fa-pencil"></i>
+                                                </button>
 
-                        <!-- Approve button -->
-                        <button type="button" class="btn btn-outline-info btn-sm"
-                            title="Approve">
-                            <i class="fa fa-check"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>#EXP-00002</td>
-                <td>Travel</td>
-                <td>16/03/2024</td>
-                <td>$850</td>
-                <td>Hotel Grand</td>
-                <td>-</td>
-                <td>
-                    <div class="btn-group">
-                        <!-- Edit button -->
-                        <button type="button" class="btn btn-outline-success btn-sm"
-                            data-bs-toggle="modal" data-bs-target="#expenseModal"
-                            title="Edit">
-                            <i class="fa fa-pencil"></i>
-                        </button>
+                                                <!-- View button -->
+                                                <button type="button" class="btn btn-outline-primary btn-sm"
+                                                    data-bs-toggle="modal" data-bs-target="#expenseViewModal"
+                                                    data-expense-id="EXP-00001" title="View">
+                                                    <i class="fa fa-eye"></i>
+                                                </button>
 
-                        <!-- View button -->
-                        <button type="button" class="btn btn-outline-primary btn-sm"
-                            data-bs-toggle="modal" data-bs-target="#expenseViewModal"
-                            data-expense-id="EXP-00002"
-                            title="View">
-                            <i class="fa fa-eye"></i>
-                        </button>
+                                                <!-- Approve button -->
+                                                <button type="button" class="btn btn-outline-info btn-sm"
+                                                    title="Approve">
+                                                    <i class="fa fa-check"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>#EXP-00002</td>
+                                        <td>Travel</td>
+                                        <td>16/03/2024</td>
+                                        <td>$850</td>
+                                        <td>Hotel Grand</td>
+                                        <td>-</td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <!-- Edit button -->
+                                                <button type="button" class="btn btn-outline-success btn-sm"
+                                                    data-bs-toggle="modal" data-bs-target="#expenseModal" title="Edit">
+                                                    <i class="fa fa-pencil"></i>
+                                                </button>
 
-                        <!-- Approve button -->
-                        <button type="button" class="btn btn-outline-info btn-sm"
-                            title="Approve">
-                            <i class="fa fa-check"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>#EXP-00003</td>
-                <td>Equipment</td>
-                <td>10/03/2024</td>
-                <td>$1200</td>
-                <td>Tech Solutions Ltd</td>
-                <td>Sarah Director</td>
-                <td>
-                    <div class="btn-group">
-                        <!-- Edit button -->
-                        <button type="button" class="btn btn-outline-success btn-sm"
-                            data-bs-toggle="modal" data-bs-target="#expenseModal"
-                            title="Edit">
-                            <i class="fa fa-pencil"></i>
-                        </button>
+                                                <!-- View button -->
+                                                <button type="button" class="btn btn-outline-primary btn-sm"
+                                                    data-bs-toggle="modal" data-bs-target="#expenseViewModal"
+                                                    data-expense-id="EXP-00002" title="View">
+                                                    <i class="fa fa-eye"></i>
+                                                </button>
 
-                        <!-- View button -->
-                        <button type="button" class="btn btn-outline-primary btn-sm"
-                            data-bs-toggle="modal" data-bs-target="#expenseViewModal"
-                            data-expense-id="EXP-00003"
-                            title="View">
-                            <i class="fa fa-eye"></i>
-                        </button>
+                                                <!-- Approve button -->
+                                                <button type="button" class="btn btn-outline-info btn-sm"
+                                                    title="Approve">
+                                                    <i class="fa fa-check"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>#EXP-00003</td>
+                                        <td>Equipment</td>
+                                        <td>10/03/2024</td>
+                                        <td>$1200</td>
+                                        <td>Tech Solutions Ltd</td>
+                                        <td>Sarah Director</td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <!-- Edit button -->
+                                                <button type="button" class="btn btn-outline-success btn-sm"
+                                                    data-bs-toggle="modal" data-bs-target="#expenseModal" title="Edit">
+                                                    <i class="fa fa-pencil"></i>
+                                                </button>
 
-                        <!-- Approve button -->
-                        <button type="button" class="btn btn-outline-info btn-sm"
-                            title="Approve">
-                            <i class="fa fa-check"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>#EXP-00004</td>
-                <td>Utilities</td>
-                <td>08/03/2024</td>
-                <td>$320</td>
-                <td>Power Company Inc</td>
-                <td>Auto System</td>
-                <td>
-                    <div class="btn-group">
-                        <!-- Edit button -->
-                        <button type="button" class="btn btn-outline-success btn-sm"
-                            data-bs-toggle="modal" data-bs-target="#expenseModal"
-                            title="Edit">
-                            <i class="fa fa-pencil"></i>
-                        </button>
+                                                <!-- View button -->
+                                                <button type="button" class="btn btn-outline-primary btn-sm"
+                                                    data-bs-toggle="modal" data-bs-target="#expenseViewModal"
+                                                    data-expense-id="EXP-00003" title="View">
+                                                    <i class="fa fa-eye"></i>
+                                                </button>
 
-                        <!-- View button -->
-                        <button type="button" class="btn btn-outline-primary btn-sm"
-                            data-bs-toggle="modal" data-bs-target="#expenseViewModal"
-                            data-expense-id="EXP-00004"
-                            title="View">
-                            <i class="fa fa-eye"></i>
-                        </button>
+                                                <!-- Approve button -->
+                                                <button type="button" class="btn btn-outline-info btn-sm"
+                                                    title="Approve">
+                                                    <i class="fa fa-check"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>#EXP-00004</td>
+                                        <td>Utilities</td>
+                                        <td>08/03/2024</td>
+                                        <td>$320</td>
+                                        <td>Power Company Inc</td>
+                                        <td>Auto System</td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <!-- Edit button -->
+                                                <button type="button" class="btn btn-outline-success btn-sm"
+                                                    data-bs-toggle="modal" data-bs-target="#expenseModal" title="Edit">
+                                                    <i class="fa fa-pencil"></i>
+                                                </button>
 
-                        <!-- Approve button -->
-                        <button type="button" class="btn btn-outline-info btn-sm"
-                            title="Approve">
-                            <i class="fa fa-check"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>#EXP-00005</td>
-                <td>Marketing</td>
-                <td>05/03/2024</td>
-                <td>$750</td>
-                <td>Digital Ads Agency</td>
-                <td>-</td>
-                <td>
-                    <div class="btn-group">
-                        <!-- Edit button -->
-                        <button type="button" class="btn btn-outline-success btn-sm"
-                            data-bs-toggle="modal" data-bs-target="#expenseModal"
-                            title="Edit">
-                            <i class="fa fa-pencil"></i>
-                        </button>
+                                                <!-- View button -->
+                                                <button type="button" class="btn btn-outline-primary btn-sm"
+                                                    data-bs-toggle="modal" data-bs-target="#expenseViewModal"
+                                                    data-expense-id="EXP-00004" title="View">
+                                                    <i class="fa fa-eye"></i>
+                                                </button>
 
-                        <!-- View button -->
-                        <button type="button" class="btn btn-outline-primary btn-sm"
-                            data-bs-toggle="modal" data-bs-target="#expenseViewModal"
-                            data-expense-id="EXP-00005"
-                            title="View">
-                            <i class="fa fa-eye"></i>
-                        </button>
+                                                <!-- Approve button -->
+                                                <button type="button" class="btn btn-outline-info btn-sm"
+                                                    title="Approve">
+                                                    <i class="fa fa-check"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>#EXP-00005</td>
+                                        <td>Marketing</td>
+                                        <td>05/03/2024</td>
+                                        <td>$750</td>
+                                        <td>Digital Ads Agency</td>
+                                        <td>-</td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <!-- Edit button -->
+                                                <button type="button" class="btn btn-outline-success btn-sm"
+                                                    data-bs-toggle="modal" data-bs-target="#expenseModal" title="Edit">
+                                                    <i class="fa fa-pencil"></i>
+                                                </button>
 
-                        <!-- Approve button -->
-                        <button type="button" class="btn btn-outline-info btn-sm"
-                            title="Approve">
-                            <i class="fa fa-check"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-                            <p class="text-muted mb-0 mt-3">Showing 1 to 3 of 3 entries</p>
-                            <div class="d-flex justify-content-center mt-3">
-                                <div class="btn-group">
-                                    <button class="btn btn-outline-dark btn-sm"><i
-                                            class="bi bi-chevron-left">..</i></button>
-                                    <button class="btn btn-success btn-sm">1</button>
-                                    <button class="btn btn-outline-dark btn-sm">2</button>
-                                    <button class="btn btn-outline-dark btn-sm">3</button>
-                                    <button class="btn btn-outline-dark btn-sm"><i
-                                            class="bi bi-chevron-right">..</i></button>
-                                </div>
+                                                <!-- View button -->
+                                                <button type="button" class="btn btn-outline-primary btn-sm"
+                                                    data-bs-toggle="modal" data-bs-target="#expenseViewModal"
+                                                    data-expense-id="EXP-00005" title="View">
+                                                    <i class="fa fa-eye"></i>
+                                                </button>
+
+                                                <!-- Approve button -->
+                                                <button type="button" class="btn btn-outline-info btn-sm"
+                                                    title="Approve">
+                                                    <i class="fa fa-check"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-muted mb-0 mt-3">Showing 1 to 3 of 3 entries</p>
+                        <div class="d-flex justify-content-center mt-3">
+                            <div class="btn-group">
+                                <button class="btn btn-outline-dark btn-sm"><i
+                                        class="bi bi-chevron-left">..</i></button>
+                                <button class="btn btn-success btn-sm">1</button>
+                                <button class="btn btn-outline-dark btn-sm">2</button>
+                                <button class="btn btn-outline-dark btn-sm">3</button>
+                                <button class="btn btn-outline-dark btn-sm"><i
+                                        class="bi bi-chevron-right">..</i></button>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Expense Modal -->
-                    <div class="modal fade" id="expenseModal" tabindex="-1" aria-labelledby="expenseModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-lg modal-dialog-centered">
-                            <div class="modal-content">
-                                <!-- Modal Header -->
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="expenseModalLabel">Add Expense</h5>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                                </div>
+                <!-- Expense Modal -->
+                <div class="modal fade" id="expenseModal" tabindex="-1" aria-labelledby="expenseModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content">
+                            <!-- Modal Header -->
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="expenseModalLabel">Add Expense</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
 
-                                <!-- Modal Body -->
-                                <div class="modal-body">
-                                    <form id="expenseForm">
-                                        <div class="row g-3">
-                                            <!-- Expense Category (First) -->
-                                            <div class="col-md-6">
-                                                <label for="expenseCategory" class="form-label">Expense Category</label>
-                                                <select class="form-select" id="expenseCategory" required>
-                                                    <option value="">Select Category</option>
-                                                    <option value="Office Supplies">Office Supplies</option>
-                                                    <option value="Utilities">Utilities</option>
-                                                    <option value="Travel">Travel</option>
-                                                    <option value="Marketing">Marketing</option>
-                                                    <option value="Equipment">Equipment</option>
-                                                    <option value="Other">Other</option>
-                                                </select>
-                                            </div>
-
-                                            <!-- Date (with today as default) -->
-                                            <div class="col-md-6">
-                                                <label for="date" class="form-label">Date</label>
-                                                <input type="date" class="form-control" id="date" required />
-                                            </div>
-
-                                            <!-- Status (Dropdown)
-                                            <div class="col-md-6">
-                                                <label for="status" class="form-label">Status</label>
-                                                <select class="form-select" id="status" required>
-                                                    <option value="Pending">Pending</option>
-                                                    <option value="Approved">Approved</option>
-                                                    <option value="Rejected">Rejected</option>
-                                                </select>
-                                            </div> -->
-
-                                            <!-- Amount -->
-                                            <div class="col-md-6">
-                                                <label for="amount" class="form-label">Amount</label>
-                                                <input type="number" class="form-control" id="amount" required />
-                                            </div>
-
-                                            <!-- Payment Method -->
-                                            <div class="col-md-6">
-                                                <label for="paymentMethod" class="form-label">Payment Method</label>
-                                                <select class="form-select" id="paymentMethod" required>
-                                                    <option value="">Select Method</option>
-                                                    <option value="Cash">Cash</option>
-                                                    <option value="Credit Card">Credit Card</option>
-                                                    <option value="Bank Transfer">Bank Transfer</option>
-                                                    <option value="Check">Check</option>
-                                                    <option value="Digital Wallet">Digital Wallet</option>
-                                                </select>
-                                            </div>
-
-                                            <!-- Paid To -->
-                                            <div class="col-md-6">
-                                                <label for="paidTo" class="form-label">Paid To</label>
-                                                <input type="text" class="form-control" id="paidTo" />
-                                            </div>
-
-                                            <!-- Attachment -->
-                                            <div class="col-md-6">
-                                                <label for="attachment" class="form-label">Attachment</label>
-                                                <input type="file" class="form-control" id="attachment" />
-                                            </div>
-
-                                            <!-- Approved By -->
-                                            <div class="col-md-6">
-                                                <label for="approvedBy" class="form-label">Approved By</label>
-                                                <select class="form-select" id="approvedBy">
-                                                    <option value="">Select Approver</option>
-                                                    <option value="John Doe">John Doe</option>
-                                                    <option value="Jane Smith">Jane Smith</option>
-                                                    <option value="Robert Johnson">Robert Johnson</option>
-                                                </select>
-                                            </div>
-
-                                            <!-- Approval Date -->
-                                            <div class="col-md-6">
-                                                <label for="approvalDate" class="form-label">Approval Date</label>
-                                                <input type="date" class="form-control" id="approvalDate" />
-                                            </div>
-
-                                            <!-- Description (Last) -->
-                                            <div class="col-12">
-                                                <label for="description" class="form-label">Description</label>
-                                                <textarea class="form-control" id="description" rows="3"></textarea>
-                                            </div>
+                            <!-- Modal Body -->
+                            <div class="modal-body">
+                                <form id="expenseForm">
+                                    <div class="row g-3">
+                                        <!-- Expense Category (First) -->
+                                        <div class="col-md-6">
+                                            <label for="expenseCategory" class="form-label">Expense Category</label>
+                                            <select class="form-select" id="expenseCategory" required>
+                                                <option value="">Select Category</option>
+                                                <option value="Office Supplies">Office Supplies</option>
+                                                <option value="Utilities">Utilities</option>
+                                                <option value="Travel">Travel</option>
+                                                <option value="Marketing">Marketing</option>
+                                                <option value="Equipment">Equipment</option>
+                                                <option value="Other">Other</option>
+                                            </select>
                                         </div>
-                                    </form>
-                                </div>
 
-                                <!-- Modal Footer -->
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-                                        Close
-                                    </button>
-                                    <button type="button" class="btn btn-success" id="saveExpenseBtn">
-                                        Save Expense
-                                    </button>
-                                </div>
+                                        <!-- Date (with today as default) -->
+                                        <div class="col-md-6">
+                                            <label for="date" class="form-label">Date</label>
+                                            <input type="date" class="form-control" id="date" required />
+                                        </div>
+
+                                        <!-- Amount -->
+                                        <div class="col-md-6">
+                                            <label for="amount" class="form-label">Amount</label>
+                                            <input type="number" class="form-control" id="amount" required />
+                                        </div>
+
+                                        <!-- Payment Method -->
+                                        <div class="col-md-6">
+                                            <label for="paymentMethod" class="form-label">Payment Method</label>
+                                            <select class="form-select" id="paymentMethod" required>
+                                                <option value="">Select Method</option>
+                                                <option value="Cash">Cash</option>
+                                                <option value="Credit Card">Credit Card</option>
+                                                <option value="Bank Transfer">Bank Transfer</option>
+                                                <option value="Check">Check</option>
+                                                <option value="Digital Wallet">Digital Wallet</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Paid To -->
+                                        <div class="col-md-6">
+                                            <label for="paidTo" class="form-label">Paid To</label>
+                                            <input type="text" class="form-control" id="paidTo" />
+                                        </div>
+
+                                        <!-- Attachment -->
+                                        <div class="col-md-6">
+                                            <label for="attachment" class="form-label">Attachment</label>
+                                            <input type="file" class="form-control" id="attachment" />
+                                        </div>
+
+                                        <!-- Approved By -->
+                                        <div class="col-md-6">
+                                            <label for="approvedBy" class="form-label">Approved By</label>
+                                            <select class="form-select" id="approvedBy">
+                                                <option value="">Select Approver</option>
+                                                <option value="John Doe">John Doe</option>
+                                                <option value="Jane Smith">Jane Smith</option>
+                                                <option value="Robert Johnson">Robert Johnson</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Approval Date -->
+                                        <div class="col-md-6">
+                                            <label for="approvalDate" class="form-label">Approval Date</label>
+                                            <input type="date" class="form-control" id="approvalDate" />
+                                        </div>
+
+                                        <!-- Description (Last) -->
+                                        <div class="col-12">
+                                            <label for="description" class="form-label">Description</label>
+                                            <textarea class="form-control" id="description" rows="3"></textarea>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- Modal Footer -->
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                                    Close
+                                </button>
+                                <button type="button" class="btn btn-success" id="saveExpenseBtn">
+                                    Save Expense
+                                </button>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- View Modal -->
-                    <div class="modal fade" id="purchaseModal" tabindex="-1" aria-labelledby="purchaseModalLabel"
-                        aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="purchaseModalLabel">
-                                        Purchase Item Details
-                                    </h5>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="compact-view">
-                                        <div class="compact-item">
-                                            <div class="compact-label">ID</div>
-                                            <div class="compact-value">#PR-00002</div>
+                <!-- View Modal -->
+                <div class="modal fade" id="purchaseModal" tabindex="-1" aria-labelledby="purchaseModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="purchaseModalLabel">
+                                    Purchase Item Details
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="compact-view">
+                                    <div class="compact-item">
+                                        <div class="compact-label">ID</div>
+                                        <div class="compact-value">#PR-00002</div>
+                                    </div>
+                                    <div class="compact-item">
+                                        <div class="compact-label">ITEMS</div>
+                                        <div class="compact-value">Cloth</div>
+                                    </div>
+                                    <div class="compact-item">
+                                        <div class="compact-label">PURCHASE STATUS</div>
+                                        <div class="compact-value">
+                                            <span class="status-badge status-received">Received</span>
                                         </div>
-                                        <div class="compact-item">
-                                            <div class="compact-label">ITEMS</div>
-                                            <div class="compact-value">Cloth</div>
-                                        </div>
-                                        <div class="compact-item">
-                                            <div class="compact-label">PURCHASE STATUS</div>
-                                            <div class="compact-value">
-                                                <span class="status-badge status-received">Received</span>
-                                            </div>
-                                        </div>
-                                        <div class="compact-item">
-                                            <div class="compact-label">ORDER BY</div>
-                                            <div class="compact-value">Jean Dyer</div>
-                                        </div>
-                                        <div class="compact-item">
-                                            <div class="compact-label">DATE</div>
-                                            <div class="compact-value">12/03/2021</div>
-                                        </div>
-                                        <div class="compact-item">
-                                            <div class="compact-label">SUPPLIER</div>
-                                            <div class="compact-value">Cloth Supplier</div>
-                                        </div>
-                                        <div class="compact-item">
-                                            <div class="compact-label">TOTAL</div>
-                                            <div class="compact-value">$1551</div>
-                                        </div>
-                                        <div class="compact-item">
-                                            <div class="compact-label">PAID</div>
-                                            <div class="compact-value">$1500</div>
-                                        </div>
-                                        <div class="compact-item">
-                                            <div class="compact-label">BALANCE</div>
-                                            <div class="compact-value">$551</div>
-                                        </div>
-                                        <div class="compact-item">
-                                            <div class="compact-label">PAYMENT STATUS</div>
-                                            <div class="compact-value">
-                                                <span class="status-badge status-pending">Pending</span>
-                                            </div>
+                                    </div>
+                                    <div class="compact-item">
+                                        <div class="compact-label">ORDER BY</div>
+                                        <div class="compact-value">Jean Dyer</div>
+                                    </div>
+                                    <div class="compact-item">
+                                        <div class="compact-label">DATE</div>
+                                        <div class="compact-value">12/03/2021</div>
+                                    </div>
+                                    <div class="compact-item">
+                                        <div class="compact-label">SUPPLIER</div>
+                                        <div class="compact-value">Cloth Supplier</div>
+                                    </div>
+                                    <div class="compact-item">
+                                        <div class="compact-label">TOTAL</div>
+                                        <div class="compact-value">$1551</div>
+                                    </div>
+                                    <div class="compact-item">
+                                        <div class="compact-label">PAID</div>
+                                        <div class="compact-value">$1500</div>
+                                    </div>
+                                    <div class="compact-item">
+                                        <div class="compact-label">BALANCE</div>
+                                        <div class="compact-value">$551</div>
+                                    </div>
+                                    <div class="compact-item">
+                                        <div class="compact-label">PAYMENT STATUS</div>
+                                        <div class="compact-value">
+                                            <span class="status-badge status-pending">Pending</span>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-danger action-btn" data-bs-dismiss="modal">
-                                        Close
-                                    </button>
-                                    <button type="button" class="btn btn-primary action-btn">
-                                        Edit Details
-                                    </button>
-                                    <button type="button" class="btn btn-success action-btn">
-                                        Approve Payment
-                                    </button>
-                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger action-btn" data-bs-dismiss="modal">
+                                    Close
+                                </button>
+                                <button type="button" class="btn btn-primary action-btn">
+                                    Edit Details
+                                </button>
+                                <button type="button" class="btn btn-success action-btn">
+                                    Approve Payment
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -427,17 +406,19 @@
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Toast Container for Success Message -->
-    <div class="toast-container">
-        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">
-                    <i class="bi bi-check-circle-fill me-2"></i>
-                    Expense saved successfully!
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+<!-- Toast Container for Success Message -->
+<div class="toast-container">
+    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+        aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                Expense saved successfully!
             </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                aria-label="Close"></button>
         </div>
     </div>
 

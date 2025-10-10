@@ -102,7 +102,7 @@ expenses = [
 
   render(from: string | null = null, to: string | null = null): void {
     const r = this.calculate(from, to);
-    
+
     const totalSalesEl = document.getElementById('totalSales');
     const cogsEl = document.getElementById('cogs');
     const opexEl = document.getElementById('opex');
@@ -147,7 +147,7 @@ expenses = [
 
   renderChart(txns: any[]): void {
     const months: {[key: string]: {revenue: number, cogs: number, expenses: number}} = {};
-    
+
     const pushMonth = (dateStr: string, series: 'revenue' | 'cogs' | 'expenses', value: number) => {
       const d = new Date(dateStr + 'T00:00:00');
       const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
