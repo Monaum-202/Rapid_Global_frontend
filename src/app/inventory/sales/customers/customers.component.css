@@ -3,6 +3,12 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+.input-group input:focus,
+.input-group input:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 0.1rem rgba(0, 0, 0, 0);
+}
+
 .card {
     border: none;
     border-radius: 12px;
@@ -32,13 +38,13 @@ body {
     padding: 8px 8px;
     color: white;
     background-color: #000000;
-    text-align: center; /* Center align text in table header */
+    text-align: center;
 }
 
 .table tbody td {
     padding: 5px 5px;
     vertical-align: middle;
-    text-align: center; /* Center align text in table body */
+    text-align: center;
 }
 
 
