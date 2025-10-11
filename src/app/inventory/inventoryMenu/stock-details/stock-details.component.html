@@ -1,92 +1,43 @@
-<table>
-  <thead>
-    <tr>
-      <th rowspan="2">Date</th>
-      <th colspan="3" class="yellow">Sublimation</th>
-      <th colspan="3" class="black">Supporting</th>
-      <th colspan="3" class="cyan">Cyan</th>
-      <th colspan="3" class="magenta">Magenta</th>
-      <th colspan="3" class="yellow">Yellow</th>
-      <th colspan="3" class="black">Black</th>
-    </tr>
-    <tr>
-  <!-- Sublimation -->
-  <th class="yellow">In</th>
-  <th class="yellow">Use</th>
-  <th class="yellow">Stock</th>
+<div class="container">
+<h1>Inventory Report</h1>
+  <div class="filters">
+    <div>
+      <label>From:</label>
+      <input type="date" [(ngModel)]="fromDate" (change)="filterData()">
+    </div>
+    <div>
+      <label>To:</label>
+      <input type="date" [(ngModel)]="toDate" (change)="filterData()">
+    </div>
+    <button (click)="clearFilter()">Clear</button>
+  </div>
 
-  <!-- Supporting -->
-  <th class="black">In</th>
-  <th class="black">Use</th>
-  <th class="black">Stock</th>
-
-  <!-- Cyan -->
-  <th class="cyan">In</th>
-  <th class="cyan">Use</th>
-  <th class="cyan">Stock</th>
-
-  <!-- Magenta -->
-  <th class="magenta">In</th>
-  <th class="magenta">Use</th>
-  <th class="magenta">Stock</th>
-
-  <!-- Yellow -->
-  <th class="yellow">In</th>
-  <th class="yellow">Use</th>
-  <th class="yellow">Stock</th>
-
-  <!-- Black -->
-  <th class="black">In</th>
-  <th class="black">Use</th>
-  <th class="black">Stock</th>
-</tr>
-
-  </thead>
-  <tbody>
-    <tr>
-      <td>01-09-25</td>
-      <td>10</td><td>3</td><td>7</td>
-      <td>10</td><td>3</td><td>7</td>
-      <td>10</td><td>3</td><td>7</td>
-      <td>10</td><td>3</td><td>7</td>
-      <td>10</td><td>3</td><td>7</td>
-      <td>10</td><td>3</td><td>7</td>
-    </tr>
-    <tr>
-      <td>02-09-25</td>
-      <td></td><td>2</td><td>5</td>
-      <td></td><td>2</td><td>5</td>
-      <td></td><td>2</td><td>5</td>
-      <td></td><td>2</td><td>5</td>
-      <td></td><td>2</td><td>5</td>
-      <td></td><td>2</td><td>5</td>
-    </tr>
-    <tr>
-      <td>03-09-25</td>
-      <td></td><td>1</td><td>4</td>
-      <td></td><td>1</td><td>4</td>
-      <td></td><td>1</td><td>4</td>
-      <td></td><td>1</td><td>4</td>
-      <td></td><td>1</td><td>4</td>
-      <td></td><td>1</td><td>4</td>
-    </tr>
-    <tr>
-      <td>04-09-25</td>
-      <td>9</td><td>2</td><td>11</td>
-      <td>9</td><td>2</td><td>11</td>
-      <td>9</td><td>2</td><td>11</td>
-      <td>9</td><td>2</td><td>11</td>
-      <td>9</td><td>2</td><td>11</td>
-      <td>9</td><td>2</td><td>11</td>
-    </tr>
-    <tr>
-      <td>05-09-25</td>
-      <td></td><td>1</td><td>10</td>
-      <td></td><td>1</td><td>10</td>
-      <td></td><td>1</td><td>10</td>
-      <td></td><td>1</td><td>10</td>
-      <td></td><td>1</td><td>10</td>
-      <td></td><td>1</td><td>10</td>
-    </tr>
-  </tbody>
-</table>
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Month</th>
+        <th>In</th>
+        <th>Use</th>
+        <th>Stock</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let record of filteredData">
+        <td>{{ record.date }}</td>
+        <td>{{ record.month }}</td>
+        <td>{{ record.in }}</td>
+        <td>{{ record.use }}</td>
+        <td>{{ record.stock }}</td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="2"><strong>Total</strong></td>
+        <td><strong>{{ getTotalIn() }}</strong></td>
+        <td><strong>{{ getTotalUse() }}</strong></td>
+        <td><strong>{{ getCurrentStock() }}</strong></td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
