@@ -41,7 +41,7 @@ const routes: Routes = [
 
     //Purchases
     {path: 'purchase-list',component:PurchasesListComponent},
-    {path: 'supplier',component:SupplierComponent},
+    {path: 'supplier',component:SuppliersComponent},
     {path: 'supplier-payment',component:SupplierPaymentComponent},
     {path: 'purchase-return',component:PurchasesReturnsComponent},
 

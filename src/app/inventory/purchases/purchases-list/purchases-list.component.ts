@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 
 interface PurchaseItem {
   name: string;
@@ -25,6 +25,12 @@ interface Purchase {
   notes?: string;
 }
 
+interface TableColumn {
+  key: string;
+  label: string;
+  visible: boolean;
+}
+
 @Component({
   selector: 'app-purchases-list',
   templateUrl: './purchases-list.component.html',
@@ -34,6 +40,24 @@ export class PurchasesListComponent implements OnInit {
   purchases: Purchase[] = [];
   filteredPurchases: Purchase[] = [];
   selectedPurchase: Purchase | null = null;
+
+    // Column visibility configuration
+  columns: TableColumn[] = [
+    { key: 'id', label: 'ID', visible: true },
+    { key: 'items', label: 'ITEMS', visible: false },
+    { key: 'date', label: 'DATE', visible: true },
+    { key: 'supplier', label: 'SUPPLIER', visible: true },
+    { key: 'subtotal', label: 'SUBTOTAL', visible: false },
+    { key: 'vat', label: 'VAT', visible: false },
+    { key: 'tax', label: 'TAX', visible: false },
+    { key: 'discount', label: 'DISCOUNT', visible: false },
+    { key: 'total', label: 'TOTAL', visible: true },
+    { key: 'paid', label: 'PAID', visible: false },
+    { key: 'balance', label: 'BALANCE', visible: false },
+    { key: 'paymentStatus', label: 'PAYMENT', visible: true },
+    { key: 'purchaseStatus', label: 'STATUS', visible: false },
+    { key: 'orderBy', label: 'ORDER BY', visible: false }
+  ];
 
   // Form data
   formData: any = this.getEmptyFormData();
@@ -51,243 +75,21 @@ export class PurchasesListComponent implements OnInit {
   pageSize = 10;
   currentPage = 1;
   searchTerm = '';
+  showColumnDropdown = false;
 
   ngOnInit(): void {
     this.loadInitialData();
     this.filterPurchases();
   }
 
-  loadInitialData(): void {
-    // Convert old data format to new format
-    this.purchases = [
-      {
-        id: '#PR-00002',
-        items: [{ name: 'Cloth', quantity: 10, unitPrice: 155.1, total: 1551 }],
-        date: '2021-03-12',
-        supplier: 'Cloth Supplier',
-        subtotal: 1551,
-        vat: 0,
-        tax: 0,
-        discount: 0,
-        total: 1551,
-        paid: 1500,
-        balance: 51,
-        paymentStatus: 'Pending',
-        purchaseStatus: 'Received',
-        orderBy: 'Jean Dyer'
-      },
-      {
-        id: '#PR-00003',
-        items: [
-          { name: 'Printer Ink', quantity: 5, unitPrice: 320.5, total: 1602.5 },
-          { name: 'A4 Paper (Ream)', quantity: 10, unitPrice: 180, total: 1800 }
-        ],
-        date: '2021-03-15',
-        supplier: 'Office Supplies Co.',
-        subtotal: 3402.5,
-        vat: 0,
-        tax: 0,
-        discount: 100,
-        total: 3302.5,
-        paid: 3302.5,
-        balance: 0,
-        paymentStatus: 'Paid',
-        purchaseStatus: 'Received',
-        orderBy: 'Maria Gomez'
-      },
-      {
-        id: '#PR-00004',
-        items: [
-          { name: 'Steel Rods', quantity: 50, unitPrice: 110.75, total: 5537.5 },
-          { name: 'Nails Pack', quantity: 100, unitPrice: 15, total: 1500 }
-        ],
-        date: '2021-04-02',
-        supplier: 'BuildRight Hardware',
-        subtotal: 7037.5,
-        vat: 0,
-        tax: 0,
-        discount: 37.5,
-        total: 7000,
-        paid: 5000,
-        balance: 2000,
-        paymentStatus: 'Partial',
-        purchaseStatus: 'Received',
-        orderBy: 'Richard Hale'
-      },
-      {
-        id: '#PR-00005',
-        items: [
-          { name: 'Laptop', quantity: 2, unitPrice: 75000, total: 150000 },
-          { name: 'Mouse', quantity: 5, unitPrice: 800, total: 4000 }
-        ],
-        date: '2021-04-12',
-        supplier: 'Tech Haven',
-        subtotal: 154000,
-        vat: 0,
-        tax: 0,
-        discount: 4000,
-        total: 150000,
-        paid: 150000,
-        balance: 0,
-        paymentStatus: 'Paid',
-        purchaseStatus: 'Received',
-        orderBy: 'Sarah Wilson'
-      },
-      {
-        id: '#PR-00006',
-        items: [
-          { name: 'Cotton Fabric Roll', quantity: 25, unitPrice: 210.25, total: 5256.25 },
-          { name: 'Buttons (Pack of 100)', quantity: 15, unitPrice: 150, total: 2250 }
-        ],
-        date: '2021-04-20',
-        supplier: 'Cloth World',
-        subtotal: 7506.25,
-        vat: 0,
-        tax: 0,
-        discount: 0,
-        total: 7506.25,
-        paid: 7000,
-        balance: 506.25,
-        paymentStatus: 'Pending',
-        purchaseStatus: 'Received',
-        orderBy: 'Jean Dyer'
-      },
-      {
-        id: '#PR-00007',
-        items: [
-          { name: 'Plastic Bottles', quantity: 200, unitPrice: 18.5, total: 3700 },
-          { name: 'Bottle Caps', quantity: 200, unitPrice: 2, total: 400 }
-        ],
-        date: '2021-05-01',
-        supplier: 'EcoPack Ltd.',
-        subtotal: 4100,
-        vat: 0,
-        tax: 0,
-        discount: 100,
-        total: 4000,
-        paid: 2000,
-        balance: 2000,
-        paymentStatus: 'Partial',
-        purchaseStatus: 'Received',
-        orderBy: 'Tom Harris'
-      },
-      {
-        id: '#PR-00008',
-        items: [
-          { name: 'PVC Pipe', quantity: 60, unitPrice: 95, total: 5700 },
-          { name: 'Pipe Connector', quantity: 30, unitPrice: 45, total: 1350 }
-        ],
-        date: '2021-05-14',
-        supplier: 'PipeZone',
-        subtotal: 7050,
-        vat: 0,
-        tax: 0,
-        discount: 50,
-        total: 7000,
-        paid: 7000,
-        balance: 0,
-        paymentStatus: 'Paid',
-        purchaseStatus: 'Received',
-        orderBy: 'Sophie Lane'
-      },
-      {
-        id: '#PR-00009',
-        items: [
-          { name: 'Toner Cartridge', quantity: 4, unitPrice: 3500, total: 14000 },
-          { name: 'Stapler', quantity: 10, unitPrice: 250, total: 2500 }
-        ],
-        date: '2021-05-25',
-        supplier: 'Stationery World',
-        subtotal: 16500,
-        vat: 0,
-        tax: 0,
-        discount: 500,
-        total: 16000,
-        paid: 8000,
-        balance: 8000,
-        paymentStatus: 'Partial',
-        purchaseStatus: 'Received',
-        orderBy: 'Michael Ross'
-      },
-      {
-        id: '#PR-00010',
-        items: [
-          { name: 'Wood Planks', quantity: 80, unitPrice: 220, total: 17600 },
-          { name: 'Glue Pack', quantity: 25, unitPrice: 90, total: 2250 }
-        ],
-        date: '2021-06-10',
-        supplier: 'WoodCraft Depot',
-        subtotal: 19850,
-        vat: 0,
-        tax: 0,
-        discount: 850,
-        total: 19000,
-        paid: 19000,
-        balance: 0,
-        paymentStatus: 'Paid',
-        purchaseStatus: 'Received',
-        orderBy: 'Olivia Chen'
-      },
-      {
-        id: '#PR-00011',
-        items: [
-          { name: 'LED Light', quantity: 40, unitPrice: 250, total: 10000 },
-          { name: 'Wiring Cable (Roll)', quantity: 10, unitPrice: 1200, total: 12000 }
-        ],
-        date: '2021-06-22',
-        supplier: 'ElectroMart',
-        subtotal: 22000,
-        vat: 0,
-        tax: 0,
-        discount: 2000,
-        total: 20000,
-        paid: 15000,
-        balance: 5000,
-        paymentStatus: 'Pending',
-        purchaseStatus: 'Received',
-        orderBy: 'James Carter'
-      },
-      {
-        id: '#PR-00012',
-        items: [
-          { name: 'Paint Bucket (20L)', quantity: 6, unitPrice: 950, total: 5700 },
-          { name: 'Paint Brush Set', quantity: 8, unitPrice: 300, total: 2400 },
-          { name: 'Thinner (5L)', quantity: 4, unitPrice: 600, total: 2400 }
-        ],
-        date: '2021-07-05',
-        supplier: 'ColorMix Supplies',
-        subtotal: 10500,
-        vat: 0,
-        tax: 0,
-        discount: 500,
-        total: 10000,
-        paid: 10000,
-        balance: 0,
-        paymentStatus: 'Paid',
-        purchaseStatus: 'Received',
-        orderBy: 'Emma Brown'
-      },
-      {
-        id: '#PR-00013',
-        items: [
-          { name: 'Cleaning Mop', quantity: 10, unitPrice: 350, total: 3500 },
-          { name: 'Detergent (5L)', quantity: 5, unitPrice: 500, total: 2500 },
-          { name: 'Gloves (Pair)', quantity: 15, unitPrice: 100, total: 1500 }
-        ],
-        date: '2021-07-15',
-        supplier: 'Clean & Care Ltd.',
-        subtotal: 7500,
-        vat: 0,
-        tax: 0,
-        discount: 0,
-        total: 7500,
-        paid: 5000,
-        balance: 2500,
-        paymentStatus: 'Partial',
-        purchaseStatus: 'Received',
-        orderBy: 'Daniel Edwards'
-      }
-    ];
+   @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    const dropdown = document.querySelector('.dropdown');
+
+    if (dropdown && !dropdown.contains(target)) {
+      this.showColumnDropdown = false;
+    }
   }
 
   getEmptyFormData(): any {
@@ -308,6 +110,23 @@ export class PurchasesListComponent implements OnInit {
       orderBy: '',
       notes: ''
     };
+  }
+
+  // Column visibility methods
+  toggleColumnDropdown(): void {
+    this.showColumnDropdown = !this.showColumnDropdown;
+  }
+
+  toggleColumnVisibility(column: TableColumn): void {
+    column.visible = !column.visible;
+  }
+
+  get visibleColumns(): TableColumn[] {
+    return this.columns.filter(col => col.visible);
+  }
+
+  getVisibleColumnsCount(): number {
+    return this.visibleColumns.length + 1; // +1 for actions column
   }
 
   // Item management
@@ -414,6 +233,27 @@ export class PurchasesListComponent implements OnInit {
       total: 0
     };
   }
+
+  getCellValue(purchase: Purchase, columnKey: string): any {
+    switch(columnKey) {
+      case 'id': return purchase.id;
+      case 'items': return this.getItemsDisplay(purchase.items);
+      case 'date': return this.formatDate(purchase.date);
+      case 'supplier': return purchase.supplier;
+      case 'subtotal': return `$${purchase.subtotal.toFixed(2)}`;
+      case 'vat': return `${purchase.vat}%`;
+      case 'tax': return `${purchase.tax}%`;
+      case 'discount': return `$${purchase.discount.toFixed(2)}`;
+      case 'total': return `$${purchase.total.toFixed(2)}`;
+      case 'paid': return `$${purchase.paid.toFixed(2)}`;
+      case 'balance': return `$${purchase.balance.toFixed(2)}`;
+      case 'paymentStatus': return purchase.paymentStatus;
+      case 'purchaseStatus': return purchase.purchaseStatus;
+      case 'orderBy': return purchase.orderBy;
+      default: return '';
+    }
+  }
+
 
   openEditModal(purchase: Purchase): void {
     this.isEditMode = true;
@@ -663,7 +503,7 @@ export class PurchasesListComponent implements OnInit {
       <div class="memo-container">
         <div class="header">
           <div class="company-name">RAPID GLOBAL</div>
-          <div class="memo-title">PURCHASE MEMO</div>
+          <div class="memo-title">SELL MEMO</div>
         </div>
 
         <div class="memo-info">
@@ -754,7 +594,241 @@ export class PurchasesListComponent implements OnInit {
     printWindow.document.close();
   }
 
+    loadInitialData(): void {
+    // Convert old data format to new format
+    this.purchases = [
+      {
+        id: '#PR-00002',
+        items: [{ name: 'Cloth', quantity: 10, unitPrice: 155.1, total: 1551 }],
+        date: '2021-03-12',
+        supplier: 'Cloth Supplier',
+        subtotal: 1551,
+        vat: 0,
+        tax: 0,
+        discount: 0,
+        total: 1551,
+        paid: 1500,
+        balance: 51,
+        paymentStatus: 'Pending',
+        purchaseStatus: 'Received',
+        orderBy: 'Jean Dyer'
+      },
+      {
+        id: '#PR-00003',
+        items: [
+          { name: 'Printer Ink', quantity: 5, unitPrice: 320.5, total: 1602.5 },
+          { name: 'A4 Paper (Ream)', quantity: 10, unitPrice: 180, total: 1800 }
+        ],
+        date: '2021-03-15',
+        supplier: 'Office Supplies Co.',
+        subtotal: 3402.5,
+        vat: 0,
+        tax: 0,
+        discount: 100,
+        total: 3302.5,
+        paid: 3302.5,
+        balance: 0,
+        paymentStatus: 'Paid',
+        purchaseStatus: 'Received',
+        orderBy: 'Maria Gomez'
+      },
+      {
+        id: '#PR-00004',
+        items: [
+          { name: 'Steel Rods', quantity: 50, unitPrice: 110.75, total: 5537.5 },
+          { name: 'Nails Pack', quantity: 100, unitPrice: 15, total: 1500 }
+        ],
+        date: '2021-04-02',
+        supplier: 'BuildRight Hardware',
+        subtotal: 7037.5,
+        vat: 0,
+        tax: 0,
+        discount: 37.5,
+        total: 7000,
+        paid: 5000,
+        balance: 2000,
+        paymentStatus: 'Partial',
+        purchaseStatus: 'Received',
+        orderBy: 'Richard Hale'
+      },
+      {
+        id: '#PR-00005',
+        items: [
+          { name: 'Laptop', quantity: 2, unitPrice: 75000, total: 150000 },
+          { name: 'Mouse', quantity: 5, unitPrice: 800, total: 4000 }
+        ],
+        date: '2021-04-12',
+        supplier: 'Tech Haven',
+        subtotal: 154000,
+        vat: 0,
+        tax: 0,
+        discount: 4000,
+        total: 150000,
+        paid: 150000,
+        balance: 0,
+        paymentStatus: 'Paid',
+        purchaseStatus: 'Received',
+        orderBy: 'Sarah Wilson'
+      },
+      {
+        id: '#PR-00006',
+        items: [
+          { name: 'Cotton Fabric Roll', quantity: 25, unitPrice: 210.25, total: 5256.25 },
+          { name: 'Buttons (Pack of 100)', quantity: 15, unitPrice: 150, total: 2250 }
+        ],
+        date: '2021-04-20',
+        supplier: 'Cloth World',
+        subtotal: 7506.25,
+        vat: 0,
+        tax: 0,
+        discount: 0,
+        total: 7506.25,
+        paid: 7000,
+        balance: 506.25,
+        paymentStatus: 'Pending',
+        purchaseStatus: 'Received',
+        orderBy: 'Jean Dyer'
+      },
+      {
+        id: '#PR-00007',
+        items: [
+          { name: 'Plastic Bottles', quantity: 200, unitPrice: 18.5, total: 3700 },
+          { name: 'Bottle Caps', quantity: 200, unitPrice: 2, total: 400 }
+        ],
+        date: '2021-05-01',
+        supplier: 'EcoPack Ltd.',
+        subtotal: 4100,
+        vat: 0,
+        tax: 0,
+        discount: 100,
+        total: 4000,
+        paid: 2000,
+        balance: 2000,
+        paymentStatus: 'Partial',
+        purchaseStatus: 'Received',
+        orderBy: 'Tom Harris'
+      },
+      {
+        id: '#PR-00008',
+        items: [
+          { name: 'PVC Pipe', quantity: 60, unitPrice: 95, total: 5700 },
+          { name: 'Pipe Connector', quantity: 30, unitPrice: 45, total: 1350 }
+        ],
+        date: '2021-05-14',
+        supplier: 'PipeZone',
+        subtotal: 7050,
+        vat: 0,
+        tax: 0,
+        discount: 50,
+        total: 7000,
+        paid: 7000,
+        balance: 0,
+        paymentStatus: 'Paid',
+        purchaseStatus: 'Received',
+        orderBy: 'Sophie Lane'
+      },
+      {
+        id: '#PR-00009',
+        items: [
+          { name: 'Toner Cartridge', quantity: 4, unitPrice: 3500, total: 14000 },
+          { name: 'Stapler', quantity: 10, unitPrice: 250, total: 2500 }
+        ],
+        date: '2021-05-25',
+        supplier: 'Stationery World',
+        subtotal: 16500,
+        vat: 0,
+        tax: 0,
+        discount: 500,
+        total: 16000,
+        paid: 8000,
+        balance: 8000,
+        paymentStatus: 'Partial',
+        purchaseStatus: 'Received',
+        orderBy: 'Michael Ross'
+      },
+      {
+        id: '#PR-00010',
+        items: [
+          { name: 'Wood Planks', quantity: 80, unitPrice: 220, total: 17600 },
+          { name: 'Glue Pack', quantity: 25, unitPrice: 90, total: 2250 }
+        ],
+        date: '2021-06-10',
+        supplier: 'WoodCraft Depot',
+        subtotal: 19850,
+        vat: 0,
+        tax: 0,
+        discount: 850,
+        total: 19000,
+        paid: 19000,
+        balance: 0,
+        paymentStatus: 'Paid',
+        purchaseStatus: 'Received',
+        orderBy: 'Olivia Chen'
+      },
+      {
+        id: '#PR-00011',
+        items: [
+          { name: 'LED Light', quantity: 40, unitPrice: 250, total: 10000 },
+          { name: 'Wiring Cable (Roll)', quantity: 10, unitPrice: 1200, total: 12000 }
+        ],
+        date: '2021-06-22',
+        supplier: 'ElectroMart',
+        subtotal: 22000,
+        vat: 0,
+        tax: 0,
+        discount: 2000,
+        total: 20000,
+        paid: 15000,
+        balance: 5000,
+        paymentStatus: 'Pending',
+        purchaseStatus: 'Received',
+        orderBy: 'James Carter'
+      },
+      {
+        id: '#PR-00012',
+        items: [
+          { name: 'Paint Bucket (20L)', quantity: 6, unitPrice: 950, total: 5700 },
+          { name: 'Paint Brush Set', quantity: 8, unitPrice: 300, total: 2400 },
+          { name: 'Thinner (5L)', quantity: 4, unitPrice: 600, total: 2400 }
+        ],
+        date: '2021-07-05',
+        supplier: 'ColorMix Supplies',
+        subtotal: 10500,
+        vat: 0,
+        tax: 0,
+        discount: 500,
+        total: 10000,
+        paid: 10000,
+        balance: 0,
+        paymentStatus: 'Paid',
+        purchaseStatus: 'Received',
+        orderBy: 'Emma Brown'
+      },
+      {
+        id: '#PR-00013',
+        items: [
+          { name: 'Cleaning Mop', quantity: 10, unitPrice: 350, total: 3500 },
+          { name: 'Detergent (5L)', quantity: 5, unitPrice: 500, total: 2500 },
+          { name: 'Gloves (Pair)', quantity: 15, unitPrice: 100, total: 1500 }
+        ],
+        date: '2021-07-15',
+        supplier: 'Clean & Care Ltd.',
+        subtotal: 7500,
+        vat: 0,
+        tax: 0,
+        discount: 0,
+        total: 7500,
+        paid: 5000,
+        balance: 2500,
+        paymentStatus: 'Partial',
+        purchaseStatus: 'Received',
+        orderBy: 'Daniel Edwards'
+      }
+    ];
+  }
+
 }
+
 
 
 

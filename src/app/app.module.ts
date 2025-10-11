@@ -17,7 +17,6 @@ import { CustomersComponent } from './inventory/sales/customers/customers.compon
 import { CustomerComponent } from './inventory/customer/customer.component';
 import { PurchasesListComponent } from './inventory/purchases/purchases-list/purchases-list.component';
 import { PurchasesReturnsComponent } from './inventory/purchases/purchases-returns/purchases-returns.component';
-import { SuppliersComponent } from './inventory/purchases/suppliers/suppliers.component';
 import { SupplierPaymentComponent } from './inventory/purchases/supplier-payment/supplier-payment.component';
 import { InventoryReportsComponent } from './inventory/report/inventory-reports/inventory-reports.component';
 import { PurchaseReportsComponent } from './inventory/report/purchase-reports/purchase-reports.component';
@@ -28,6 +27,7 @@ import { FormsModule } from '@angular/forms';
 import { ProfitAndLossComponent } from './inventory/report/profit-and-loss/profit-and-loss.component';
 import { ExpensesComponent } from './inventory/accounts/expenses/expenses.component';
 import { EstimateComponent } from './inventory/sales/estimate/estimate.component';
+import { SuppliersComponent } from './inventory/purchases/suppliers/suppliers.component';
 
 @NgModule({
   declarations: [

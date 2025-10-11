@@ -38,13 +38,13 @@ body {
     padding: 8px 8px;
     color: white;
     background-color: #000000;
-    text-align: center;
+    text-align: center; /* Center align text in table header */
 }
 
 .table tbody td {
     padding: 5px 5px;
     vertical-align: middle;
-    text-align: center;
+    text-align: center; /* Center align text in table body */
 }
 
 
