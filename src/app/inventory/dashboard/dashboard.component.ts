@@ -1,4 +1,3 @@
-// dashboard.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -30,6 +29,13 @@ interface WeeklyData {
   orders: number;
 }
 
+interface InventoryItem {
+  label: string;
+  count: number;
+  icon?: string;
+  color?: string;
+}
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -38,6 +44,7 @@ interface WeeklyData {
 export class DashboardComponent implements OnInit {
   timeFilter: string = 'today';
 
+  // Main Metrics Data
   mainMetrics: MetricCardData[] = [
     {
       title: 'Total Revenue',
@@ -77,6 +84,7 @@ export class DashboardComponent implements OnInit {
     }
   ];
 
+  // Secondary Metrics Data
   secondaryMetrics: MetricCardData[] = [
     {
       title: 'Due Amount',
@@ -116,7 +124,8 @@ export class DashboardComponent implements OnInit {
     }
   ];
 
-  inventoryItems = [
+  // Inventory Items
+  inventoryItems: InventoryItem[] = [
     { label: 'Sublimation Paper', count: 6, icon: 'assets/paper-roll.png' },
     { label: 'Supporting Paper', count: 6, icon: 'assets/toilet-roll.png' },
     { label: 'Cyan Ink', count: 14, color: 'cyan' },
@@ -125,6 +134,7 @@ export class DashboardComponent implements OnInit {
     { label: 'Black Ink', count: 9, color: 'black' }
   ];
 
+  // Sales Data for Charts
   salesData: SalesData[] = [
     { month: 'Jan', sales: 12000, profit: 4200, expenses: 7800 },
     { month: 'Feb', sales: 15000, profit: 5500, expenses: 9500 },
@@ -134,6 +144,7 @@ export class DashboardComponent implements OnInit {
     { month: 'Jun', sales: 19500, profit: 7800, expenses: 11700 }
   ];
 
+  // Category Data for Pie Chart
   categoryData: CategoryData[] = [
     { name: 'T-Shirts', value: 35, color: '#ff6b6b' },
     { name: 'Mugs', value: 25, color: '#4ecdc4' },
@@ -142,6 +153,7 @@ export class DashboardComponent implements OnInit {
     { name: 'Others', value: 8, color: '#a29bfe' }
   ];
 
+  // Weekly Orders Data
   weeklyData: WeeklyData[] = [
     { day: 'Mon', orders: 45 },
     { day: 'Tue', orders: 52 },
@@ -152,28 +164,28 @@ export class DashboardComponent implements OnInit {
     { day: 'Sun', orders: 48 }
   ];
 
-  bottomStats = [
-    { icon: 'users', label: 'Customers', value: '14,208', color: 'text-blue-600' },
-    { icon: 'shopping-cart', label: 'Orders', value: '2,314', color: 'text-yellow-600' },
-    { icon: 'dollar-sign', label: 'Avg Sale', value: '$1,770', color: 'text-green-600' },
-    { icon: 'package', label: 'Avg Item Sale', value: '185', color: 'text-red-600' },
-    { icon: 'trending-up', label: 'Total Sale', value: '$35,000', color: 'text-teal-600' },
-    { icon: 'eye', label: 'Visitors', value: '11,452', color: 'text-purple-600' }
-  ];
-
-  timeFilters = ['today', 'week', 'month', 'year'];
+  // Time Filters
+  timeFilters: string[] = ['today', 'week', 'month', 'year'];
+charts: any;
 
   ngOnInit(): void {
-    // Initialize charts after view init
+    // Initialize charts after view is ready
     setTimeout(() => {
       this.initializeCharts();
     }, 100);
   }
 
+  /**
+   * Set active time filter
+   */
   setTimeFilter(filter: string): void {
     this.timeFilter = filter;
+    // You can add logic here to update data based on filter
   }
 
+  /**
+   * Initialize all charts
+   */
   initializeCharts(): void {
     this.drawSalesChart();
     this.drawPieChart();
@@ -181,6 +193,9 @@ export class DashboardComponent implements OnInit {
     this.drawLineChart();
   }
 
+  /**
+   * Draw Sales & Profit Trend Chart
+   */
   drawSalesChart(): void {
     const canvas = document.getElementById('salesChart') as HTMLCanvasElement;
     if (!canvas) return;
@@ -194,10 +209,8 @@ export class DashboardComponent implements OnInit {
     const chartWidth = width - padding * 2;
     const chartHeight = height - padding * 2;
 
-    // Clear canvas
     ctx.clearRect(0, 0, width, height);
 
-    // Find max value for scaling
     const maxValue = Math.max(...this.salesData.map(d => Math.max(d.sales, d.profit)));
     const scale = chartHeight / maxValue;
 
@@ -220,11 +233,7 @@ export class DashboardComponent implements OnInit {
     this.salesData.forEach((data, index) => {
       const x = padding + (chartWidth / (this.salesData.length - 1)) * index;
       const y = height - padding - data.sales * scale;
-      if (index === 0) {
-        ctx.lineTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
+      ctx.lineTo(x, y);
     });
 
     ctx.lineTo(width - padding, height - padding);
@@ -255,11 +264,7 @@ export class DashboardComponent implements OnInit {
     this.salesData.forEach((data, index) => {
       const x = padding + (chartWidth / (this.salesData.length - 1)) * index;
       const y = height - padding - data.profit * scale;
-      if (index === 0) {
-        ctx.lineTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
+      ctx.lineTo(x, y);
     });
 
     ctx.lineTo(width - padding, height - padding);
@@ -292,6 +297,9 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  /**
+   * Draw Sales by Category Pie Chart
+   */
   drawPieChart(): void {
     const canvas = document.getElementById('pieChart') as HTMLCanvasElement;
     if (!canvas) return;
@@ -334,6 +342,9 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  /**
+   * Draw Weekly Orders Bar Chart
+   */
   drawBarChart(): void {
     const canvas = document.getElementById('barChart') as HTMLCanvasElement;
     if (!canvas) return;
@@ -383,6 +394,9 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  /**
+   * Draw Revenue vs Expenses Line Chart
+   */
   drawLineChart(): void {
     const canvas = document.getElementById('lineChart') as HTMLCanvasElement;
     if (!canvas) return;
@@ -464,6 +478,9 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  /**
+   * Get SVG path for icons
+   */
   getIconSvg(icon: string): string {
     const icons: { [key: string]: string } = {
       'dollar-sign': 'M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6',
