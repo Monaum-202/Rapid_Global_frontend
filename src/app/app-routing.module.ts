@@ -1,3 +1,5 @@
+
+// src/app/app-routing.module.ts
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { InventoryComponent } from './inventory/inventory.component';
@@ -5,7 +7,6 @@ import { DashboardComponent } from './inventory/dashboard/dashboard.component';
 import { AllOrdersComponent } from './inventory/orders/all-orders/all-orders.component';
 import { SideNavComponent } from './inventory/side-nav/side-nav.component';
 import { SupplierComponent } from './inventory/supplier/supplier.component';
-
 import { SalesListComponent } from './inventory/sales/sales-list/sales-list.component';
 import { CustomerPaymentComponent } from './inventory/sales/customer-payment/customer-payment.component';
 import { SalesReturnComponent } from './inventory/sales/sales-return/sales-return.component';
@@ -22,54 +23,53 @@ import { SalesReportsComponent } from './inventory/report/sales-reports/sales-re
 import { ProfitAndLossComponent } from './inventory/report/profit-and-loss/profit-and-loss.component';
 import { ExpensesComponent } from './inventory/accounts/expenses/expenses.component';
 import { EstimateComponent } from './inventory/sales/estimate/estimate.component';
+import { LoginComponent } from './auth/login/login.component';
+import { authGuard } from './core/guards/auth.guard';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-  { path: 'inventory',component: InventoryComponent,children: [
-    { path: '', component: DashboardComponent },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: 'login', component: LoginComponent },
+  {
+    path: 'inventory',
+    component: InventoryComponent,
+    canActivate: [authGuard],
+    children: [
+      // Dashboard
+      { path: 'dashboard', component: DashboardComponent },
 
+      // Sales
+      { path: 'sales-list', component: SalesListComponent },
+      { path: 'customer', component: CustomersComponent },
+      { path: 'customer-payment', component: CustomerPaymentComponent },
+      { path: 'sales-return', component: SalesReturnComponent },
+      { path: 'estimate', component: EstimateComponent },
 
-    //Dashboard
-    {path: 'dashboard', component: DashboardComponent},
+      // Purchases
+      { path: 'purchase-list', component: PurchasesListComponent },
+      { path: 'supplier', component: SuppliersComponent },
+      { path: 'supplier-payment', component: SupplierPaymentComponent },
+      { path: 'purchase-return', component: PurchasesReturnsComponent },
 
-    //Sales
-    {path: 'sales-list',component:SalesListComponent},
-    {path: 'customer',component:CustomersComponent},
-    {path: 'customer-payment',component:CustomerPaymentComponent},
-    {path: 'sales-return',component:SalesReturnComponent},
-    {path: 'estimate',component:EstimateComponent},
+      // Reports
+      { path: 'inventory-report', component: InventoryReportsComponent },
+      { path: 'purchase-report', component: PurchaseReportsComponent },
+      { path: 'sales-report', component: SalesReportsComponent },
+      { path: 'payment-report', component: PurchasesReturnsComponent },
+      { path: 'profit-loss-statement', component: ProfitAndLossComponent },
 
-    //Purchases
-    {path: 'purchase-list',component:PurchasesListComponent},
-    {path: 'supplier',component:SuppliersComponent},
-    {path: 'supplier-payment',component:SupplierPaymentComponent},
-    {path: 'purchase-return',component:PurchasesReturnsComponent},
+      // Inventory
+      { path: 'stock-details', component: StockDetailsComponent },
+      { path: 'stock-list', component: StockListComponent },
 
+      // Accounts
+      { path: 'expenses', component: ExpensesComponent },
 
-    //Reports
-
-    {path: 'inventory-report',component:InventoryReportsComponent},
-    {path: 'purchase-report',component:PurchaseReportsComponent},
-    {path: 'sales-report',component:SalesReportsComponent},
-    {path: 'payment-report',component:PurchasesReturnsComponent},
-    {path: 'profit-loss-statement',component:ProfitAndLossComponent},
-
-    //Inventory
-    {path: 'stock-details',component:StockDetailsComponent},
-    {path: 'stock-list',component:StockListComponent},
-    {path: 'purchase-report',component:SuppliersComponent},
-    {path: 'sales-report',component:SupplierPaymentComponent},
-    {path: 'payment-report',component:PurchasesReturnsComponent},
-
-    //Accounts
-    {path: 'expenses',component:ExpensesComponent},
-
-    {path: 'all-orders',component: AllOrdersComponent},
-    {path: 'side-bar',component:SideNavComponent},
-    {path: 'suppliers',component:SupplierComponent},
-  ]
+      { path: 'all-orders', component: AllOrdersComponent },
+      { path: 'side-bar', component: SideNavComponent },
+      { path: 'suppliers', component: SupplierComponent },
+    ]
   },
-  { path: '**', redirectTo: '/inventory' }
+  { path: '**', redirectTo: '/login' }
 ];
 
 @NgModule({

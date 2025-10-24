@@ -1,0 +1,59 @@
+<!-- src/app/auth/login/login.component.html -->
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <h2>Inventory Management System</h2>
+      <p>Sign in to continue</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="login">Username</label>
+        <input
+          type="text"
+          id="login"
+          formControlName="login"
+          class="form-control"
+          placeholder="Enter your username"
+          [class.is-invalid]="f['login'].invalid && f['login'].touched"
+        />
+        <div class="invalid-feedback" *ngIf="f['login'].invalid && f['login'].touched">
+          <span *ngIf="f['login'].errors?.['required']">Username is required</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          class="form-control"
+          placeholder="Enter your password"
+          [class.is-invalid]="f['password'].invalid && f['password'].touched"
+        />
+        <div class="invalid-feedback" *ngIf="f['password'].invalid && f['password'].touched">
+          <span *ngIf="f['password'].errors?.['required']">Password is required</span>
+          <span *ngIf="f['password'].errors?.['minlength']">Password must be at least 3 characters</span>
+        </div>
+      </div>
+
+      <div class="error-message" *ngIf="errorMessage">
+        <i class="error-icon">⚠️</i>
+        {{ errorMessage }}
+      </div>
+
+      <button
+        type="submit"
+        class="btn-login"
+        [disabled]="loading"
+      >
+        <span *ngIf="!loading">Sign In</span>
+        <span *ngIf="loading">
+          <span class="spinner"></span>
+          Signing in...
+        </span>
+      </button>
+    </form>
+  </div>
+</div>

@@ -23,11 +23,12 @@ import { PurchaseReportsComponent } from './inventory/report/purchase-reports/pu
 import { SalesReportsComponent } from './inventory/report/sales-reports/sales-reports.component';
 import { PaymentReportsComponent } from './inventory/report/payment-reports/payment-reports.component';
 import { StockDetailsComponent } from './inventory/inventoryMenu/stock-details/stock-details.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ProfitAndLossComponent } from './inventory/report/profit-and-loss/profit-and-loss.component';
 import { ExpensesComponent } from './inventory/accounts/expenses/expenses.component';
 import { EstimateComponent } from './inventory/sales/estimate/estimate.component';
 import { SuppliersComponent } from './inventory/purchases/suppliers/suppliers.component';
+import { LoginComponent } from './auth/login/login.component';
 
 @NgModule({
   declarations: [
@@ -55,13 +56,15 @@ import { SuppliersComponent } from './inventory/purchases/suppliers/suppliers.co
     StockDetailsComponent,
     ProfitAndLossComponent,
     ExpensesComponent,
-    EstimateComponent
+    EstimateComponent,
+    LoginComponent
 
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    FormsModule
+    FormsModule,
+    ReactiveFormsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

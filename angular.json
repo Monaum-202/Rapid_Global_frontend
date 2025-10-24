@@ -16,7 +16,7 @@
             "outputPath": "dist/rapid-global",
             "index": "src/index.html",
             "main": "src/main.ts",
-            "baseHref": "/Rapid_Global_frontend/",
+            "baseHref": "/",
             "polyfills": [
               "zone.js"
             ],
