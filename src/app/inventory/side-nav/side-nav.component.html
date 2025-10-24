@@ -6,75 +6,53 @@
 </button>
 
 <!-- Sidebar Overlay for Mobile -->
-<div class="sidebar-overlay"
-     [class.active]="isMobileMenuOpen"
-     (click)="closeMobileMenu()">
-</div>
+<div class="sidebar-overlay" [class.active]="isMobileMenuOpen" (click)="closeMobileMenu()"></div>
 
 <!-- Sidebar -->
-<div class="sidebar"
-     [class.collapsed]="isSidebarCollapsed && !isMobileView"
-     [class.mobile-open]="isMobileMenuOpen">
-
+<div class="sidebar" [class.collapsed]="isSidebarCollapsed && !isMobileView" [class.mobile-open]="isMobileMenuOpen">
   <h2 class="text-center text-white mb-4">Rapid Global</h2>
 
   <div id="sidebarAccordion" class="nav flex-column">
     <!-- Dashboard -->
-    <a routerLink="/inventory/dashboard"
-       routerLinkActive="active"
-       class="nav-link text-white"
-       (click)="onLinkClick()">
+    <a routerLink="/inventory/dashboard" routerLinkActive="active" class="nav-link text-white" (click)="onLinkClick()">
       <i class="fa fa-house"></i>
       <span>Dashboard</span>
     </a>
 
     <!-- Sales Section -->
-    <a class="nav-link text-white d-flex justify-content-between align-items-center"
-       data-bs-toggle="collapse"
-       href="#salesMenu"
-       role="button"
-       aria-expanded="false"
-       aria-controls="salesMenu">
+    <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
+      href="#salesMenu" role="button" aria-expanded="false" aria-controls="salesMenu" >
+
       <span>
         <i class="fa fa-shopping-cart"></i>
-        <span>Sales</span>
+        <span> Sales</span>
       </span>
       <i class="fa fa-chevron-down"></i>
     </a>
     <div class="collapse" id="salesMenu" data-bs-parent="#sidebarAccordion">
       <ul class="nav flex-column">
         <li>
-          <a routerLink="/inventory/sales-list"
-             class="nav-link text-white"
-             (click)="onLinkClick()">
+          <a routerLink="/inventory/sales-list" class="nav-link text-white" (click)="onLinkClick()">
             Sales List
           </a>
         </li>
         <li>
-          <a routerLink="/inventory/customer"
-             class="nav-link text-white"
-             (click)="onLinkClick()">
+          <a routerLink="/inventory/customer" class="nav-link text-white" (click)="onLinkClick()">
             Customers List
           </a>
         </li>
         <li>
-          <a routerLink="/inventory/customer-payment"
-             class="nav-link text-white"
-             (click)="onLinkClick()">
+          <a routerLink="/inventory/customer-payment" class="nav-link text-white" (click)="onLinkClick()">
             Customer Payments
           </a>
         </li>
         <li>
-          <a routerLink="/inventory/sales-return"
-             class="nav-link text-white"
-             (click)="onLinkClick()">
+          <a routerLink="/inventory/sales-return" class="nav-link text-white" (click)="onLinkClick()">
             Sales Returns
           </a>
         </li>
         <li>
-          <a routerLink="/inventory/estimate"
-             class="nav-link text-white"
-             (click)="onLinkClick()">
+          <a routerLink="/inventory/estimate" class="nav-link text-white" (click)="onLinkClick()">
             Estimates
           </a>
         </li>
@@ -82,45 +60,33 @@
     </div>
 
     <!-- Purchases Section -->
-    <a class="nav-link text-white d-flex justify-content-between align-items-center"
-       data-bs-toggle="collapse"
-       href="#purchasesMenu"
-       role="button"
-       aria-expanded="false"
-       aria-controls="purchasesMenu">
+    <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
+      href="#purchasesMenu" role="button" aria-expanded="false" aria-controls="purchasesMenu">
       <span>
         <i class="fa fa-receipt"></i>
-        <span>Purchases</span>
+        <span> Purchases</span>
       </span>
       <i class="fa fa-chevron-down"></i>
     </a>
     <div class="collapse" id="purchasesMenu" data-bs-parent="#sidebarAccordion">
       <ul class="nav flex-column">
         <li>
-          <a routerLink="/inventory/purchase-list"
-             class="nav-link text-white"
-             (click)="onLinkClick()">
+          <a routerLink="/inventory/purchase-list" class="nav-link text-white" (click)="onLinkClick()">
             Purchase List
           </a>
         </li>
         <li>
-          <a routerLink="/inventory/supplier"
-             class="nav-link text-white"
-             (click)="onLinkClick()">
+          <a routerLink="/inventory/supplier" class="nav-link text-white" (click)="onLinkClick()">
             Suppliers List
           </a>
         </li>
         <li>
-          <a routerLink="/inventory/supplier-payment"
-             class="nav-link text-white"
-             (click)="onLinkClick()">
+          <a routerLink="/inventory/supplier-payment" class="nav-link text-white" (click)="onLinkClick()">
             Supplier Payments
           </a>
         </li>
         <li>
-          <a routerLink="/inventory/purchase-return"
-             class="nav-link text-white"
-             (click)="onLinkClick()">
+          <a routerLink="/inventory/purchase-return" class="nav-link text-white" (click)="onLinkClick()">
             Purchase Returns
           </a>
         </li>
@@ -130,65 +96,62 @@
     <!-- Production / Manufacturing -->
     <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
       href="#productionMenu" role="button" aria-expanded="false" aria-controls="productionMenu">
-      <span><i class="fa fa-industry"></i> Production</span>
+      <span>
+        <i class="fa fa-industry"></i>
+        <span> Production</span>
+      </span>
       <i class="fa fa-chevron-down"></i>
     </a>
     <div class="collapse" id="productionMenu" data-bs-parent="#sidebarAccordion">
       <ul class="nav flex-column ms-3">
-        <li><a routerLink="/inventory/bill-of-materials" class="nav-link text-white">Bill of Materials (BOM)</a></li>
-        <li><a routerLink="/inventory/production-entry" class="nav-link text-white">Production Entry</a></li>
-        <li><a routerLink="/inventory/work-order" class="nav-link text-white">Work Orders</a></li>
-        <li><a routerLink="/inventory/wastage" class="nav-link text-white">Wastage Management</a></li>
+        <li>
+          <a routerLink="/inventory/bill-of-materials" class="nav-link text-white">Bill of Materials (BOM)</a>
+        </li>
+        <li>
+          <a routerLink="/inventory/production-entry" class="nav-link text-white">Production Entry</a>
+        </li>
+        <li>
+          <a routerLink="/inventory/work-order" class="nav-link text-white">Work Orders</a>
+        </li>
+        <li>
+          <a routerLink="/inventory/wastage" class="nav-link text-white">Wastage Management</a>
+        </li>
       </ul>
     </div>
 
     <!-- Inventory Section -->
-    <a class="nav-link text-white d-flex justify-content-between align-items-center"
-       data-bs-toggle="collapse"
-       href="#inventoryMenu"
-       role="button"
-       aria-expanded="false"
-       aria-controls="inventoryMenu">
+    <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
+      href="#inventoryMenu" role="button" aria-expanded="false" aria-controls="inventoryMenu">
       <span>
         <i class="fa fa-chart-line"></i>
-        <span>Inventory</span>
+        <span> Inventory</span>
       </span>
       <i class="fa fa-chevron-down"></i>
     </a>
     <div class="collapse" id="inventoryMenu" data-bs-parent="#sidebarAccordion">
       <ul class="nav flex-column">
         <li>
-          <a routerLink="stock-list"
-             class="nav-link text-white"
-             (click)="onLinkClick()">
+          <a routerLink="stock-list" class="nav-link text-white" (click)="onLinkClick()">
             Stock List
           </a>
         </li>
         <li>
-          <a routerLink="stock-details"
-             class="nav-link text-white"
-             (click)="onLinkClick()">
+          <a routerLink="stock-details" class="nav-link text-white" (click)="onLinkClick()">
             Stock Details
           </a>
         </li>
         <li>
-          <a routerLink="#"
-             class="nav-link text-white"
-             (click)="onLinkClick()">
+          <a routerLink="#" class="nav-link text-white" (click)="onLinkClick()">
             Stock In
           </a>
         </li>
         <li>
-          <a routerLink="#"
-             class="nav-link text-white"
-             (click)="onLinkClick()">
+          <a routerLink="#" class="nav-link text-white" (click)="onLinkClick()">
             Stock Out
           </a>
         </li>
         <li>
-          <a routerLink="#"
-             class="nav-link text-white"
-             (click)="onLinkClick()">
+          <a routerLink="#" class="nav-link text-white" (click)="onLinkClick()">
             Wastage Management
           </a>
         </li>
@@ -196,52 +159,38 @@
     </div>
 
     <!-- Accounts Section -->
-    <a class="nav-link text-white d-flex justify-content-between align-items-center"
-       data-bs-toggle="collapse"
-       href="#accountsMenu"
-       role="button"
-       aria-expanded="false"
-       aria-controls="accountsMenu">
+    <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
+      href="#accountsMenu" role="button" aria-expanded="false" aria-controls="accountsMenu">
       <span>
         <i class="fa fa-wallet"></i>
-        <span>Accounts</span>
+        <span> Accounts</span>
       </span>
       <i class="fa fa-chevron-down"></i>
     </a>
     <div class="collapse" id="accountsMenu" data-bs-parent="#sidebarAccordion">
       <ul class="nav flex-column">
         <li>
-          <a routerLink="#"
-             class="nav-link text-white"
-             (click)="onLinkClick()">
+          <a routerLink="#" class="nav-link text-white" (click)="onLinkClick()">
             Incomes
           </a>
         </li>
         <li>
-          <a routerLink="expenses"
-             class="nav-link text-white"
-             (click)="onLinkClick()">
+          <a routerLink="expenses" class="nav-link text-white" (click)="onLinkClick()">
             Expenses
           </a>
         </li>
         <li>
-          <a routerLink="#"
-             class="nav-link text-white"
-             (click)="onLinkClick()">
+          <a routerLink="#" class="nav-link text-white" (click)="onLinkClick()">
             Vendor Ledger
           </a>
         </li>
         <li>
-          <a routerLink="#"
-             class="nav-link text-white"
-             (click)="onLinkClick()">
+          <a routerLink="#" class="nav-link text-white" (click)="onLinkClick()">
             Customer Ledger
           </a>
         </li>
         <li>
-          <a routerLink="profit-loss-statement"
-             class="nav-link text-white"
-             (click)="onLinkClick()">
+          <a routerLink="profit-loss-statement" class="nav-link text-white" (click)="onLinkClick()">
             Profit &amp; Loss
           </a>
         </li>
@@ -249,73 +198,54 @@
     </div>
 
     <!-- Reports Section -->
-    <a class="nav-link text-white d-flex justify-content-between align-items-center"
-       data-bs-toggle="collapse"
-       href="#reportsMenu"
-       role="button"
-       aria-expanded="false"
-       aria-controls="reportsMenu">
+    <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
+      href="#reportsMenu" role="button" aria-expanded="false" aria-controls="reportsMenu">
       <span>
         <i class="fa fa-chart-bar"></i>
-        <span>Reports</span>
+        <span> Reports</span>
       </span>
       <i class="fa fa-chevron-down"></i>
     </a>
     <div class="collapse" id="reportsMenu" data-bs-parent="#sidebarAccordion">
       <ul class="nav flex-column">
         <li>
-          <a routerLink="inventory-report"
-             class="nav-link text-white"
-             (click)="onLinkClick()">
+          <a routerLink="inventory-report" class="nav-link text-white" (click)="onLinkClick()">
             Inventory Reports
           </a>
         </li>
         <li>
-          <a routerLink="purchase-report"
-             class="nav-link text-white"
-             (click)="onLinkClick()">
+          <a routerLink="purchase-report" class="nav-link text-white" (click)="onLinkClick()">
             Purchase Reports
           </a>
         </li>
         <li>
-          <a routerLink="sales-report"
-             class="nav-link text-white"
-             (click)="onLinkClick()">
+          <a routerLink="sales-report" class="nav-link text-white" (click)="onLinkClick()">
             Sales Reports
           </a>
         </li>
         <li>
-          <a routerLink="payment-report"
-             class="nav-link text-white"
-             (click)="onLinkClick()">
+          <a routerLink="payment-report" class="nav-link text-white" (click)="onLinkClick()">
             Payment Reports
           </a>
         </li>
       </ul>
     </div>
-
   </div>
 
-  <hr style="background-color: white;" />
+  <hr style="background-color: white" />
 
   <!-- Settings & Support -->
-  <a routerLink="#"
-     class="nav-link text-white"
-     (click)="onLinkClick()">
+  <a routerLink="#" class="nav-link text-white" (click)="onLinkClick()">
     <i class="fa fa-cog"></i>
     <span>Settings</span>
   </a>
-  <a routerLink="#"
-     class="nav-link text-white"
-     (click)="onLinkClick()">
+  <a routerLink="#" class="nav-link text-white" (click)="onLinkClick()">
     <i class="fa fa-circle-info"></i>
     <span>Support</span>
   </a>
 </div>
 
 <!-- Desktop Toggle Button (only visible on desktop) -->
-<button class="toggle-btn"
-        (click)="toggleSidebar()"
-        *ngIf="!isMobileView">
+<button class="toggle-btn" (click)="toggleSidebar()" *ngIf="!isMobileView">
   <i class="fa" [class.fa-chevron-left]="!isSidebarCollapsed" [class.fa-chevron-right]="isSidebarCollapsed"></i>
 </button>

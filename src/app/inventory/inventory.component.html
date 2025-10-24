@@ -1,4 +1,6 @@
-<div class="app-container">
-  <app-side-nav></app-side-nav>
-  <router-outlet></router-outlet>
+<div class="app-container" [class.sidebar-collapsed]="sideNav.isSidebarCollapsed">
+  <app-side-nav #sideNav></app-side-nav>
+  <div class="main-content">
+    <router-outlet></router-outlet>
+  </div>
 </div>
