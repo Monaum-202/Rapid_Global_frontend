@@ -23,20 +23,19 @@ export class LoginComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Check if already logged in
-    if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/inventory/dashboard']);
-      return;
-    }
+  this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/inventory/dashboard';
 
-    this.loginForm = this.fb.group({
-      login: ['', [Validators.required]],
-      password: ['', [Validators.required, Validators.minLength(3)]]
-    });
-
-    // Get return url from route parameters or default to dashboard
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/inventory/dashboard';
+  if (this.authService.isAuthenticated()) {
+    this.router.navigate([this.returnUrl]);
+    return;
   }
+
+  this.loginForm = this.fb.group({
+    login: ['', [Validators.required]],
+    password: ['', [Validators.required, Validators.minLength(3)]]
+  });
+}
+
 
   onSubmit(): void {
     if (this.loginForm.invalid) {

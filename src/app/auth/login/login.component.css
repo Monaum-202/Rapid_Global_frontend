@@ -4,12 +4,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
   padding: 20px;
 }
 
 .login-card {
-  background: white;
+  background: rgb(19, 19, 19);
   border-radius: 12px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
   padding: 40px;
@@ -22,14 +22,14 @@
   margin-bottom: 30px;
 
   h2 {
-    color: #333;
+    color: #ffffff;
     font-size: 24px;
     font-weight: 600;
     margin-bottom: 8px;
   }
 
   p {
-    color: #666;
+    color: #ffffff;
     font-size: 14px;
   }
 }
@@ -39,7 +39,7 @@
 
   label {
     display: block;
-    color: #333;
+    color: #ffffff;
     font-weight: 500;
     margin-bottom: 8px;
     font-size: 14px;

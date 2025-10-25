@@ -27,14 +27,21 @@ import { LoginComponent } from './auth/login/login.component';
 import { authGuard } from './core/guards/auth.guard';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent },
+  {
+    path: '',
+    redirectTo: '/login',
+    pathMatch: 'full'
+  },
+  {
+    path: 'login',
+    component: LoginComponent
+  },
   {
     path: 'inventory',
     component: InventoryComponent,
     canActivate: [authGuard],
     children: [
-      // Dashboard
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, // Add this
       { path: 'dashboard', component: DashboardComponent },
 
       // Sales

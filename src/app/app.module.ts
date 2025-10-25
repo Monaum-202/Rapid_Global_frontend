@@ -29,6 +29,7 @@ import { ExpensesComponent } from './inventory/accounts/expenses/expenses.compon
 import { EstimateComponent } from './inventory/sales/estimate/estimate.component';
 import { SuppliersComponent } from './inventory/purchases/suppliers/suppliers.component';
 import { LoginComponent } from './auth/login/login.component';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -65,6 +66,7 @@ import { LoginComponent } from './auth/login/login.component';
     AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -19,8 +19,8 @@ export interface AuthResponse {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = 'http://localhost:9090/api/v1/auth';
-  private readonly TOKEN_KEY = 'auth_token';
+  private readonly API_URL = 'http://localhost:9091/api/auth';
+  private readonly TOKEN_KEY = 'auth_token'; // Consistent key name
   private readonly REFRESH_TOKEN_KEY = 'refresh_token';
 
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
@@ -31,20 +31,24 @@ export class AuthService {
     private router: Router
   ) {}
 
-  login(credentials: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.API_URL}/authenticate`, credentials)
-      .pipe(
-        tap(response => {
-          if (response.token) {
-            this.setToken(response.token);
-            if (response.refreshToken) {
-              this.setRefreshToken(response.refreshToken);
-            }
-            this.isAuthenticatedSubject.next(true);
+  login(credentials: LoginRequest): Observable<any> {
+  return this.http.post<any>(`${this.API_URL}/authenticate`, credentials)
+    .pipe(
+      tap(response => {
+        const accessToken = response?.data?.access_token;
+        const refreshToken = response?.data?.refresh_token;
+
+        if (accessToken) {
+          this.setToken(accessToken);
+          if (refreshToken) {
+            this.setRefreshToken(refreshToken);
           }
-        })
-      );
-  }
+          this.isAuthenticatedSubject.next(true);
+        }
+      })
+    );
+}
+
 
   logout(): void {
     this.clearTokens();
@@ -74,19 +78,46 @@ export class AuthService {
   }
 
   hasToken(): boolean {
-  const token = localStorage.getItem('authToken'); // or your token key
-  return token !== null && token !== undefined && token !== '';
-}
-
+    const token = localStorage.getItem(this.TOKEN_KEY); // Fixed: use TOKEN_KEY
+    return token !== null && token !== undefined && token !== '';
+  }
 
   isAuthenticated(): boolean {
-  const token = localStorage.getItem('authToken');
-  if (!token) return false;
+    const token = localStorage.getItem(this.TOKEN_KEY); // Fixed: use TOKEN_KEY
+    if (!token) return false;
 
-  // Optional: check token expiry if using JWT
-  // const payload = JSON.parse(atob(token.split('.')[1]));
-  // return payload.exp * 1000 > Date.now();
+    // Optional: check token expiry if using JWT
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const isExpired = payload.exp * 1000 < Date.now();
+      if (isExpired) {
+        this.clearTokens();
+        return false;
+      }
+    } catch (error) {
+      // If token parsing fails, assume invalid
+      return false;
+    }
 
-  return true;
-}
+    return true;
+  }
+
+  // Optional: Add a method to refresh the token
+  refreshAccessToken(): Observable<AuthResponse> {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) {
+      this.logout();
+      throw new Error('No refresh token available');
+    }
+
+    return this.http.post<AuthResponse>(`${this.API_URL}/refresh`, { refreshToken })
+      .pipe(
+        tap(response => {
+          if (response.token) {
+            this.setToken(response.token);
+            this.isAuthenticatedSubject.next(true);
+          }
+        })
+      );
+  }
 }
