@@ -21,6 +21,31 @@
 
     <!-- Sales Section -->
     <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
+      href="#masterMenu" role="button" aria-expanded="false" aria-controls="masterMenu" >
+
+      <span>
+        <i class="fa fa-cog"></i>
+        <span> Configuration</span>
+      </span>
+      <i class="fa fa-chevron-down"></i>
+    </a>
+    <div class="collapse" id="masterMenu" data-bs-parent="#sidebarAccordion">
+      <ul class="nav flex-column">
+        <li>
+          <a routerLink="/inventory/employee" class="nav-link text-white" (click)="onLinkClick()">
+            Employee
+          </a>
+        </li>
+        <li>
+          <a routerLink="/inventory/payment-method" class="nav-link text-white" (click)="onLinkClick()">
+            Payment Method
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Sales Section -->
+    <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
       href="#salesMenu" role="button" aria-expanded="false" aria-controls="salesMenu" >
 
       <span>

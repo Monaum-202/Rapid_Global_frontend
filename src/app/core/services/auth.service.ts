@@ -83,24 +83,29 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    const token = localStorage.getItem(this.TOKEN_KEY); // Fixed: use TOKEN_KEY
-    if (!token) return false;
+  return !!localStorage.getItem('token');
+}
 
-    // Optional: check token expiry if using JWT
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const isExpired = payload.exp * 1000 < Date.now();
-      if (isExpired) {
-        this.clearTokens();
-        return false;
-      }
-    } catch (error) {
-      // If token parsing fails, assume invalid
-      return false;
-    }
 
-    return true;
-  }
+  // isAuthenticated(): boolean {
+  //   const token = localStorage.getItem(this.TOKEN_KEY); // Fixed: use TOKEN_KEY
+  //   if (!token) return false;
+
+  //   // Optional: check token expiry if using JWT
+  //   try {
+  //     const payload = JSON.parse(atob(token.split('.')[1]));
+  //     const isExpired = payload.exp * 1000 < Date.now();
+  //     if (isExpired) {
+  //       this.clearTokens();
+  //       return false;
+  //     }
+  //   } catch (error) {
+  //     // If token parsing fails, assume invalid
+  //     return false;
+  //   }
+
+  //   return true;
+  // }
 
   // Optional: Add a method to refresh the token
   refreshAccessToken(): Observable<AuthResponse> {

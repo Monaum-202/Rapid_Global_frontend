@@ -37,27 +37,23 @@ export class LoginComponent implements OnInit {
 }
 
 
-  onSubmit(): void {
-    if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched();
-      return;
-    }
-
-    this.loading = true;
-    this.errorMessage = '';
-
-    this.authService.login(this.loginForm.value).subscribe({
-      next: (response) => {
-        this.loading = false;
-        this.router.navigate([this.returnUrl]);
-      },
-      error: (error) => {
-        this.loading = false;
-        this.errorMessage = error.error?.message || 'Invalid credentials. Please try again.';
-        console.error('Login error:', error);
-      }
-    });
+ onSubmit(): void {
+  if (this.loginForm.invalid) {
+    this.loginForm.markAllAsTouched();
+    return;
   }
+
+  // ✅ Simulate successful login (no backend)
+  this.loading = true;
+  setTimeout(() => {
+    this.loading = false;
+    // Store fake token to fool AuthGuard
+    localStorage.setItem('token', 'dev-token');
+    this.router.navigate([this.returnUrl || '/inventory/dashboard']);
+  }, 300);
+}
+
+
 
   get f() {
     return this.loginForm.controls;

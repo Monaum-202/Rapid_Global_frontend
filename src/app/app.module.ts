@@ -30,6 +30,8 @@ import { EstimateComponent } from './inventory/sales/estimate/estimate.component
 import { SuppliersComponent } from './inventory/purchases/suppliers/suppliers.component';
 import { LoginComponent } from './auth/login/login.component';
 import { HttpClientModule } from '@angular/common/http';
+import { EmployeeComponent } from './inventory/master/employee/employee.component';
+import { PaymentMethodComponent } from './inventory/master/payment-method/payment-method.component';
 
 @NgModule({
   declarations: [
@@ -58,7 +60,9 @@ import { HttpClientModule } from '@angular/common/http';
     ProfitAndLossComponent,
     ExpensesComponent,
     EstimateComponent,
-    LoginComponent
+    LoginComponent,
+    EmployeeComponent,
+    PaymentMethodComponent
 
   ],
   imports: [
