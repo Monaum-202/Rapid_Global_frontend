@@ -1,10 +1,18 @@
-import { Component, OnInit } from '@angular/core';
-import { Employee, EmployeeReqDto, EmployeeService } from 'src/app/core/services/employee.service';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subject, takeUntil, finalize } from 'rxjs';
+import { BackendPaginator } from 'src/app/core/models/backend-paginator';
+import { Employee, EmployeeReqDto, EmployeeService } from 'src/app/core/services/employee/employee.service';
 
 interface TableColumn {
-  key: string;
+  key: keyof Employee;
   label: string;
   visible: boolean;
+}
+
+enum ModalType {
+  VIEW = 'employeeViewModal',
+  ADD = 'employeeAddModal',
+  EDIT = 'employeeEditModal'
 }
 
 @Component({
@@ -12,319 +20,332 @@ interface TableColumn {
   templateUrl: './employee.component.html',
   styleUrls: ['./employee.component.css']
 })
-export class EmployeeComponent implements OnInit {
+export class EmployeeComponent implements OnInit, OnDestroy {
   employees: Employee[] = [];
   filteredEmployees: Employee[] = [];
   selectedEmployee: Employee | null = null;
+
   isLoading = false;
   errorMessage = '';
-
-  // Table settings
-  pageSize = 10;
-  currentPage = 0; // Backend uses 0-based indexing
-  totalPages = 0;
-  totalElements = 0;
   searchTerm = '';
   showColumnDropdown = false;
-  filterStatus: boolean | null = null; // null = all, true = active, false = inactive
+  filterStatus: boolean | null = null;
 
   columns: TableColumn[] = [
     { key: 'id', label: 'ID', visible: true },
-    { key: 'name', label: 'NAME', visible: true },
-    { key: 'phone', label: 'PHONE', visible: true },
-    { key: 'email', label: 'EMAIL', visible: false },
-    { key: 'salary', label: 'SALARY', visible: false },
-    { key: 'joiningDate', label: 'JOINING DATE', visible: false },
-    { key: 'status', label: 'STATUS', visible: true }
+    { key: 'name', label: 'Name', visible: true },
+    { key: 'phone', label: 'Phone', visible: true },
+    { key: 'email', label: 'Email', visible: false },
+    { key: 'salary', label: 'Salary', visible: false },
+    { key: 'joiningDate', label: 'Joining Date', visible: false },
+    { key: 'status', label: 'Status', visible: true }
   ];
 
-  constructor(private employeeService: EmployeeService) {}
+  paginator = new BackendPaginator(10);
+  readonly PAGE_SIZE_OPTIONS = [5, 10, 25, 50, 100];
+
+  private destroy$ = new Subject<void>();
+
+  constructor(private employeeService: EmployeeService) { }
 
   ngOnInit(): void {
     this.loadEmployees();
   }
 
-  // Load employees from API
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // ==================== Data Loading ====================
+
   loadEmployees(): void {
     this.isLoading = true;
-    this.errorMessage = '';
+    this.clearError();
 
-    const loadObservable = this.filterStatus !== null
-      ? this.employeeService.getAllActive(this.filterStatus, this.currentPage, this.pageSize)
-      : this.employeeService.getAll(this.currentPage, this.pageSize);
+    const request$ = this.filterStatus === null
+      ? this.employeeService.getAll(this.paginator.currentPage, this.paginator.pageSize)
+      : this.employeeService.getAllActive(this.filterStatus, this.paginator.currentPage, this.paginator.pageSize);
 
-    loadObservable.subscribe({
-      next: (response) => {
-        if (response.success) {
+    request$
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response) => {
           this.employees = response.data.data || [];
-          this.totalPages = response.data.totalPages;
-          this.totalElements = response.data.totalElements;
-          this.filterEmployees();
-        }
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error loading employees:', error);
-        this.errorMessage = 'Failed to load employees. Please try again.';
-        this.isLoading = false;
-      }
-    });
+          this.paginator.updateFromResponse(response.data);
+          this.applyClientSideFilter();
+        },
+        error: (error) => this.handleError('Failed to load employees', error)
+      });
   }
 
-  // Search and filter
+  // ==================== Search & Filter ====================
+
   onSearchChange(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.searchTerm = input.value.toLowerCase();
-    this.filterEmployees();
+    this.searchTerm = input.value.trim().toLowerCase();
+    this.applyClientSideFilter();
   }
 
-  filterEmployees(): void {
+  private applyClientSideFilter(): void {
     if (!this.searchTerm) {
       this.filteredEmployees = [...this.employees];
-    } else {
-      this.filteredEmployees = this.employees.filter(employee =>
-        employee.id?.toString().toLowerCase().includes(this.searchTerm) ||
-        employee.name?.toLowerCase().includes(this.searchTerm) ||
-        employee.phone?.toLowerCase().includes(this.searchTerm) ||
-        employee.email?.toLowerCase().includes(this.searchTerm)
-      );
+      return;
     }
+
+    this.filteredEmployees = this.employees.filter(emp =>
+      this.matchesSearchTerm(emp)
+    );
   }
 
-  // Filter by status
+  private matchesSearchTerm(employee: Employee): boolean {
+    const term = this.searchTerm;
+    return (
+      employee.id?.toString().includes(term) ||
+      employee.name?.toLowerCase().includes(term) ||
+      employee.phone?.toLowerCase().includes(term) ||
+      employee.email?.toLowerCase().includes(term)
+    );
+  }
+
   onStatusFilterChange(status: boolean | null): void {
     this.filterStatus = status;
-    this.currentPage = 0;
+    this.paginator.goToPage(0);
     this.loadEmployees();
   }
 
-  // Column visibility methods
+  // ==================== Column Management ====================
+
   toggleColumnDropdown(): void {
     this.showColumnDropdown = !this.showColumnDropdown;
   }
 
   isColumnVisible(key: string): boolean {
-    const column = this.columns.find(col => col.key === key);
-    return column ? column.visible : false;
+    return this.columns.find(c => c.key === key)?.visible ?? false;
+  }
+
+  toggleColumnVisibility(column: TableColumn): void {
+    column.visible = !column.visible;
   }
 
   get visibleColumnsCount(): number {
-    return this.columns.filter(c => c.visible).length + 1; // +1 for actions column
+    return this.columns.filter(c => c.visible).length + 1; // +1 for actions
   }
 
-  // Pagination
+  get visibleColumns(): TableColumn[] {
+    return this.columns.filter(c => c.visible);
+  }
+
+  // ==================== Pagination ====================
+
   onPageSizeChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
-    this.pageSize = parseInt(select.value);
-    this.currentPage = 0;
+    this.paginator.pageSize = Number(select.value);
+    this.paginator.goToPage(0);
     this.loadEmployees();
   }
 
-  get paginatedEmployees(): Employee[] {
-    return this.filteredEmployees; // Already paginated from backend
-  }
-
-  get startEntry(): number {
-    return this.totalElements === 0 ? 0 : this.currentPage * this.pageSize + 1;
-  }
-
-  get endEntry(): number {
-    const end = (this.currentPage + 1) * this.pageSize;
-    return end > this.totalElements ? this.totalElements : end;
-  }
-
   goToPage(page: number): void {
-    if (page >= 0 && page < this.totalPages) {
-      this.currentPage = page;
-      this.loadEmployees();
-    }
-  }
-
-  previousPage(): void {
-    if (this.currentPage > 0) {
-      this.currentPage--;
-      this.loadEmployees();
-    }
+    this.paginator.goToPage(page);
+    this.loadEmployees();
   }
 
   nextPage(): void {
-    if (this.currentPage < this.totalPages - 1) {
-      this.currentPage++;
-      this.loadEmployees();
-    }
+    this.paginator.nextPage();
+    this.loadEmployees();
+  }
+
+  previousPage(): void {
+    this.paginator.previousPage();
+    this.loadEmployees();
+  }
+
+  get startEntry(): number {
+    return this.paginator.from;
+  }
+
+  get endEntry(): number {
+    return this.paginator.to;
+  }
+
+  get canGoPrevious(): boolean {
+    return this.paginator.currentPage > 0;
+  }
+
+  get canGoNext(): boolean {
+    return this.paginator.currentPage < this.paginator.totalPages - 1;
   }
 
   getPageNumbers(): number[] {
-    const pages: number[] = [];
-    const maxPagesToShow = 5;
-
-    if (this.totalPages <= maxPagesToShow) {
-      for (let i = 0; i < this.totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (this.currentPage <= 2) {
-        for (let i = 0; i <= 3; i++) {
-          pages.push(i);
-        }
-      } else if (this.currentPage >= this.totalPages - 3) {
-        for (let i = this.totalPages - 4; i < this.totalPages; i++) {
-          pages.push(i);
-        }
-      } else {
-        for (let i = this.currentPage - 1; i <= this.currentPage + 1; i++) {
-          pages.push(i);
-        }
-      }
-    }
-    return pages;
+    return this.paginator.getPageNumbers();
   }
 
-  // View employee details
+  // ==================== CRUD Operations ====================
+
   viewEmployee(employee: Employee): void {
     this.selectedEmployee = { ...employee };
   }
 
-  // Edit employee
-  editEmployee(employee: Employee): void {
-    this.selectedEmployee = { ...employee };
+  openAddModal(): void {
+    this.selectedEmployee = this.createNewEmployee();
   }
 
-  // Open add modal
-  openAddModal(): void {
-    // Get the highest sqn from current employees
-    const maxSqn = this.employees.reduce((max, emp) => 
-      emp.sqn > max ? emp.sqn : max, 0
-    );
+  private createNewEmployee(): Employee {
+    const maxSqn = this.employees.reduce((max, emp) => Math.max(max, emp.sqn || 0), 0);
 
-    this.selectedEmployee = {
-      id: 0, // Will be generated by backend
+    return {
+      id: 0,
       name: '',
       email: '',
       phone: '',
       salary: 0,
-      joiningDate: new Date().toISOString().split('T')[0],
+      joiningDate: this.getTodayDate(),
       sqn: maxSqn + 1,
       status: true
-    } as Employee;
+    };
   }
 
-  // Add new employee
+  private getTodayDate(): string {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  editEmployee(employee: Employee): void {
+    this.selectedEmployee = { ...employee };
+  }
+
   addEmployee(): void {
-    if (!this.selectedEmployee) return;
+    if (!this.isValidEmployee(this.selectedEmployee)) {
+      this.errorMessage = 'Please fill in all required fields';
+      return;
+    }
 
-    const dto: EmployeeReqDto = {
-      name: this.selectedEmployee.name,
-      email: this.selectedEmployee.email,
-      phone: this.selectedEmployee.phone,
-      salary: this.selectedEmployee.salary,
-      joiningDate: this.selectedEmployee.joiningDate,
-      sqn: this.selectedEmployee.sqn
-    };
+    const dto = this.mapToDto(this.selectedEmployee!);
 
     this.isLoading = true;
-    this.employeeService.create(dto).subscribe({
-      next: (response) => {
-        if (response.success) {
-          console.log('Employee added successfully');
-          this.loadEmployees();
-          this.closeModal('employeeAddModal');
-        }
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error adding employee:', error);
-        this.errorMessage = 'Failed to add employee. Please try again.';
-        this.isLoading = false;
-      }
-    });
+    this.employeeService.create(dto)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) this.handleCrudSuccess('Employee added successfully', ModalType.ADD);
+        },
+        error: (error) => this.handleError('Failed to add employee', error)
+      });
   }
 
-  // Save employee (update)
   saveEmployee(): void {
-    if (!this.selectedEmployee || !this.selectedEmployee.id) return;
+    if (!this.isValidEmployee(this.selectedEmployee) || !this.selectedEmployee?.id) {
+      this.errorMessage = 'Invalid employee data';
+      return;
+    }
 
-    const dto: EmployeeReqDto = {
-      name: this.selectedEmployee.name,
-      email: this.selectedEmployee.email,
-      phone: this.selectedEmployee.phone,
-      salary: this.selectedEmployee.salary,
-      joiningDate: this.selectedEmployee.joiningDate,
-      sqn: this.selectedEmployee.sqn
-    };
+    const dto = this.mapToDto(this.selectedEmployee);
 
     this.isLoading = true;
-    this.employeeService.update(this.selectedEmployee.id, dto).subscribe({
-      next: (response) => {
-        if (response.success) {
-          console.log('Employee updated successfully');
-          this.loadEmployees();
-          this.closeModal('employeeEditModal');
-        }
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error updating employee:', error);
-        this.errorMessage = 'Failed to update employee. Please try again.';
-        this.isLoading = false;
-      }
-    });
+    this.employeeService.update(this.selectedEmployee.id, dto)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) this.handleCrudSuccess('Employee updated successfully', ModalType.EDIT);
+        },
+        error: (error) => this.handleError('Failed to update employee', error)
+      });
   }
 
-  // Toggle status
   toggleStatus(employee: Employee): void {
     if (!employee.id) return;
 
-    this.employeeService.statusUpdate(employee.id).subscribe({
-      next: (response) => {
-        if (response.success) {
-          console.log('Status updated successfully');
-          // Update local state
-          employee.status = !employee.status;
-        }
-      },
-      error: (error) => {
-        console.error('Error updating status:', error);
-        this.errorMessage = 'Failed to update status. Please try again.';
-      }
-    });
+    this.employeeService.statusUpdate(employee.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response.success) employee.status = !employee.status;
+        },
+        error: (error) => this.handleError('Failed to update status', error)
+      });
   }
 
-  // Delete employee
   deleteEmployee(employee: Employee): void {
     if (!employee.id) return;
 
-    if (confirm(`Are you sure you want to delete ${employee.name}?`)) {
-      this.isLoading = true;
-      this.employeeService.delete(employee.id).subscribe({
+    const confirmed = confirm(`Are you sure you want to delete ${employee.name}?`);
+    if (!confirmed) return;
+
+    this.isLoading = true;
+    this.employeeService.deleteEmployee(employee.id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
         next: (response) => {
-          if (response.success) {
-            this.loadEmployees();
-          }
-          this.isLoading = false;
+          if (response.success) this.handleCrudSuccess('Employee deleted successfully');
         },
-        error: (error) => {
-          console.error('Error deleting employee:', error);
-          this.errorMessage = 'Failed to delete employee. Please try again.';
-          this.isLoading = false;
-        }
+        error: (error) => this.handleError('Failed to delete employee', error)
       });
-    }
   }
 
-  // Helper to close modal programmatically
+  // ==================== Helpers ====================
+
+  private handleCrudSuccess(message: string, modalId?: ModalType): void {
+    this.loadEmployees();
+    if (modalId) this.closeModal(modalId);
+    console.log(message);
+  }
+
+  private handleError(message: string, error: any): void {
+    console.error(message, error);
+    this.errorMessage = message;
+  }
+
   private closeModal(modalId: string): void {
-    const modalElement = document.getElementById(modalId);
-    if (modalElement) {
-      const modal = (window as any).bootstrap.Modal.getInstance(modalElement);
-      if (modal) {
-        modal.hide();
-      }
-    }
+    const element = document.getElementById(modalId);
+    if (!element) return;
+    const modal = (window as any).bootstrap?.Modal.getInstance(element);
+    modal?.hide();
   }
 
-  // Clear error message
   clearError(): void {
     this.errorMessage = '';
+  }
+
+  private isValidEmployee(employee: Employee | null): boolean {
+    if (!employee) return false;
+    return !!(employee.name && employee.phone && employee.salary && employee.joiningDate);
+  }
+
+  private mapToDto(employee: Employee): EmployeeReqDto {
+    return {
+      name: employee.name,
+      email: employee.email,
+      phone: employee.phone,
+      salary: employee.salary,
+      joiningDate: employee.joiningDate,
+      sqn: employee.sqn
+    };
+  }
+
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+  }
+
+  formatDate(date: string): string {
+    return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+
+  getStatusClass(status: boolean): string {
+    return status ? 'badge bg-success' : 'badge bg-danger';
+  }
+
+  getStatusText(status: boolean): string {
+    return status ? 'Active' : 'Inactive';
   }
 }
