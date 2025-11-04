@@ -1,7 +1,7 @@
-// src/app/core/services/auth.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
 export interface LoginRequest {
@@ -10,117 +10,96 @@ export interface LoginRequest {
 }
 
 export interface AuthResponse {
-  token: string;
-  refreshToken?: string;
-  user?: any;
+  access_token: string;
+  refresh_token: string;
 }
+
+export interface BaseApiResponse<T> {
+  status: number | string;
+  message: string;
+  data: T;
+  timestamp: string;
+}
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private readonly API_URL = 'http://localhost:9091/api/auth';
-  private readonly TOKEN_KEY = 'auth_token'; // Consistent key name
-  private readonly REFRESH_TOKEN_KEY = 'refresh_token';
-
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
-  public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+  private currentUserSubject: BehaviorSubject<boolean>;
+  public isAuthenticated: Observable<boolean>;
 
   constructor(
     private http: HttpClient,
     private router: Router
-  ) {}
+  ) {
+    // Check if user is already logged in
+    const token = localStorage.getItem('access_token');
+    this.currentUserSubject = new BehaviorSubject<boolean>(!!token);
+    this.isAuthenticated = this.currentUserSubject.asObservable();
+  }
 
-  login(credentials: LoginRequest): Observable<any> {
-  return this.http.post<any>(`${this.API_URL}/authenticate`, credentials)
+  // Login method
+  login(login: string, password: string): Observable<BaseApiResponse<AuthResponse>> {
+  return this.http.post<BaseApiResponse<AuthResponse>>(`${this.API_URL}/authenticate`, { login, password })
     .pipe(
       tap(response => {
-        const accessToken = response?.data?.access_token;
-        const refreshToken = response?.data?.refresh_token;
-
-        if (accessToken) {
-          this.setToken(accessToken);
-          if (refreshToken) {
-            this.setRefreshToken(refreshToken);
-          }
-          this.isAuthenticatedSubject.next(true);
+        // Accept both number and string statuses
+        if ((response.status === 200 || response.status === 'success') && response.data) {
+          localStorage.setItem('access_token', response.data.access_token);
+          localStorage.setItem('refresh_token', response.data.refresh_token);
+          this.currentUserSubject.next(true);
         }
       })
     );
 }
 
 
+  // Logout method
   logout(): void {
-    this.clearTokens();
-    this.isAuthenticatedSubject.next(false);
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    this.currentUserSubject.next(false);
     this.router.navigate(['/login']);
   }
 
-  getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
+  // Get access token
+  getAccessToken(): string | null {
+    return localStorage.getItem('access_token');
   }
 
+  // Get refresh token
   getRefreshToken(): string | null {
-    return localStorage.getItem(this.REFRESH_TOKEN_KEY);
+    return localStorage.getItem('refresh_token');
   }
 
-  setToken(token: string): void {
-    localStorage.setItem(this.TOKEN_KEY, token);
-  }
-
-  setRefreshToken(token: string): void {
-    localStorage.setItem(this.REFRESH_TOKEN_KEY, token);
-  }
-
-  clearTokens(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
-  }
-
-  hasToken(): boolean {
-    const token = localStorage.getItem(this.TOKEN_KEY); // Fixed: use TOKEN_KEY
-    return token !== null && token !== undefined && token !== '';
-  }
-
-  isAuthenticated(): boolean {
-  return !!localStorage.getItem('token');
-}
-
-
-  // isAuthenticated(): boolean {
-  //   const token = localStorage.getItem(this.TOKEN_KEY); // Fixed: use TOKEN_KEY
-  //   if (!token) return false;
-
-  //   // Optional: check token expiry if using JWT
-  //   try {
-  //     const payload = JSON.parse(atob(token.split('.')[1]));
-  //     const isExpired = payload.exp * 1000 < Date.now();
-  //     if (isExpired) {
-  //       this.clearTokens();
-  //       return false;
-  //     }
-  //   } catch (error) {
-  //     // If token parsing fails, assume invalid
-  //     return false;
-  //   }
-
-  //   return true;
-  // }
-
-  // Optional: Add a method to refresh the token
-  refreshAccessToken(): Observable<AuthResponse> {
-    const refreshToken = this.getRefreshToken();
-    if (!refreshToken) {
-      this.logout();
-      throw new Error('No refresh token available');
+  // Check if user is authenticated
+  isLoggedIn(): boolean {
+    const token = this.getAccessToken();
+    if (!token) {
+      return false;
     }
+    
+    // Check if token is expired
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const expiry = payload.exp * 1000; // Convert to milliseconds
+      return Date.now() < expiry;
+    } catch (e) {
+      return false;
+    }
+  }
 
-    return this.http.post<AuthResponse>(`${this.API_URL}/refresh`, { refreshToken })
+  // Refresh token
+  refreshToken(): Observable<BaseApiResponse<AuthResponse>> {
+    const refreshToken = this.getRefreshToken();
+    return this.http.post<BaseApiResponse<AuthResponse>>(`${this.API_URL}/refresh`, { refresh_token: refreshToken })
       .pipe(
         tap(response => {
-          if (response.token) {
-            this.setToken(response.token);
-            this.isAuthenticatedSubject.next(true);
+          if (response.status === 'success' && response.data) {
+            localStorage.setItem('access_token', response.data.access_token);
+            localStorage.setItem('refresh_token', response.data.refresh_token);
           }
         })
       );

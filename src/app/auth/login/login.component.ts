@@ -2,7 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -11,8 +11,8 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
-  loading = false;
   errorMessage = '';
+  loading = false;
   returnUrl = '/inventory/dashboard';
 
   constructor(
@@ -23,39 +23,52 @@ export class LoginComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-  this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/inventory/dashboard';
+    this.returnUrl =
+      decodeURIComponent(this.route.snapshot.queryParams['returnUrl'] || '/inventory/dashboard');
 
-  if (this.authService.isAuthenticated()) {
-    this.router.navigate([this.returnUrl]);
-    return;
+    if (this.authService.isLoggedIn()) {
+      this.router.navigateByUrl(this.returnUrl);
+      return;
+    }
+
+    this.loginForm = this.fb.group({
+      login: ['', Validators.required],
+      password: ['', [Validators.required, Validators.minLength(3)]]
+    });
   }
 
-  this.loginForm = this.fb.group({
-    login: ['', [Validators.required]],
-    password: ['', [Validators.required, Validators.minLength(3)]]
-  });
-}
+  get f() {
+    return this.loginForm.controls;
+  }
 
-
- onSubmit(): void {
+  onSubmit(): void {
   if (this.loginForm.invalid) {
     this.loginForm.markAllAsTouched();
     return;
   }
 
-  // ✅ Simulate successful login (no backend)
   this.loading = true;
-  setTimeout(() => {
-    this.loading = false;
-    // Store fake token to fool AuthGuard
-    localStorage.setItem('token', 'dev-token');
-    this.router.navigate([this.returnUrl || '/inventory/dashboard']);
-  }, 300);
+  this.errorMessage = '';
+
+  const { login, password } = this.loginForm.value;
+
+  this.authService.login(login, password).subscribe({
+    next: (response: any) => {
+      this.loading = false;
+
+      if (response.status === 200 || response.status === 'success') {
+
+        // ✅ Token is already saved by AuthService
+        this.router.navigateByUrl(this.returnUrl);
+      } else {
+        this.errorMessage = response.message || 'Login failed';
+      }
+    },
+    error: (error) => {
+      this.loading = false;
+      this.errorMessage = error.error?.message || 'Invalid credentials. Please try again.';
+    }
+  });
 }
 
-
-
-  get f() {
-    return this.loginForm.controls;
-  }
 }

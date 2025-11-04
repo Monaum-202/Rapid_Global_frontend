@@ -29,9 +29,10 @@ import { ExpensesComponent } from './inventory/accounts/expenses/expenses.compon
 import { EstimateComponent } from './inventory/sales/estimate/estimate.component';
 import { SuppliersComponent } from './inventory/purchases/suppliers/suppliers.component';
 import { LoginComponent } from './auth/login/login.component';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { EmployeeComponent } from './inventory/master/employee/employee.component';
 import { PaymentMethodComponent } from './inventory/master/payment-method/payment-method.component';
+import { AuthInterceptorService } from './core/services/auth-interceptor.service';
 
 @NgModule({
   declarations: [
@@ -72,7 +73,14 @@ import { PaymentMethodComponent } from './inventory/master/payment-method/paymen
     ReactiveFormsModule,
     HttpClientModule
   ],
-  providers: [],
+  providers: [
+    // ✅ Register the interceptor
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptorService,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
