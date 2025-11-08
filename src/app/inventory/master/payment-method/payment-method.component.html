@@ -1,1 +1,366 @@
-<p>payment-method works!</p>
+<div class="container my-1">
+
+    <!-- Toast container (positioned at top-right) -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1200">
+        <div *ngIf="errorMessage" class="toast align-items-center text-bg-danger border-0 show" role="alert"
+            aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    {{ errorMessage }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="clearError()"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner Overlay -->
+    <div class="loading-overlay" *ngIf="isLoading">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Header: Title + Search -->
+    <div class="row align-items-center gy-2 mb-3">
+        <!-- Left: Employee List -->
+        <div class="col-md-3 col-sm-12">
+            <h3><b>Payment Method List</b></h3>
+        </div>
+
+        <!-- Middle: Search (Centered) -->
+        <div class="col-md-5 col-sm-12 d-flex justify-content-center">
+            <div class="w-100" style="max-width: 25rem;">
+                <div class="input-group input-group-sm shadow-sm rounded-pill bg-light border border-dark">
+                    <span class="input-group-text bg-transparent border-0 text-dark">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control border-0 bg-transparent" placeholder="Search employees..."
+                        (input)="onSearchChange($event)" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toolbar: Show Entries + Status Filter + Columns + Add Button -->
+    <div class="row g-2 justify-content-between align-items-center mb-3">
+        <!-- Show Entries -->
+        <div class="col-md-2 d-flex align-items-center">
+            <label class="me-2 text-muted fw-semibold">Show</label>
+            <select class="form-select form-select-sm w-auto rounded-pill shadow-sm" [value]="paginator.pageSize"
+                (change)="onPageSizeChange($event)">
+                <option *ngFor="let size of PAGE_SIZE_OPTIONS" [value]="size">{{ size }}</option>
+            </select>
+        </div>
+
+        <!-- Status Filter (Uncomment if needed) -->
+        <!-- <div class="col-md-2 d-flex align-items-center">
+            <select class="form-select form-select-sm rounded-pill shadow-sm"
+                    [value]="filterStatus === null ? 'all' : filterStatus"
+                    (change)="onStatusFilterChange($event.target.value === 'all' ? null : $event.target.value === 'true')">
+                <option value="all">All Status</option>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+            </select>
+        </div> -->
+
+        <!-- Column Selector -->
+        <div class="col-md-2 d-flex align-items-center">
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm rounded-pill shadow-sm dropdown-toggle" type="button"
+                    (click)="toggleColumnDropdown()">
+                    <i class="bi bi-columns-gap me-1"></i> Columns
+                </button>
+                <div class="dropdown-menu p-3 shadow" [class.show]="showColumnDropdown" style="min-width: 200px;">
+                    <div class="form-check" *ngFor="let column of columns">
+                        <input class="form-check-input" type="checkbox" [id]="'column-' + column.key"
+                            [(ngModel)]="column.visible" />
+                        <label class="form-check-label" [for]="'column-' + column.key">
+                            {{ column.label }}
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Employee Button -->
+        <div class="col-md-3 d-flex justify-content-md-end justify-content-center">
+            <button type="button" class="btn rounded-pill shadow-sm px-4" data-bs-toggle="modal"
+                data-bs-target="#employeeAddModal" (click)="openAddModal()" [disabled]="isLoading"
+                style="background-color: #000000; color: #ffffff;">
+                <i class="bi bi-plus-lg me-1"></i> Add Payment Method
+            </button>
+        </div>
+    </div>
+
+    <!-- Employee Table -->
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle text-nowrap">
+            <thead>
+                <tr>
+                    <th *ngIf="isColumnVisible('id')">ID</th>
+                    <th *ngIf="isColumnVisible('name')">NAME</th>
+                    <th *ngIf="isColumnVisible('description')">DESCRIPTION</th>
+                    <th *ngIf="isColumnVisible('status')">STATUS</th>
+                    <th class="text-center">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- FIXED: Changed from 'employees' to 'filteredEmployees' -->
+                <tr *ngFor="let paymentMethod of filteredEmployees">
+                    <td *ngIf="isColumnVisible('id')">#{{ paymentMethod.id }}</td>
+                    <td *ngIf="isColumnVisible('name')">{{ paymentMethod.name }}</td>
+                    <td *ngIf="isColumnVisible('description')">{{ paymentMethod.description || 'N/A' }}</td>
+                    <td *ngIf="isColumnVisible('status')">
+                        <span class="badge" [class.bg-success]="paymentMethod.status" [class.bg-danger]="!paymentMethod.status">
+                            {{ paymentMethod.status ? 'Active' : 'Inactive' }}
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center align-items-center gap-1">
+                            <!-- View button -->
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#employeeModal" (click)="viewEmployee(employee)" title="View Details">
+                                <i class="fa fa-eye"></i>
+                            </button>
+
+                            <!-- Edit button -->
+                            <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#employeeEditModal" (click)="editEmployee(employee)" title="Edit">
+                                <i class="fa fa-pen"></i>
+                            </button>
+
+                            <!-- Delete button -->
+                            <button type="button" class="btn btn-outline-danger btn-sm"
+                                (click)="deleteEmployee(employee)" title="Delete">
+                                <i class="fa fa-trash"></i>
+                            </button>
+
+                            <!-- Toggle switch -->
+                            <label class="switch m-0" title="Toggle Status">
+                                <input type="checkbox" [checked]="employee.status" (change)="toggleStatus(employee)">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- No data message -->
+                <tr *ngIf="filteredEmployees.length === 0 && !isLoading">
+                    <td [attr.colspan]="visibleColumnsCount" class="text-center text-muted py-4">
+                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                        {{ searchTerm ? 'No employees found matching your search' : 'No employees found' }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Info and Controls -->
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <p class="text-muted mb-0">
+            Showing {{ paginator.from }} to {{ paginator.to }} of {{ paginator.totalElements }} entries
+        </p>
+
+        <div class="btn-group">
+            <!-- Previous -->
+            <button class="btn btn-outline-dark btn-sm" (click)="previousPage()"
+                [disabled]="!canGoPrevious || isLoading">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+
+            <!-- Page Numbers -->
+            <button *ngFor="let page of getPageNumbers()" class="btn btn-sm"
+                [class.btn-success]="page === paginator.currentPage"
+                [class.btn-outline-dark]="page !== paginator.currentPage" (click)="goToPage(page)"
+                [disabled]="isLoading">
+                {{ page + 1 }}
+            </button>
+
+            <!-- Next -->
+            <button class="btn btn-outline-dark btn-sm" (click)="nextPage()" [disabled]="!canGoNext || isLoading">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- View Employee Modal -->
+<div class="modal fade" id="employeeModal" tabindex="-1" aria-labelledby="employeeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="employeeModalLabel">Employee Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" *ngIf="selectedEmployee">
+                <div class="compact-view">
+                    <div class="compact-item">
+                        <div class="compact-label">ID</div>
+                        <div class="compact-value">#{{ selectedEmployee.id }}</div>
+                    </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Name</div>
+                        <div class="compact-value">{{ selectedEmployee.name }}</div>
+                    </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Email</div>
+                        <div class="compact-value">{{ selectedEmployee.email || 'N/A' }}</div>
+                    </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Phone</div>
+                        <div class="compact-value">{{ selectedEmployee.phone }}</div>
+                    </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Salary</div>
+                        <div class="compact-value">${{ selectedEmployee.salary | number:'1.2-2' }}</div>
+                    </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Joining Date</div>
+                        <div class="compact-value">{{ selectedEmployee.joiningDate | date:'MMM d, yyyy' }}</div>
+                    </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Sequence Number</div>
+                        <div class="compact-value">{{ selectedEmployee.sqn }}</div>
+                    </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Status</div>
+                        <span class="badge" [class.bg-success]="selectedEmployee.status"
+                            [class.bg-danger]="!selectedEmployee.status">
+                            {{ selectedEmployee.status ? 'Active' : 'Inactive' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Employee Modal -->
+<div class="modal fade" id="employeeEditModal" tabindex="-1" aria-labelledby="employeeEditLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="employeeEditLabel">Edit Employee</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" *ngIf="selectedEmployee">
+                <form id="employeeForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="employeeId" class="form-label">Employee ID</label>
+                            <input type="text" class="form-control" id="employeeId" [value]="'#' + selectedEmployee.id"
+                                name="employeeId" readonly />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="employeeName" class="form-label">Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="employeeName"
+                                [(ngModel)]="selectedEmployee.name" name="employeeName" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="employeeEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="employeeEmail"
+                                [(ngModel)]="selectedEmployee.email" name="employeeEmail" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="employeePhone" class="form-label">Phone <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="employeePhone"
+                                [(ngModel)]="selectedEmployee.phone" name="employeePhone" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="employeeSalary" class="form-label">Salary <span
+                                    class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="employeeSalary"
+                                [(ngModel)]="selectedEmployee.salary" name="employeeSalary" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="employeeJoiningDate" class="form-label">Joining Date <span
+                                    class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="employeeJoiningDate"
+                                [(ngModel)]="selectedEmployee.joiningDate" name="employeeJoiningDate" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="employeeSqn" class="form-label">Sequence Number <span
+                                    class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="employeeSqn"
+                                [(ngModel)]="selectedEmployee.sqn" name="employeeSqn" required />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="employeeForm" class="btn btn-success" (click)="saveEmployee()"
+                    [disabled]="isLoading">
+                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Employee Modal -->
+<div class="modal fade" id="employeeAddModal" tabindex="-1" aria-labelledby="employeeAddLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="employeeAddLabel">Add New Employee</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" *ngIf="selectedEmployee">
+                <form id="employeeAddForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="addEmployeeName" class="form-label">Name <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="addEmployeeName"
+                                [(ngModel)]="selectedEmployee.name" name="addEmployeeName" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="addEmployeeEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="addEmployeeEmail"
+                                [(ngModel)]="selectedEmployee.email" name="addEmployeeEmail" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="addEmployeePhone" class="form-label">Phone <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="addEmployeePhone"
+                                [(ngModel)]="selectedEmployee.phone" name="addEmployeePhone" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="addEmployeeSalary" class="form-label">Salary <span
+                                    class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="addEmployeeSalary"
+                                [(ngModel)]="selectedEmployee.salary" name="addEmployeeSalary" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="addEmployeeJoiningDate" class="form-label">Joining Date <span
+                                    class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="addEmployeeJoiningDate"
+                                [(ngModel)]="selectedEmployee.joiningDate" name="addEmployeeJoiningDate" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="addEmployeeSqn" class="form-label">Sequence Number <span
+                                    class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="addEmployeeSqn"
+                                [(ngModel)]="selectedEmployee.sqn" name="addEmployeeSqn" required />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="employeeAddForm" class="btn btn-success" (click)="addEmployee()"
+                    [disabled]="isLoading">
+                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                    Add Employee
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
