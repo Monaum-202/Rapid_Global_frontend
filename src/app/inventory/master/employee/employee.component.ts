@@ -10,7 +10,7 @@ interface TableColumn {
 }
 
 enum ModalType {
-  VIEW = 'employeeViewModal',
+  VIEW = 'employeeModal',
   ADD = 'employeeAddModal',
   EDIT = 'employeeEditModal'
 }
@@ -22,14 +22,12 @@ enum ModalType {
 })
 export class EmployeeComponent implements OnInit, OnDestroy {
   employees: Employee[] = [];
-  filteredEmployees: Employee[] = [];
   selectedEmployee: Employee | null = null;
 
   isLoading = false;
   errorMessage = '';
   searchTerm = '';
   showColumnDropdown = false;
-  filterStatus: boolean | null = null;
 
   columns: TableColumn[] = [
     { key: 'id', label: 'ID', visible: true },
@@ -63,9 +61,7 @@ export class EmployeeComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.clearError();
 
-    const request$ = this.filterStatus === null
-      ? this.employeeService.getAll(this.paginator.currentPage, this.paginator.pageSize)
-      : this.employeeService.getAllActive(this.filterStatus, this.paginator.currentPage, this.paginator.pageSize);
+    const request$ = this.employeeService.getAll(this.paginator.currentPage, this.paginator.pageSize);
 
     request$
       .pipe(
@@ -74,9 +70,10 @@ export class EmployeeComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response) => {
-          this.employees = response.data.data || [];
-          this.paginator.updateFromResponse(response.data);
-          this.applyClientSideFilter();
+          if (response.success && response.data) {
+            this.employees = response.data.data || [];
+            this.paginator.updateFromResponse(response.data);
+          }
         },
         error: (error) => this.handleError('Failed to load employees', error)
       });
@@ -87,35 +84,23 @@ export class EmployeeComponent implements OnInit, OnDestroy {
   onSearchChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.searchTerm = input.value.trim().toLowerCase();
-    this.applyClientSideFilter();
+    // Note: For true backend search, you'd need to modify the backend API
+    // This is a client-side filter on the current page
   }
 
-  private applyClientSideFilter(): void {
+  get filteredEmployees(): Employee[] {
     if (!this.searchTerm) {
-      this.filteredEmployees = [...this.employees];
-      return;
+      return this.employees;
     }
 
-    this.filteredEmployees = this.employees.filter(emp =>
-      this.matchesSearchTerm(emp)
+    return this.employees.filter(emp =>
+      emp.id?.toString().includes(this.searchTerm) ||
+      emp.name?.toLowerCase().includes(this.searchTerm) ||
+      emp.phone?.toLowerCase().includes(this.searchTerm) ||
+      emp.email?.toLowerCase().includes(this.searchTerm)
     );
   }
 
-  private matchesSearchTerm(employee: Employee): boolean {
-    const term = this.searchTerm;
-    return (
-      employee.id?.toString().includes(term) ||
-      employee.name?.toLowerCase().includes(term) ||
-      employee.phone?.toLowerCase().includes(term) ||
-      employee.email?.toLowerCase().includes(term)
-    );
-  }
-
-  onStatusFilterChange(status: boolean | null): void {
-    this.filterStatus = status;
-    this.paginator.goToPage(0);
-    this.loadEmployees();
-  }
 
   // ==================== Column Management ====================
 
@@ -161,14 +146,6 @@ export class EmployeeComponent implements OnInit, OnDestroy {
   previousPage(): void {
     this.paginator.previousPage();
     this.loadEmployees();
-  }
-
-  get startEntry(): number {
-    return this.paginator.from;
-  }
-
-  get endEntry(): number {
-    return this.paginator.to;
   }
 
   get canGoPrevious(): boolean {
@@ -267,7 +244,9 @@ export class EmployeeComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          if (response.success) employee.status = !employee.status;
+          if (response.success) {
+            employee.status = !employee.status;
+          }
         },
         error: (error) => this.handleError('Failed to update status', error)
       });
@@ -303,7 +282,7 @@ export class EmployeeComponent implements OnInit, OnDestroy {
 
   private handleError(message: string, error: any): void {
     console.error(message, error);
-    this.errorMessage = message;
+    this.errorMessage = error?.error?.message || message;
   }
 
   private closeModal(modalId: string): void {

@@ -1,9 +1,17 @@
 <div class="container my-1">
-    <!-- Error Alert -->
-    <div class="alert alert-danger alert-dismissible fade show" role="alert" *ngIf="errorMessage">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        {{ errorMessage }}
-        <button type="button" class="btn-close" (click)="clearError()"></button>
+    
+    <!-- Toast container (positioned at top-right) -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1200">
+        <div *ngIf="errorMessage" class="toast align-items-center text-bg-danger border-0 show" role="alert"
+            aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    {{ errorMessage }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="clearError()"></button>
+            </div>
+        </div>
     </div>
 
     <!-- Loading Spinner Overlay -->
@@ -38,16 +46,14 @@
     <div class="row g-2 justify-content-between align-items-center mb-3">
         <!-- Show Entries -->
         <div class="col-md-2 d-flex align-items-center">
-    <label class="me-2 text-muted fw-semibold">Show</label>
-    <select class="form-select form-select-sm w-auto rounded-pill shadow-sm"
-            [value]="paginator.pageSize"
-            (change)="onPageSizeChange($event)">
-        <option *ngFor="let size of PAGE_SIZE_OPTIONS" [value]="size">{{ size }}</option>
-    </select>
-</div>
+            <label class="me-2 text-muted fw-semibold">Show</label>
+            <select class="form-select form-select-sm w-auto rounded-pill shadow-sm" [value]="paginator.pageSize"
+                (change)="onPageSizeChange($event)">
+                <option *ngFor="let size of PAGE_SIZE_OPTIONS" [value]="size">{{ size }}</option>
+            </select>
+        </div>
 
-
-        <!-- Status Filter -->
+        <!-- Status Filter (Uncomment if needed) -->
         <!-- <div class="col-md-2 d-flex align-items-center">
             <select class="form-select form-select-sm rounded-pill shadow-sm"
                     [value]="filterStatus === null ? 'all' : filterStatus"
@@ -61,17 +67,14 @@
         <!-- Column Selector -->
         <div class="col-md-2 d-flex align-items-center">
             <div class="dropdown">
-                <button class="btn btn-outline-secondary btn-sm rounded-pill shadow-sm dropdown-toggle"
-                        type="button"
-                        (click)="toggleColumnDropdown()">
+                <button class="btn btn-outline-secondary btn-sm rounded-pill shadow-sm dropdown-toggle" type="button"
+                    (click)="toggleColumnDropdown()">
                     <i class="bi bi-columns-gap me-1"></i> Columns
                 </button>
                 <div class="dropdown-menu p-3 shadow" [class.show]="showColumnDropdown" style="min-width: 200px;">
                     <div class="form-check" *ngFor="let column of columns">
-                        <input class="form-check-input"
-                               type="checkbox"
-                               [id]="'column-' + column.key"
-                               [(ngModel)]="column.visible" />
+                        <input class="form-check-input" type="checkbox" [id]="'column-' + column.key"
+                            [(ngModel)]="column.visible" />
                         <label class="form-check-label" [for]="'column-' + column.key">
                             {{ column.label }}
                         </label>
@@ -82,13 +85,9 @@
 
         <!-- Add Employee Button -->
         <div class="col-md-3 d-flex justify-content-md-end justify-content-center">
-            <button type="button"
-                    class="btn rounded-pill shadow-sm px-4"
-                    data-bs-toggle="modal"
-                    data-bs-target="#employeeAddModal"
-                    (click)="openAddModal()"
-                    [disabled]="isLoading"
-                    style="background-color: #000000; color: #ffffff;">
+            <button type="button" class="btn rounded-pill shadow-sm px-4" data-bs-toggle="modal"
+                data-bs-target="#employeeAddModal" (click)="openAddModal()" [disabled]="isLoading"
+                style="background-color: #000000; color: #ffffff;">
                 <i class="bi bi-plus-lg me-1"></i> Add Employee
             </button>
         </div>
@@ -110,7 +109,8 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let employee of employees">
+                <!-- FIXED: Changed from 'employees' to 'filteredEmployees' -->
+                <tr *ngFor="let employee of filteredEmployees">
                     <td *ngIf="isColumnVisible('id')">#{{ employee.id }}</td>
                     <td *ngIf="isColumnVisible('name')">{{ employee.name }}</td>
                     <td *ngIf="isColumnVisible('email')">{{ employee.email || 'N/A' }}</td>
@@ -125,38 +125,26 @@
                     <td class="text-center">
                         <div class="d-flex justify-content-center align-items-center gap-1">
                             <!-- View button -->
-                            <button type="button" 
-                                    class="btn btn-outline-primary btn-sm" 
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#employeeModal" 
-                                    (click)="viewEmployee(employee)"
-                                    title="View Details">
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#employeeModal" (click)="viewEmployee(employee)" title="View Details">
                                 <i class="fa fa-eye"></i>
                             </button>
 
                             <!-- Edit button -->
-                            <button type="button" 
-                                    class="btn btn-outline-success btn-sm" 
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#employeeEditModal" 
-                                    (click)="editEmployee(employee)"
-                                    title="Edit">
+                            <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#employeeEditModal" (click)="editEmployee(employee)" title="Edit">
                                 <i class="fa fa-pen"></i>
                             </button>
 
                             <!-- Delete button -->
-                            <button type="button" 
-                                    class="btn btn-outline-danger btn-sm"
-                                    (click)="deleteEmployee(employee)"
-                                    title="Delete">
+                            <button type="button" class="btn btn-outline-danger btn-sm"
+                                (click)="deleteEmployee(employee)" title="Delete">
                                 <i class="fa fa-trash"></i>
                             </button>
 
                             <!-- Toggle switch -->
                             <label class="switch m-0" title="Toggle Status">
-                                <input type="checkbox" 
-                                       [checked]="employee.status" 
-                                       (change)="toggleStatus(employee)">
+                                <input type="checkbox" [checked]="employee.status" (change)="toggleStatus(employee)">
                                 <span class="slider round"></span>
                             </label>
                         </div>
@@ -164,10 +152,10 @@
                 </tr>
 
                 <!-- No data message -->
-                <tr *ngIf="employees.length === 0 && !isLoading">
+                <tr *ngIf="filteredEmployees.length === 0 && !isLoading">
                     <td [attr.colspan]="visibleColumnsCount" class="text-center text-muted py-4">
                         <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                        No employees found
+                        {{ searchTerm ? 'No employees found matching your search' : 'No employees found' }}
                     </td>
                 </tr>
             </tbody>
@@ -176,36 +164,31 @@
 
     <!-- Pagination Info and Controls -->
     <div class="d-flex justify-content-between align-items-center mt-3">
-    <p class="text-muted mb-0">
-        Showing {{ paginator.from }} to {{ paginator.to }} of {{ paginator.totalElements }} entries
-    </p>
+        <p class="text-muted mb-0">
+            Showing {{ paginator.from }} to {{ paginator.to }} of {{ paginator.totalElements }} entries
+        </p>
 
-    <div class="btn-group">
-        <!-- Previous -->
-        <button class="btn btn-outline-dark btn-sm"
-                (click)="previousPage()"
+        <div class="btn-group">
+            <!-- Previous -->
+            <button class="btn btn-outline-dark btn-sm" (click)="previousPage()"
                 [disabled]="!canGoPrevious || isLoading">
-            <i class="bi bi-chevron-left"></i>
-        </button>
+                <i class="bi bi-chevron-left"></i>
+            </button>
 
-        <!-- Page Numbers -->
-        <button *ngFor="let page of getPageNumbers()"
-                class="btn btn-sm"
+            <!-- Page Numbers -->
+            <button *ngFor="let page of getPageNumbers()" class="btn btn-sm"
                 [class.btn-success]="page === paginator.currentPage"
-                [class.btn-outline-dark]="page !== paginator.currentPage"
-                (click)="goToPage(page)"
+                [class.btn-outline-dark]="page !== paginator.currentPage" (click)="goToPage(page)"
                 [disabled]="isLoading">
-            {{ page + 1 }}
-        </button>
+                {{ page + 1 }}
+            </button>
 
-        <!-- Next -->
-        <button class="btn btn-outline-dark btn-sm"
-                (click)="nextPage()"
-                [disabled]="!canGoNext || isLoading">
-            <i class="bi bi-chevron-right"></i>
-        </button>
+            <!-- Next -->
+            <button class="btn btn-outline-dark btn-sm" (click)="nextPage()" [disabled]="!canGoNext || isLoading">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
     </div>
-</div>
 </div>
 
 <!-- View Employee Modal -->
@@ -248,7 +231,8 @@
                     </div>
                     <div class="compact-item">
                         <div class="compact-label">Status</div>
-                        <span class="badge" [class.bg-success]="selectedEmployee.status" [class.bg-danger]="!selectedEmployee.status">
+                        <span class="badge" [class.bg-success]="selectedEmployee.status"
+                            [class.bg-danger]="!selectedEmployee.status">
                             {{ selectedEmployee.status ? 'Active' : 'Inactive' }}
                         </span>
                     </div>
@@ -288,22 +272,26 @@
                                 [(ngModel)]="selectedEmployee.email" name="employeeEmail" />
                         </div>
                         <div class="col-md-6">
-                            <label for="employeePhone" class="form-label">Phone <span class="text-danger">*</span></label>
+                            <label for="employeePhone" class="form-label">Phone <span
+                                    class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="employeePhone"
                                 [(ngModel)]="selectedEmployee.phone" name="employeePhone" required />
                         </div>
                         <div class="col-md-6">
-                            <label for="employeeSalary" class="form-label">Salary <span class="text-danger">*</span></label>
+                            <label for="employeeSalary" class="form-label">Salary <span
+                                    class="text-danger">*</span></label>
                             <input type="number" class="form-control" id="employeeSalary"
                                 [(ngModel)]="selectedEmployee.salary" name="employeeSalary" required />
                         </div>
                         <div class="col-md-6">
-                            <label for="employeeJoiningDate" class="form-label">Joining Date <span class="text-danger">*</span></label>
+                            <label for="employeeJoiningDate" class="form-label">Joining Date <span
+                                    class="text-danger">*</span></label>
                             <input type="date" class="form-control" id="employeeJoiningDate"
                                 [(ngModel)]="selectedEmployee.joiningDate" name="employeeJoiningDate" required />
                         </div>
                         <div class="col-md-6">
-                            <label for="employeeSqn" class="form-label">Sequence Number <span class="text-danger">*</span></label>
+                            <label for="employeeSqn" class="form-label">Sequence Number <span
+                                    class="text-danger">*</span></label>
                             <input type="number" class="form-control" id="employeeSqn"
                                 [(ngModel)]="selectedEmployee.sqn" name="employeeSqn" required />
                         </div>
@@ -312,9 +300,8 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" form="employeeForm" class="btn btn-success" 
-                        (click)="saveEmployee()" 
-                        [disabled]="isLoading">
+                <button type="submit" form="employeeForm" class="btn btn-success" (click)="saveEmployee()"
+                    [disabled]="isLoading">
                     <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
                     Save Changes
                 </button>
@@ -335,7 +322,8 @@
                 <form id="employeeAddForm">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label for="addEmployeeName" class="form-label">Name <span class="text-danger">*</span></label>
+                            <label for="addEmployeeName" class="form-label">Name <span
+                                    class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="addEmployeeName"
                                 [(ngModel)]="selectedEmployee.name" name="addEmployeeName" required />
                         </div>
@@ -345,22 +333,26 @@
                                 [(ngModel)]="selectedEmployee.email" name="addEmployeeEmail" />
                         </div>
                         <div class="col-md-6">
-                            <label for="addEmployeePhone" class="form-label">Phone <span class="text-danger">*</span></label>
+                            <label for="addEmployeePhone" class="form-label">Phone <span
+                                    class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="addEmployeePhone"
                                 [(ngModel)]="selectedEmployee.phone" name="addEmployeePhone" required />
                         </div>
                         <div class="col-md-6">
-                            <label for="addEmployeeSalary" class="form-label">Salary <span class="text-danger">*</span></label>
+                            <label for="addEmployeeSalary" class="form-label">Salary <span
+                                    class="text-danger">*</span></label>
                             <input type="number" class="form-control" id="addEmployeeSalary"
                                 [(ngModel)]="selectedEmployee.salary" name="addEmployeeSalary" required />
                         </div>
                         <div class="col-md-6">
-                            <label for="addEmployeeJoiningDate" class="form-label">Joining Date <span class="text-danger">*</span></label>
+                            <label for="addEmployeeJoiningDate" class="form-label">Joining Date <span
+                                    class="text-danger">*</span></label>
                             <input type="date" class="form-control" id="addEmployeeJoiningDate"
                                 [(ngModel)]="selectedEmployee.joiningDate" name="addEmployeeJoiningDate" required />
                         </div>
                         <div class="col-md-6">
-                            <label for="addEmployeeSqn" class="form-label">Sequence Number <span class="text-danger">*</span></label>
+                            <label for="addEmployeeSqn" class="form-label">Sequence Number <span
+                                    class="text-danger">*</span></label>
                             <input type="number" class="form-control" id="addEmployeeSqn"
                                 [(ngModel)]="selectedEmployee.sqn" name="addEmployeeSqn" required />
                         </div>
@@ -369,9 +361,8 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" form="employeeAddForm" class="btn btn-success" 
-                        (click)="addEmployee()" 
-                        [disabled]="isLoading">
+                <button type="submit" form="employeeAddForm" class="btn btn-success" (click)="addEmployee()"
+                    [disabled]="isLoading">
                     <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
                     Add Employee
                 </button>
@@ -379,4 +370,3 @@
         </div>
     </div>
 </div>
-
