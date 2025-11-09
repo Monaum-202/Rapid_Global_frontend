@@ -1,5 +1,5 @@
 <div class="container my-1">
-    
+
     <!-- Toast container (positioned at top-right) -->
     <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1200">
         <div *ngIf="errorMessage" class="toast align-items-center text-bg-danger border-0 show" role="alert"
@@ -29,17 +29,41 @@
         </div>
 
         <!-- Middle: Search (Centered) -->
-        <div class="col-md-5 col-sm-12 d-flex justify-content-center">
-            <div class="w-100" style="max-width: 25rem;">
-                <div class="input-group input-group-sm shadow-sm rounded-pill bg-light border border-dark">
-                    <span class="input-group-text bg-transparent border-0 text-dark">
-                        <i class="bi bi-search"></i>
-                    </span>
-                    <input type="text" class="form-control border-0 bg-transparent" placeholder="Search employees..."
-                        (input)="onSearchChange($event)" />
-                </div>
-            </div>
+        <!-- Search input with search button and clear option -->
+<div class="col-md-5 col-sm-12 d-flex justify-content-center">
+    <div class="w-100" style="max-width: 25rem;">
+        <div class="input-group input-group-sm shadow-sm rounded-pill bg-light border border-dark">
+            <span class="input-group-text bg-transparent border-0 text-dark">
+                <i class="bi bi-search"></i>
+            </span>
+            <input
+                type="text"
+                class="form-control border-0 bg-transparent"
+                placeholder="Search employees... (Press Enter)"
+                (input)="onSearchInput($event)"
+                (keypress)="onSearchKeyPress($event)"
+                [value]="currentSearchValue"
+            />
+            <!-- Clear button (shows only when there's text) -->
+            <button
+                *ngIf="currentSearchValue"
+                class="btn btn-sm bg-transparent border-0 text-muted"
+                type="button"
+                (click)="clearSearch()"
+                title="Clear search">
+                <i class="bi bi-x-circle"></i>
+            </button>
+            <!-- Search button -->
+            <button
+                class="btn btn-sm bg-transparent border-0 text-dark"
+                type="button"
+                (click)="onSearchButtonClick()"
+                title="Search">
+                <i class="bi bi-arrow-right-circle"></i>
+            </button>
         </div>
+    </div>
+</div>
     </div>
 
     <!-- Toolbar: Show Entries + Status Filter + Columns + Add Button -->

@@ -25,8 +25,10 @@ export class EmployeeComponent implements OnInit, OnDestroy {
   selectedEmployee: Employee | null = null;
 
   isLoading = false;
+  isSearching = false; // Separate flag for search operations
   errorMessage = '';
   searchTerm = '';
+  currentSearchValue = ''; // Track input value separately from actual search
   showColumnDropdown = false;
 
   columns: TableColumn[] = [
@@ -57,16 +59,30 @@ export class EmployeeComponent implements OnInit, OnDestroy {
 
   // ==================== Data Loading ====================
 
-  loadEmployees(): void {
-    this.isLoading = true;
+  loadEmployees(isSearchOperation = false): void {
+    // Use different loading flag for search vs regular operations
+    if (isSearchOperation) {
+      this.isSearching = true;
+    } else {
+      this.isLoading = true;
+    }
+
     this.clearError();
 
-    const request$ = this.employeeService.getAll(this.paginator.currentPage, this.paginator.pageSize);
+    const searchParam = this.searchTerm.trim() || undefined;
+    const request$ = this.employeeService.getAll(
+      this.paginator.currentPage,
+      this.paginator.pageSize,
+      searchParam
+    );
 
     request$
       .pipe(
         takeUntil(this.destroy$),
-        finalize(() => this.isLoading = false)
+        finalize(() => {
+          this.isLoading = false;
+          this.isSearching = false;
+        })
       )
       .subscribe({
         next: (response) => {
@@ -81,26 +97,43 @@ export class EmployeeComponent implements OnInit, OnDestroy {
 
   // ==================== Search & Filter ====================
 
-  onSearchChange(event: Event): void {
+  onSearchInput(event: Event): void {
+    // Just update the internal value, don't search yet
     const input = event.target as HTMLInputElement;
-    this.searchTerm = input.value.trim().toLowerCase();
-    // Note: For true backend search, you'd need to modify the backend API
-    // This is a client-side filter on the current page
+    this.currentSearchValue = input.value.trim();
+  }
+
+  onSearchKeyPress(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      this.performSearch();
+    }
+  }
+
+  onSearchButtonClick(): void {
+    this.performSearch();
+  }
+
+  private performSearch(): void {
+    // Only search if value actually changed
+    if (this.searchTerm === this.currentSearchValue) {
+      return;
+    }
+
+    this.searchTerm = this.currentSearchValue;
+    this.paginator.goToPage(0);
+    this.loadEmployees(true); // Pass true to indicate this is a search operation
+  }
+
+  clearSearch(): void {
+    this.currentSearchValue = '';
+    this.searchTerm = '';
+    this.paginator.goToPage(0);
+    this.loadEmployees(true); // Pass true to indicate this is a search operation
   }
 
   get filteredEmployees(): Employee[] {
-    if (!this.searchTerm) {
-      return this.employees;
-    }
-
-    return this.employees.filter(emp =>
-      emp.id?.toString().includes(this.searchTerm) ||
-      emp.name?.toLowerCase().includes(this.searchTerm) ||
-      emp.phone?.toLowerCase().includes(this.searchTerm) ||
-      emp.email?.toLowerCase().includes(this.searchTerm)
-    );
+    return this.employees;
   }
-
 
   // ==================== Column Management ====================
 

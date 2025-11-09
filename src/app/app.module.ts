@@ -31,7 +31,6 @@ import { SuppliersComponent } from './inventory/purchases/suppliers/suppliers.co
 import { LoginComponent } from './auth/login/login.component';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { EmployeeComponent } from './inventory/master/employee/employee.component';
-import { PaymentMethodComponent } from './inventory/master/payment-method/payment-method.component';
 import { AuthInterceptorService } from './core/services/auth-interceptor.service';
 
 @NgModule({
@@ -63,7 +62,6 @@ import { AuthInterceptorService } from './core/services/auth-interceptor.service
     EstimateComponent,
     LoginComponent,
     EmployeeComponent,
-    PaymentMethodComponent
 
   ],
   imports: [

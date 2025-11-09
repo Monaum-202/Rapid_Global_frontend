@@ -31,7 +31,7 @@ export interface EmployeeFilterParams {
   page?: number;
   size?: number;
   status?: boolean;
-  searchTerm?: string;
+  search?: string;
 }
 
 @Injectable({
@@ -41,10 +41,15 @@ export class EmployeeService extends BaseService {
   private readonly ENDPOINT = 'employee';
 
   /**
-   * Get all employees with pagination
+   * Get all employees with pagination and optional search
    */
-  getAll(page = 0, size = 10): Observable<BaseApiResponse<PaginatedData<Employee>>> {
-    const params = this.buildPaginationParams(page, size);
+  getAll(page = 0, size = 10, search?: string): Observable<BaseApiResponse<PaginatedData<Employee>>> {
+    let params = this.buildPaginationParams(page, size);
+
+    if (search?.trim()) {
+      params = params.set('search', search.trim());
+    }
+
     return this.get<PaginatedData<Employee>>(this.ENDPOINT, params);
   }
 
@@ -52,13 +57,13 @@ export class EmployeeService extends BaseService {
    * Get employees filtered by status with pagination
    */
   getAllActive(
-    status: boolean, 
-    page = 0, 
+    status: boolean,
+    page = 0,
     size = 10
   ): Observable<BaseApiResponse<PaginatedData<Employee>>> {
     const params = this.buildPaginationParams(page, size)
       .set('status', status.toString());
-    
+
     return this.get<PaginatedData<Employee>>(`${this.ENDPOINT}/all-active`, params);
   }
 
@@ -117,15 +122,15 @@ export class EmployeeService extends BaseService {
     if (!dto.name?.trim()) {
       throw new Error('Employee name is required');
     }
-    
+
     if (!dto.phone?.trim()) {
       throw new Error('Employee phone is required');
     }
-    
+
     if (dto.salary < 0) {
       throw new Error('Salary cannot be negative');
     }
-    
+
     if (!dto.joiningDate) {
       throw new Error('Joining date is required');
     }
@@ -136,23 +141,23 @@ export class EmployeeService extends BaseService {
    */
   private buildFilterParams(filters: EmployeeFilterParams): HttpParams {
     let params = new HttpParams();
-    
+
     if (filters.page !== undefined) {
       params = params.set('page', filters.page.toString());
     }
-    
+
     if (filters.size !== undefined) {
       params = params.set('size', filters.size.toString());
     }
-    
+
     if (filters.status !== undefined) {
       params = params.set('status', filters.status.toString());
     }
-    
-    if (filters.searchTerm?.trim()) {
-      params = params.set('search', filters.searchTerm.trim());
+
+    if (filters.search?.trim()) {
+      params = params.set('search', filters.search.trim());
     }
-    
+
     return params;
   }
 }
