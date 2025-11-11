@@ -30,7 +30,7 @@ export interface PaymentMethodFilterParams {
   providedIn: 'root'
 })
 export class PaymentMethodService extends BaseService {
-  private readonly ENDPOINT = 'paymentMethod';
+  private readonly ENDPOINT = 'payment-method';
 
   /**
    * Get all paymentMethods with pagination and optional search

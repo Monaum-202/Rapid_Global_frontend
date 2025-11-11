@@ -26,6 +26,7 @@ import { EstimateComponent } from './inventory/sales/estimate/estimate.component
 import { LoginComponent } from './auth/login/login.component';
 import { authGuard } from './core/guards/auth.guard';
 import { EmployeeComponent } from './inventory/master/employee/employee.component';
+import { PaymentMethodComponent } from './inventory/master/payment-method/payment-method.component';
 
 const routes: Routes = [
   {
@@ -47,7 +48,7 @@ const routes: Routes = [
 
       // Master / Configuration
       { path: 'employee', component: EmployeeComponent },
-      // { path: 'payment-method', component: PaymentMethodComponent },
+      { path: 'payment-method', component: PaymentMethodComponent },
 
       // Sales
       { path: 'sales-list', component: SalesListComponent },

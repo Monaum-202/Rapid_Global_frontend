@@ -37,7 +37,7 @@ export abstract class BaseCrudComponent<T extends BaseEntity, TDto> implements O
   showColumnDropdown = false;
 
   paginator = new BackendPaginator(10);
-  readonly PAGE_SIZE_OPTIONS = [5, 10, 25, 50, 100];
+  readonly PAGE_SIZE_OPTIONS = [10, 5,  25, 50, 100];
 
   protected destroy$ = new Subject<void>();
 
@@ -250,17 +250,17 @@ export abstract class BaseCrudComponent<T extends BaseEntity, TDto> implements O
   }
 
   formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('en-US', { 
-      style: 'currency', 
-      currency: 'USD' 
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
     }).format(amount);
   }
 
   formatDate(date: string): string {
-    return new Date(date).toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
     });
   }
 
