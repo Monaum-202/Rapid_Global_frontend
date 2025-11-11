@@ -1,13 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subject, takeUntil, finalize } from 'rxjs';
-import { BackendPaginator } from 'src/app/core/models/backend-paginator';
+import { Component, OnInit } from '@angular/core';
+import { finalize, takeUntil } from 'rxjs';
+import { BaseCrudComponent, TableColumn } from 'src/app/core/components/base-crud.component';
 import { Employee, EmployeeReqDto, EmployeeService } from 'src/app/core/services/employee/employee.service';
-
-interface TableColumn {
-  key: keyof Employee;
-  label: string;
-  visible: boolean;
-}
 
 enum ModalType {
   VIEW = 'employeeModal',
@@ -20,18 +14,12 @@ enum ModalType {
   templateUrl: './employee.component.html',
   styleUrls: ['./employee.component.css']
 })
-export class EmployeeComponent implements OnInit, OnDestroy {
-  employees: Employee[] = [];
-  selectedEmployee: Employee | null = null;
+export class EmployeeComponent extends BaseCrudComponent<Employee, EmployeeReqDto> implements OnInit {
+  // Required abstract properties
+  entityName = 'Employee';
+  entityNameLower = 'employee';
 
-  isLoading = false;
-  isSearching = false; // Separate flag for search operations
-  errorMessage = '';
-  searchTerm = '';
-  currentSearchValue = ''; // Track input value separately from actual search
-  showColumnDropdown = false;
-
-  columns: TableColumn[] = [
+  columns: TableColumn<Employee>[] = [
     { key: 'id', label: 'ID', visible: true },
     { key: 'name', label: 'Name', visible: true },
     { key: 'phone', label: 'Phone', visible: true },
@@ -41,171 +29,34 @@ export class EmployeeComponent implements OnInit, OnDestroy {
     { key: 'status', label: 'Status', visible: true }
   ];
 
-  paginator = new BackendPaginator(10);
-  readonly PAGE_SIZE_OPTIONS = [5, 10, 25, 50, 100];
-
-  private destroy$ = new Subject<void>();
-
-  constructor(private employeeService: EmployeeService) { }
-
-  ngOnInit(): void {
-    this.loadEmployees();
+  // Template-friendly getters/setters
+  get employees(): Employee[] {
+    return this.items;
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+  get selectedEmployee(): Employee | null {
+    return this.selectedItem;
   }
 
-  // ==================== Data Loading ====================
-
-  loadEmployees(isSearchOperation = false): void {
-    // Use different loading flag for search vs regular operations
-    if (isSearchOperation) {
-      this.isSearching = true;
-    } else {
-      this.isLoading = true;
-    }
-
-    this.clearError();
-
-    const searchParam = this.searchTerm.trim() || undefined;
-    const request$ = this.employeeService.getAll(
-      this.paginator.currentPage,
-      this.paginator.pageSize,
-      searchParam
-    );
-
-    request$
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => {
-          this.isLoading = false;
-          this.isSearching = false;
-        })
-      )
-      .subscribe({
-        next: (response) => {
-          if (response.success && response.data) {
-            this.employees = response.data.data || [];
-            this.paginator.updateFromResponse(response.data);
-          }
-        },
-        error: (error) => this.handleError('Failed to load employees', error)
-      });
-  }
-
-  // ==================== Search & Filter ====================
-
-  onSearchInput(event: Event): void {
-    // Just update the internal value, don't search yet
-    const input = event.target as HTMLInputElement;
-    this.currentSearchValue = input.value.trim();
-  }
-
-  onSearchKeyPress(event: KeyboardEvent): void {
-    if (event.key === 'Enter') {
-      this.performSearch();
-    }
-  }
-
-  onSearchButtonClick(): void {
-    this.performSearch();
-  }
-
-  private performSearch(): void {
-    // Only search if value actually changed
-    if (this.searchTerm === this.currentSearchValue) {
-      return;
-    }
-
-    this.searchTerm = this.currentSearchValue;
-    this.paginator.goToPage(0);
-    this.loadEmployees(true); // Pass true to indicate this is a search operation
-  }
-
-  clearSearch(): void {
-    this.currentSearchValue = '';
-    this.searchTerm = '';
-    this.paginator.goToPage(0);
-    this.loadEmployees(true); // Pass true to indicate this is a search operation
+  set selectedEmployee(value: Employee | null) {
+    this.selectedItem = value;
   }
 
   get filteredEmployees(): Employee[] {
-    return this.employees;
+    return this.items;
   }
 
-  // ==================== Column Management ====================
-
-  toggleColumnDropdown(): void {
-    this.showColumnDropdown = !this.showColumnDropdown;
+  constructor(public service: EmployeeService) {
+    super();
   }
 
-  isColumnVisible(key: string): boolean {
-    return this.columns.find(c => c.key === key)?.visible ?? false;
+  ngOnInit(): void {
+    this.loadItems();
   }
 
-  toggleColumnVisibility(column: TableColumn): void {
-    column.visible = !column.visible;
-  }
-
-  get visibleColumnsCount(): number {
-    return this.columns.filter(c => c.visible).length + 1; // +1 for actions
-  }
-
-  get visibleColumns(): TableColumn[] {
-    return this.columns.filter(c => c.visible);
-  }
-
-  // ==================== Pagination ====================
-
-  onPageSizeChange(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    this.paginator.pageSize = Number(select.value);
-    this.paginator.goToPage(0);
-    this.loadEmployees();
-  }
-
-  goToPage(page: number): void {
-    this.paginator.goToPage(page);
-    this.loadEmployees();
-  }
-
-  nextPage(): void {
-    this.paginator.nextPage();
-    this.loadEmployees();
-  }
-
-  previousPage(): void {
-    this.paginator.previousPage();
-    this.loadEmployees();
-  }
-
-  get canGoPrevious(): boolean {
-    return this.paginator.currentPage > 0;
-  }
-
-  get canGoNext(): boolean {
-    return this.paginator.currentPage < this.paginator.totalPages - 1;
-  }
-
-  getPageNumbers(): number[] {
-    return this.paginator.getPageNumbers();
-  }
-
-  // ==================== CRUD Operations ====================
-
-  viewEmployee(employee: Employee): void {
-    this.selectedEmployee = { ...employee };
-  }
-
-  openAddModal(): void {
-    this.selectedEmployee = this.createNewEmployee();
-  }
-
-  private createNewEmployee(): Employee {
-    const maxSqn = this.employees.reduce((max, emp) => Math.max(max, emp.sqn || 0), 0);
-
+  // Implement required abstract methods
+  createNew(): Employee {
+    const maxSqn = this.items.reduce((max, emp) => Math.max(max, emp.sqn || 0), 0);
     return {
       id: 0,
       name: '',
@@ -218,123 +69,12 @@ export class EmployeeComponent implements OnInit, OnDestroy {
     };
   }
 
-  private getTodayDate(): string {
-    return new Date().toISOString().split('T')[0];
-  }
-
-  editEmployee(employee: Employee): void {
-    this.selectedEmployee = { ...employee };
-  }
-
-  addEmployee(): void {
-    if (!this.isValidEmployee(this.selectedEmployee)) {
-      this.errorMessage = 'Please fill in all required fields';
-      return;
-    }
-
-    const dto = this.mapToDto(this.selectedEmployee!);
-
-    this.isLoading = true;
-    this.employeeService.create(dto)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.isLoading = false)
-      )
-      .subscribe({
-        next: (response) => {
-          if (response.success) this.handleCrudSuccess('Employee added successfully', ModalType.ADD);
-        },
-        error: (error) => this.handleError('Failed to add employee', error)
-      });
-  }
-
-  saveEmployee(): void {
-    if (!this.isValidEmployee(this.selectedEmployee) || !this.selectedEmployee?.id) {
-      this.errorMessage = 'Invalid employee data';
-      return;
-    }
-
-    const dto = this.mapToDto(this.selectedEmployee);
-
-    this.isLoading = true;
-    this.employeeService.update(this.selectedEmployee.id, dto)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.isLoading = false)
-      )
-      .subscribe({
-        next: (response) => {
-          if (response.success) this.handleCrudSuccess('Employee updated successfully', ModalType.EDIT);
-        },
-        error: (error) => this.handleError('Failed to update employee', error)
-      });
-  }
-
-  toggleStatus(employee: Employee): void {
-    if (!employee.id) return;
-
-    this.employeeService.statusUpdate(employee.id)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            employee.status = !employee.status;
-          }
-        },
-        error: (error) => this.handleError('Failed to update status', error)
-      });
-  }
-
-  deleteEmployee(employee: Employee): void {
-    if (!employee.id) return;
-
-    const confirmed = confirm(`Are you sure you want to delete ${employee.name}?`);
-    if (!confirmed) return;
-
-    this.isLoading = true;
-    this.employeeService.deleteEmployee(employee.id)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.isLoading = false)
-      )
-      .subscribe({
-        next: (response) => {
-          if (response.success) this.handleCrudSuccess('Employee deleted successfully');
-        },
-        error: (error) => this.handleError('Failed to delete employee', error)
-      });
-  }
-
-  // ==================== Helpers ====================
-
-  private handleCrudSuccess(message: string, modalId?: ModalType): void {
-    this.loadEmployees();
-    if (modalId) this.closeModal(modalId);
-    console.log(message);
-  }
-
-  private handleError(message: string, error: any): void {
-    console.error(message, error);
-    this.errorMessage = error?.error?.message || message;
-  }
-
-  private closeModal(modalId: string): void {
-    const element = document.getElementById(modalId);
-    if (!element) return;
-    const modal = (window as any).bootstrap?.Modal.getInstance(element);
-    modal?.hide();
-  }
-
-  clearError(): void {
-    this.errorMessage = '';
-  }
-
-  private isValidEmployee(employee: Employee | null): boolean {
+  isValid(employee: Employee | null): boolean {
     if (!employee) return false;
     return !!(employee.name && employee.phone && employee.salary && employee.joiningDate);
   }
 
-  private mapToDto(employee: Employee): EmployeeReqDto {
+  mapToDto(employee: Employee): EmployeeReqDto {
     return {
       name: employee.name,
       email: employee.email,
@@ -345,19 +85,72 @@ export class EmployeeComponent implements OnInit, OnDestroy {
     };
   }
 
-  formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+  // Template-friendly wrapper methods
+  openAddModal(): void {
+    this.selectedEmployee = this.createNew();
   }
 
-  formatDate(date: string): string {
-    return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  viewEmployee(employee: Employee): void {
+    this.viewItem(employee);
   }
 
-  getStatusClass(status: boolean): string {
-    return status ? 'badge bg-success' : 'badge bg-danger';
+  editEmployee(employee: Employee): void {
+    this.editItem(employee);
   }
 
-  getStatusText(status: boolean): string {
-    return status ? 'Active' : 'Inactive';
+  addEmployee(): void {
+    if (!this.isValid(this.selectedEmployee)) {
+      this.errorMessage = 'Please fill in all required fields';
+      return;
+    }
+
+    const dto = this.mapToDto(this.selectedEmployee!);
+
+    this.isLoading = true;
+    this.service.create(dto)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.handleCrudSuccess('Employee added successfully', ModalType.ADD);
+          }
+        },
+        error: (error) => this.handleError('Failed to add employee', error)
+      });
+  }
+
+  saveEmployee(): void {
+    if (!this.isValid(this.selectedEmployee) || !this.selectedEmployee?.id) {
+      this.errorMessage = 'Invalid employee data';
+      return;
+    }
+
+    const dto = this.mapToDto(this.selectedEmployee);
+
+    this.isLoading = true;
+    this.service.update(this.selectedEmployee.id, dto)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.handleCrudSuccess('Employee updated successfully', ModalType.EDIT);
+          }
+        },
+        error: (error) => this.handleError('Failed to update employee', error)
+      });
+  }
+
+  deleteEmployee(employee: Employee): void {
+    this.deleteItem(employee, employee.name);
+  }
+
+  loadEmployees(isSearchOperation = false): void {
+    this.loadItems(isSearchOperation);
   }
 }

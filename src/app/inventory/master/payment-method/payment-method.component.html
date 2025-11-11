@@ -1,0 +1,345 @@
+<div class="container my-1">
+
+    <!-- Toast container (positioned at top-right) -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1200">
+        <div *ngIf="errorMessage" class="toast align-items-center text-bg-danger border-0 show" role="alert"
+            aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    {{ errorMessage }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="clearError()"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner Overlay -->
+    <div class="loading-overlay" *ngIf="isLoading">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Header: Title + Search -->
+    <div class="row align-items-center gy-2 mb-3">
+        <!-- Left: PaymentMethod List -->
+        <div class="col-md-3 col-sm-12">
+            <h3><b>PaymentMethod List</b></h3>
+        </div>
+
+        <!-- Middle: Search (Centered) -->
+        <!-- Search input with search button and clear option -->
+<div class="col-md-5 col-sm-12 d-flex justify-content-center">
+    <div class="w-100" style="max-width: 25rem;">
+        <div class="input-group input-group-sm shadow-sm rounded-pill bg-light border border-dark">
+            <span class="input-group-text bg-transparent border-0 text-dark">
+                <i class="bi bi-search"></i>
+            </span>
+            <input
+                type="text"
+                class="form-control border-0 bg-transparent"
+                placeholder="Search paymentMethods... (Press Enter)"
+                (input)="onSearchInput($event)"
+                (keypress)="onSearchKeyPress($event)"
+                [value]="currentSearchValue"
+            />
+            <!-- Clear button (shows only when there's text) -->
+            <button
+                *ngIf="currentSearchValue"
+                class="btn btn-sm bg-transparent border-0 text-muted"
+                type="button"
+                (click)="clearSearch()"
+                title="Clear search">
+                <i class="bi bi-x-circle"></i>
+            </button>
+            <!-- Search button -->
+            <button
+                class="btn btn-sm bg-transparent border-0 text-dark"
+                type="button"
+                (click)="onSearchButtonClick()"
+                title="Search">
+                <i class="bi bi-arrow-right-circle"></i>
+            </button>
+        </div>
+    </div>
+</div>
+    </div>
+
+    <!-- Toolbar: Show Entries + Status Filter + Columns + Add Button -->
+    <div class="row g-2 justify-content-between align-items-center mb-3">
+        <!-- Show Entries -->
+        <div class="col-md-2 d-flex align-items-center">
+            <label class="me-2 text-muted fw-semibold">Show</label>
+            <select class="form-select form-select-sm w-auto rounded-pill shadow-sm" [value]="paginator.pageSize"
+                (change)="onPageSizeChange($event)">
+                <option *ngFor="let size of PAGE_SIZE_OPTIONS" [value]="size">{{ size }}</option>
+            </select>
+        </div>
+
+        <!-- Status Filter (Uncomment if needed) -->
+        <!-- <div class="col-md-2 d-flex align-items-center">
+            <select class="form-select form-select-sm rounded-pill shadow-sm"
+                    [value]="filterStatus === null ? 'all' : filterStatus"
+                    (change)="onStatusFilterChange($event.target.value === 'all' ? null : $event.target.value === 'true')">
+                <option value="all">All Status</option>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+            </select>
+        </div> -->
+
+        <!-- Column Selector -->
+        <div class="col-md-2 d-flex align-items-center">
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm rounded-pill shadow-sm dropdown-toggle" type="button"
+                    (click)="toggleColumnDropdown()">
+                    <i class="bi bi-columns-gap me-1"></i> Columns
+                </button>
+                <div class="dropdown-menu p-3 shadow" [class.show]="showColumnDropdown" style="min-width: 200px;">
+                    <div class="form-check" *ngFor="let column of columns">
+                        <input class="form-check-input" type="checkbox" [id]="'column-' + column.key"
+                            [(ngModel)]="column.visible" />
+                        <label class="form-check-label" [for]="'column-' + column.key">
+                            {{ column.label }}
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add PaymentMethod Button -->
+        <div class="col-md-3 d-flex justify-content-md-end justify-content-center">
+            <button type="button" class="btn rounded-pill shadow-sm px-4" data-bs-toggle="modal"
+                data-bs-target="#paymentMethodAddModal" (click)="openAddModal()" [disabled]="isLoading"
+                style="background-color: #000000; color: #ffffff;">
+                <i class="bi bi-plus-lg me-1"></i> Add PaymentMethod
+            </button>
+        </div>
+    </div>
+
+    <!-- PaymentMethod Table -->
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle text-nowrap">
+            <thead>
+                <tr>
+                    <th *ngIf="isColumnVisible('id')">ID</th>
+                    <th *ngIf="isColumnVisible('name')">NAME</th>
+                    <th *ngIf="isColumnVisible('email')">EMAIL</th>
+                    <th *ngIf="isColumnVisible('phone')">PHONE</th>
+                    <th *ngIf="isColumnVisible('salary')">SALARY</th>
+                    <th *ngIf="isColumnVisible('joiningDate')">JOINING DATE</th>
+                    <th *ngIf="isColumnVisible('status')">STATUS</th>
+                    <th class="text-center">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- FIXED: Changed from 'paymentMethods' to 'filteredPaymentMethods' -->
+                <tr *ngFor="let paymentMethod of filteredPaymentMethods">
+                    <td *ngIf="isColumnVisible('id')">#{{ paymentMethod.id }}</td>
+                    <td *ngIf="isColumnVisible('name')">{{ paymentMethod.name }}</td>
+                    <td *ngIf="isColumnVisible('description')">{{ paymentMethod.description || 'N/A' }}</td>
+                    <td *ngIf="isColumnVisible('status')">
+                        <span class="badge" [class.bg-success]="paymentMethod.status" [class.bg-danger]="!paymentMethod.status">
+                            {{ paymentMethod.status ? 'Active' : 'Inactive' }}
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center align-items-center gap-1">
+                            <!-- View button -->
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#paymentMethodModal" (click)="viewPaymentMethod(paymentMethod)" title="View Details">
+                                <i class="fa fa-eye"></i>
+                            </button>
+
+                            <!-- Edit button -->
+                            <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#paymentMethodEditModal" (click)="editPaymentMethod(paymentMethod)" title="Edit">
+                                <i class="fa fa-pen"></i>
+                            </button>
+
+                            <!-- Delete button -->
+                            <button type="button" class="btn btn-outline-danger btn-sm"
+                                (click)="deletePaymentMethod(paymentMethod)" title="Delete">
+                                <i class="fa fa-trash"></i>
+                            </button>
+
+                            <!-- Toggle switch -->
+                            <label class="switch m-0" title="Toggle Status">
+                                <input type="checkbox" [checked]="paymentMethod.status" (change)="toggleStatus(paymentMethod)">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- No data message -->
+                <tr *ngIf="filteredPaymentMethods.length === 0 && !isLoading">
+                    <td [attr.colspan]="visibleColumnsCount" class="text-center text-muted py-4">
+                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                        {{ searchTerm ? 'No paymentMethods found matching your search' : 'No paymentMethods found' }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Info and Controls -->
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <p class="text-muted mb-0">
+            Showing {{ paginator.from }} to {{ paginator.to }} of {{ paginator.totalElements }} entries
+        </p>
+
+        <div class="btn-group">
+            <!-- Previous -->
+            <button class="btn btn-outline-dark btn-sm" (click)="previousPage()"
+                [disabled]="!canGoPrevious || isLoading">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+
+            <!-- Page Numbers -->
+            <button *ngFor="let page of getPageNumbers()" class="btn btn-sm"
+                [class.btn-success]="page === paginator.currentPage"
+                [class.btn-outline-dark]="page !== paginator.currentPage" (click)="goToPage(page)"
+                [disabled]="isLoading">
+                {{ page + 1 }}
+            </button>
+
+            <!-- Next -->
+            <button class="btn btn-outline-dark btn-sm" (click)="nextPage()" [disabled]="!canGoNext || isLoading">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- View PaymentMethod Modal -->
+<div class="modal fade" id="paymentMethodModal" tabindex="-1" aria-labelledby="paymentMethodModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentMethodModalLabel">PaymentMethod Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" *ngIf="selectedPaymentMethod">
+                <div class="compact-view">
+                    <div class="compact-item">
+                        <div class="compact-label">ID</div>
+                        <div class="compact-value">#{{ selectedPaymentMethod.id }}</div>
+                    </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Name</div>
+                        <div class="compact-value">{{ selectedPaymentMethod.name }}</div>
+                    </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Email</div>
+                        <div class="compact-value">{{ selectedPaymentMethod.description || 'N/A' }}</div>
+                    </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Sequence Number</div>
+                        <div class="compact-value">{{ selectedPaymentMethod.sqn }}</div>
+                    </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Status</div>
+                        <span class="badge" [class.bg-success]="selectedPaymentMethod.status"
+                            [class.bg-danger]="!selectedPaymentMethod.status">
+                            {{ selectedPaymentMethod.status ? 'Active' : 'Inactive' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit PaymentMethod Modal -->
+<div class="modal fade" id="paymentMethodEditModal" tabindex="-1" aria-labelledby="paymentMethodEditLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentMethodEditLabel">Edit PaymentMethod</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" *ngIf="selectedPaymentMethod">
+                <form id="paymentMethodForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="paymentMethodId" class="form-label">PaymentMethod ID</label>
+                            <input type="text" class="form-control" id="paymentMethodId" [value]="'#' + selectedPaymentMethod.id"
+                                name="paymentMethodId" readonly />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="paymentMethodName" class="form-label">Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="paymentMethodName"
+                                [(ngModel)]="selectedPaymentMethod.name" name="paymentMethodName" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="paymentMethodDescription" class="form-label">Description</label>
+                            <input type="description" class="form-control" id="paymentMethodDescription"
+                                [(ngModel)]="selectedPaymentMethod.description" name="paymentMethodDescription" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="paymentMethodSqn" class="form-label">Sequence Number <span
+                                    class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="paymentMethodSqn"
+                                [(ngModel)]="selectedPaymentMethod.sqn" name="paymentMethodSqn" required />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="paymentMethodForm" class="btn btn-success" (click)="savePaymentMethod()"
+                    [disabled]="isLoading">
+                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add PaymentMethod Modal -->
+<div class="modal fade" id="paymentMethodAddModal" tabindex="-1" aria-labelledby="paymentMethodAddLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentMethodAddLabel">Add New PaymentMethod</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" *ngIf="selectedPaymentMethod">
+                <form id="paymentMethodAddForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="addPaymentMethodName" class="form-label">Name <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="addPaymentMethodName"
+                                [(ngModel)]="selectedPaymentMethod.name" name="addPaymentMethodName" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="addPaymentMethodDescription" class="form-label">Email</label>
+                            <input type="description" class="form-control" id="addPaymentMethodDescription"
+                                [(ngModel)]="selectedPaymentMethod.description" name="addPaymentMethodDescription" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="addPaymentMethodSqn" class="form-label">Sequence Number <span
+                                    class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="addPaymentMethodSqn"
+                                [(ngModel)]="selectedPaymentMethod.sqn" name="addPaymentMethodSqn" required />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="paymentMethodAddForm" class="btn btn-success" (click)="addPaymentMethod()"
+                    [disabled]="isLoading">
+                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                    Add PaymentMethod
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
