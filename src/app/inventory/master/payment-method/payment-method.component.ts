@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { finalize, takeUntil } from 'rxjs';
 import { BaseCrudComponent, TableColumn } from 'src/app/core/components/base-crud.component';
+import { PageHeaderService } from 'src/app/core/services/page-header/page-header.service';
 import { PaymentMethod, PaymentMethodReqDto, PaymentMethodService } from 'src/app/core/services/paymentMethod/payment-method.service';
 
 enum ModalType {
@@ -22,7 +23,7 @@ export class PaymentMethodComponent extends BaseCrudComponent<PaymentMethod, Pay
     { key: 'id', label: 'ID', visible: true },
     { key: 'name', label: 'Name', visible: true },
     { key: 'description', label: 'Description', visible: true },
-    { key: 'status', label: 'Status', visible: true }
+    { key: 'active', label: 'Active', visible: true }
   ];
 
   // Expose items with proper naming for template
@@ -42,11 +43,15 @@ export class PaymentMethodComponent extends BaseCrudComponent<PaymentMethod, Pay
     return this.items;
   }
 
-  constructor(public service: PaymentMethodService) {
+  constructor(
+    public service: PaymentMethodService,
+    public pageHeaderService: PageHeaderService
+  ) {
     super();
   }
 
   ngOnInit(): void {
+    this.pageHeaderService.setTitle('Payment Method List');
     this.loadItems();
   }
 
@@ -57,7 +62,7 @@ export class PaymentMethodComponent extends BaseCrudComponent<PaymentMethod, Pay
       id: 0,
       name: '',
       description: '',
-      status: true,
+      active: true,
       sqn: 0
     };
   }

@@ -6,13 +6,14 @@ import { BaseService } from '../base/base.service';
 
 export interface Employee {
   id: number;
+  employeeId: string;
   name: string;
   email: string;
   phone: string;
   salary: number;
   joiningDate: string;
   sqn: number;
-  status: boolean;
+  active: boolean;
   createdAt?: string;
   updatedAt?: string;
   lends?: any[];
@@ -30,7 +31,7 @@ export interface EmployeeReqDto {
 export interface EmployeeFilterParams {
   page?: number;
   size?: number;
-  status?: boolean;
+  active?: boolean;
   search?: string;
 }
 
@@ -54,15 +55,15 @@ export class EmployeeService extends BaseService {
   }
 
   /**
-   * Get employees filtered by status with pagination
+   * Get employees filtered by active with pagination
    */
   getAllActive(
-    status: boolean,
+    active: boolean,
     page = 0,
     size = 10
   ): Observable<BaseApiResponse<PaginatedData<Employee>>> {
     const params = this.buildPaginationParams(page, size)
-      .set('status', status.toString());
+      .set('active', active.toString());
 
     return this.get<PaginatedData<Employee>>(`${this.ENDPOINT}/all-active`, params);
   }
@@ -98,10 +99,10 @@ export class EmployeeService extends BaseService {
   }
 
   /**
-   * Toggle employee status
+   * Toggle employee active
    */
-  statusUpdate(id: number): Observable<BaseApiResponse<Employee>> {
-    return this.patch<Employee>(`${this.ENDPOINT}/${id}/status`, {});
+  activeUpdate(id: number): Observable<BaseApiResponse<Employee>> {
+    return this.patch<Employee>(`${this.ENDPOINT}/${id}`, {});
   }
 
   // ==================== Helper Methods ====================
@@ -150,8 +151,8 @@ export class EmployeeService extends BaseService {
       params = params.set('size', filters.size.toString());
     }
 
-    if (filters.status !== undefined) {
-      params = params.set('status', filters.status.toString());
+    if (filters.active !== undefined) {
+      params = params.set('active', filters.active.toString());
     }
 
     if (filters.search?.trim()) {

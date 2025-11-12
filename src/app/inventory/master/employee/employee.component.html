@@ -16,7 +16,7 @@
 
     <!-- Loading Spinner Overlay -->
     <div class="loading-overlay" *ngIf="isLoading">
-        <div class="spinner-border text-primary" role="status">
+        <div class="spinner-border text-primary" role="active">
             <span class="visually-hidden">Loading...</span>
         </div>
     </div>
@@ -24,9 +24,9 @@
     <!-- Header: Title + Search -->
     <div class="row align-items-center gy-2 mb-3">
         <!-- Left: Employee List -->
-        <div class="col-md-3 col-sm-12">
+        <!-- <div class="col-md-3 col-sm-12">
             <h3><b>Employee List</b></h3>
-        </div>
+        </div> -->
 
         <!-- Middle: Search (Centered) -->
         <!-- Search input with search button and clear option -->
@@ -63,10 +63,10 @@
             </button>
         </div>
     </div>
-</div>
+
     </div>
 
-    <!-- Toolbar: Show Entries + Status Filter + Columns + Add Button -->
+    <!-- Toolbar: Show Entries + Active Filter + Columns + Add Button -->
     <div class="row g-2 justify-content-between align-items-center mb-3">
         <!-- Show Entries -->
         <div class="col-md-2 d-flex align-items-center">
@@ -77,12 +77,12 @@
             </select>
         </div>
 
-        <!-- Status Filter (Uncomment if needed) -->
+        <!-- Active Filter (Uncomment if needed) -->
         <!-- <div class="col-md-2 d-flex align-items-center">
             <select class="form-select form-select-sm rounded-pill shadow-sm"
-                    [value]="filterStatus === null ? 'all' : filterStatus"
-                    (change)="onStatusFilterChange($event.target.value === 'all' ? null : $event.target.value === 'true')">
-                <option value="all">All Status</option>
+                    [value]="filterActive === null ? 'all' : filterActive"
+                    (change)="onActiveFilterChange($event.target.value === 'all' ? null : $event.target.value === 'true')">
+                <option value="all">All Active</option>
                 <option value="true">Active</option>
                 <option value="false">Inactive</option>
             </select>
@@ -122,28 +122,28 @@
         <table class="table table-hover mb-0 align-middle text-nowrap">
             <thead>
                 <tr>
-                    <th *ngIf="isColumnVisible('id')">ID</th>
+                    <th *ngIf="isColumnVisible('employeeId')">EMP ID</th>
                     <th *ngIf="isColumnVisible('name')">NAME</th>
                     <th *ngIf="isColumnVisible('email')">EMAIL</th>
                     <th *ngIf="isColumnVisible('phone')">PHONE</th>
                     <th *ngIf="isColumnVisible('salary')">SALARY</th>
                     <th *ngIf="isColumnVisible('joiningDate')">JOINING DATE</th>
-                    <th *ngIf="isColumnVisible('status')">STATUS</th>
+                    <th *ngIf="isColumnVisible('active')">STATUS</th>
                     <th class="text-center">ACTIONS</th>
                 </tr>
             </thead>
             <tbody>
                 <!-- FIXED: Changed from 'employees' to 'filteredEmployees' -->
                 <tr *ngFor="let employee of filteredEmployees">
-                    <td *ngIf="isColumnVisible('id')">#{{ employee.id }}</td>
+                    <td *ngIf="isColumnVisible('employeeId')">{{ employee.employeeId }}</td>
                     <td *ngIf="isColumnVisible('name')">{{ employee.name }}</td>
                     <td *ngIf="isColumnVisible('email')">{{ employee.email || 'N/A' }}</td>
                     <td *ngIf="isColumnVisible('phone')">{{ employee.phone }}</td>
                     <td *ngIf="isColumnVisible('salary')">${{ employee.salary | number:'1.2-2' }}</td>
                     <td *ngIf="isColumnVisible('joiningDate')">{{ employee.joiningDate | date:'MMM d, yyyy' }}</td>
-                    <td *ngIf="isColumnVisible('status')">
-                        <span class="badge" [class.bg-success]="employee.status" [class.bg-danger]="!employee.status">
-                            {{ employee.status ? 'Active' : 'Inactive' }}
+                    <td *ngIf="isColumnVisible('active')">
+                        <span class="badge" [class.bg-success]="employee.active" [class.bg-danger]="!employee.active">
+                            {{ employee.active ? 'Active' : 'Inactive' }}
                         </span>
                     </td>
                     <td class="text-center">
@@ -167,8 +167,8 @@
                             </button>
 
                             <!-- Toggle switch -->
-                            <label class="switch m-0" title="Toggle Status">
-                                <input type="checkbox" [checked]="employee.status" (change)="toggleStatus(employee)">
+                            <label class="switch m-0" title="Toggle Active">
+                                <input type="checkbox" [checked]="employee.active" (change)="toggleActive(employee)">
                                 <span class="slider round"></span>
                             </label>
                         </div>
@@ -255,9 +255,9 @@
                     </div>
                     <div class="compact-item">
                         <div class="compact-label">Status</div>
-                        <span class="badge" [class.bg-success]="selectedEmployee.status"
-                            [class.bg-danger]="!selectedEmployee.status">
-                            {{ selectedEmployee.status ? 'Active' : 'Inactive' }}
+                        <span class="badge" [class.bg-success]="selectedEmployee.active"
+                            [class.bg-danger]="!selectedEmployee.active">
+                            {{ selectedEmployee.active ? 'Active' : 'Inactive' }}
                         </span>
                     </div>
                 </div>

@@ -9,7 +9,7 @@ export interface PaymentMethod {
   name: string;
   description: string;
   sqn: number;
-  status: boolean;
+  active: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -22,7 +22,7 @@ export interface PaymentMethodReqDto {
 export interface PaymentMethodFilterParams {
   page?: number;
   size?: number;
-  status?: boolean;
+  active?: boolean;
   search?: string;
 }
 
@@ -46,15 +46,15 @@ export class PaymentMethodService extends BaseService {
   }
 
   /**
-   * Get paymentMethods filtered by status with pagination
+   * Get paymentMethods filtered by active with pagination
    */
   getAllActive(
-    status: boolean,
+    active: boolean,
     page = 0,
     size = 10
   ): Observable<BaseApiResponse<PaginatedData<PaymentMethod>>> {
     const params = this.buildPaginationParams(page, size)
-      .set('status', status.toString());
+      .set('active', active.toString());
 
     return this.get<PaginatedData<PaymentMethod>>(`${this.ENDPOINT}/all-active`, params);
   }
@@ -90,10 +90,10 @@ export class PaymentMethodService extends BaseService {
   }
 
   /**
-   * Toggle paymentMethod status
+   * Toggle paymentMethod active
    */
-  statusUpdate(id: number): Observable<BaseApiResponse<PaymentMethod>> {
-    return this.patch<PaymentMethod>(`${this.ENDPOINT}/${id}/status`, {});
+  activeUpdate(id: number): Observable<BaseApiResponse<PaymentMethod>> {
+    return this.patch<PaymentMethod>(`${this.ENDPOINT}/${id}`, {});
   }
 
   // ==================== Helper Methods ====================
@@ -130,8 +130,8 @@ export class PaymentMethodService extends BaseService {
       params = params.set('size', filters.size.toString());
     }
 
-    if (filters.status !== undefined) {
-      params = params.set('status', filters.status.toString());
+    if (filters.active !== undefined) {
+      params = params.set('active', filters.active.toString());
     }
 
     if (filters.search?.trim()) {

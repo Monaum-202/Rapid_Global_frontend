@@ -1,6 +1,30 @@
 <div class="app-container" [class.sidebar-collapsed]="sideNav.isSidebarCollapsed">
+  <!-- Sidebar -->
   <app-side-nav #sideNav></app-side-nav>
+
+  <!-- Main Content -->
   <div class="main-content">
+    <!-- 🧭 Top Bar -->
+    <div class="top-bar">
+  <div class="left-section">
+    <button class="menu-btn" (click)="sideNav.toggleSidebar()">
+      <i class="fa fa-bars"></i>
+    </button>
+    <h3 *ngIf="title">{{ title }}</h3>
+  </div>
+
+
+  <div class="right-section">
+    <i class="fa fa-bell notification-icon"></i>
+    <div class="profile">
+      <img src="assets/profile.jpg" alt="User" class="profile-pic" />
+    </div>
+  </div>
+</div>
+
+    <!-- Page content -->
     <router-outlet></router-outlet>
   </div>
 </div>
+
+

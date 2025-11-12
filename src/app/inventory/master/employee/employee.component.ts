@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { finalize, takeUntil } from 'rxjs';
 import { BaseCrudComponent, TableColumn } from 'src/app/core/components/base-crud.component';
 import { Employee, EmployeeReqDto, EmployeeService } from 'src/app/core/services/employee/employee.service';
+import { PageHeaderService } from 'src/app/core/services/page-header/page-header.service';
 
 enum ModalType {
   VIEW = 'employeeModal',
@@ -20,13 +21,13 @@ export class EmployeeComponent extends BaseCrudComponent<Employee, EmployeeReqDt
   entityNameLower = 'employee';
 
   columns: TableColumn<Employee>[] = [
-    { key: 'id', label: 'ID', visible: true },
+    { key: 'employeeId', label: 'EMP ID', visible: true },
     { key: 'name', label: 'Name', visible: true },
     { key: 'phone', label: 'Phone', visible: true },
     { key: 'email', label: 'Email', visible: false },
     { key: 'salary', label: 'Salary', visible: false },
     { key: 'joiningDate', label: 'Joining Date', visible: false },
-    { key: 'status', label: 'Status', visible: true }
+    { key: 'active', label: 'Active', visible: true }
   ];
 
   // Template-friendly getters/setters
@@ -46,26 +47,33 @@ export class EmployeeComponent extends BaseCrudComponent<Employee, EmployeeReqDt
     return this.items;
   }
 
-  constructor(public service: EmployeeService) {
+  constructor(public service: EmployeeService,
+    public pageHeaderService: PageHeaderService
+  ) {
     super();
   }
 
+  // ngOnInit(): void {
+  //   this.loadItems();
+  // }
   ngOnInit(): void {
-    this.loadItems();
-  }
+  this.pageHeaderService.setTitle('Employee List');
+  this.loadItems();
+}
 
   // Implement required abstract methods
   createNew(): Employee {
     const maxSqn = this.items.reduce((max, emp) => Math.max(max, emp.sqn || 0), 0);
     return {
       id: 0,
+      employeeId: '',
       name: '',
       email: '',
       phone: '',
       salary: 0,
       joiningDate: this.getTodayDate(),
       sqn: maxSqn + 1,
-      status: true
+      active: true
     };
   }
 

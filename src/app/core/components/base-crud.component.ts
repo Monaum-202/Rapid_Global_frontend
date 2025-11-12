@@ -4,7 +4,7 @@ import { BackendPaginator } from 'src/app/core/models/backend-paginator';
 
 export interface BaseEntity {
   id: number;
-  status: boolean;
+  active: boolean;
   sqn?: number;
 }
 
@@ -18,7 +18,7 @@ export interface CrudService<T extends BaseEntity, TDto> {
   getAll(page: number, pageSize: number, search?: string): Observable<any>;
   create(dto: TDto): Observable<any>;
   update(id: number, dto: TDto): Observable<any>;
-  statusUpdate(id: number): Observable<any>;
+  activeUpdate(id: number): Observable<any>;
   deleteEmployee?(id: number): Observable<any>;
   deletePaymentMethod?(id: number): Observable<any>;
   // Add other delete method names as needed
@@ -180,18 +180,18 @@ export abstract class BaseCrudComponent<T extends BaseEntity, TDto> implements O
     this.selectedItem = { ...item };
   }
 
-  toggleStatus(item: T): void {
+  toggleActive(item: T): void {
     if (!item.id) return;
 
-    this.service.statusUpdate(item.id)
+    this.service.activeUpdate(item.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
           if (response.success) {
-            item.status = !item.status;
+            item.active = !item.active;
           }
         },
-        error: (error) => this.handleError('Failed to update status', error)
+        error: (error) => this.handleError('Failed to update active', error)
       });
   }
 
@@ -264,12 +264,12 @@ export abstract class BaseCrudComponent<T extends BaseEntity, TDto> implements O
     });
   }
 
-  getStatusClass(status: boolean): string {
-    return status ? 'badge bg-success' : 'badge bg-danger';
+  getActiveClass(active: boolean): string {
+    return active ? 'badge bg-success' : 'badge bg-danger';
   }
 
-  getStatusText(status: boolean): string {
-    return status ? 'Active' : 'Inactive';
+  getActiveText(active: boolean): string {
+    return active ? 'Active' : 'Inactive';
   }
 
   protected getTodayDate(): string {
