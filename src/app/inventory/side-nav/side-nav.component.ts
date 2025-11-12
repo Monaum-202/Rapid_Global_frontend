@@ -11,8 +11,23 @@ export class SideNavComponent implements OnInit {
   isMobileMenuOpen = false;
   isMobileView = false;
 
+  expandSideBar() {
+    this.isSidebarCollapsed = false;
+    this.isMobileMenuOpen = false;
+    this.isMobileView = false;
+  }
+
+  constructor() {
+    console.log('%c🧩 SideNavComponent constructed', 'color: lime;');
+  }
+
+  ngOnDestroy() {
+    console.log('%c💥 SideNavComponent destroyed', 'color: red; font-weight: bold;');
+  }
+
   ngOnInit() {
     this.checkViewport();
+    console.log('%c✅ SideNavComponent initialized', 'color: cyan;');
   }
 
   @HostListener('window:resize', ['$event'])
@@ -40,6 +55,9 @@ export class SideNavComponent implements OnInit {
     } else {
       this.isSidebarCollapsed = !this.isSidebarCollapsed;
     }
+    const expandedEls = document.querySelectorAll('[aria-expanded="true"]');
+    expandedEls.forEach((el: any) => el.click());
+
   }
 
   closeMobileMenu() {

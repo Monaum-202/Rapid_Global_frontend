@@ -37,7 +37,7 @@ export abstract class BaseCrudComponent<T extends BaseEntity, TDto> implements O
   showColumnDropdown = false;
 
   paginator = new BackendPaginator(10);
-  readonly PAGE_SIZE_OPTIONS = [10, 5,  25, 50, 100];
+  readonly PAGE_SIZE_OPTIONS = [10, 5, 25, 50, 100];
 
   protected destroy$ = new Subject<void>();
 
@@ -71,8 +71,8 @@ export abstract class BaseCrudComponent<T extends BaseEntity, TDto> implements O
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => {
-          this.isLoading = false;
-          this.isSearching = false;
+            this.isLoading = false;
+            this.isSearching = false;
         })
       )
       .subscribe({

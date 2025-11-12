@@ -1,3 +1,13 @@
+.sidebar span {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;   /* prevent text wrapping */
+  overflow: hidden;
+  text-overflow: ellipsis; /* optional: adds “…” if text is too long */
+  gap: 8px;               /* spacing between icon and text */
+}
+
+
 /* side-nav.component.css */
 
 /* Base Styles */
@@ -13,7 +23,7 @@ body {
   flex-shrink: 0;
   height: 100vh;
   width: 15.625rem;
-  transition: all 0.3s ease;
+  transition: all 1s ease;
   background: #000000;
   color: #fff;
   position: fixed;
@@ -43,6 +53,7 @@ body {
   font-size: 1.5rem;
   margin-bottom: 2rem;
   font-weight: 600;
+  transition: all 1s ease;
 }
 
 .sidebar .nav-link {
@@ -87,10 +98,15 @@ body {
 }
 
 /* Hide only the text label, not the icon */
-.sidebar.collapsed h2,
 .sidebar.collapsed .nav-link span:not(:has(i)),
 .sidebar.collapsed .fa-chevron-down {
   display: none;
+}
+
+.sidebar.collapsed h2{
+    font-size: 0rem;
+    margin-bottom: 0rem;
+    font-weight: 600;
 }
 
 /* Ensure icons remain centered */
