@@ -35,18 +35,6 @@ export class InventoryComponent implements AfterViewInit, OnInit {
     );
   }
 
-  onSearchInput(event: any) {
-    console.log('Search input:', event.target.value);
-  }
-
-  onSearchKeyPress(event: KeyboardEvent) {
-    if (event.key === 'Enter') console.log('Search submitted!');
-  }
-
-  onSearchButtonClick() {
-    console.log('Search button clicked!');
-  }
-
   toggleMenu() {
     this.sideNav.toggleSidebar();
   }

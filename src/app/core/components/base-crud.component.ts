@@ -67,14 +67,20 @@ export abstract class BaseCrudComponent<T extends BaseEntity, TDto> implements O
       searchParam
     );
 
-    request$
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => {
-            this.isLoading = false;
-            this.isSearching = false;
-        })
-      )
+    const startTime = Date.now();
+
+  request$
+    .pipe(
+      takeUntil(this.destroy$),
+      finalize(() => {
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, 1000 - elapsed);
+        setTimeout(() => {
+          this.isLoading = false;
+          this.isSearching = false;
+        }, remaining);
+      })
+    )
       .subscribe({
         next: (response) => {
           if (response.success && response.data) {

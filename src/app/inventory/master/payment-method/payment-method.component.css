@@ -38,13 +38,13 @@ body {
     padding: 8px 8px;
     color: white;
     background-color: #000000;
-    text-align: center; /* Center align text in table header */
+    text-align: center;
 }
 
 .table tbody td {
     padding: 5px 5px;
     vertical-align: middle;
-    text-align: center; /* Center align text in table body */
+    text-align: center;
 }
 
 
@@ -123,15 +123,11 @@ body {
     border-radius: 50rem;
 }
 
-
-
-
-
 .switch {
   position: relative;
   display: inline-block;
-  width: 2.5em;   /* relative width */
-  height: 1.2em;  /* relative height */
+  width: 2.5em;
+  height: 1.2em;
 }
 
 .switch input {
@@ -165,25 +161,94 @@ body {
 }
 
 input:checked + .slider {
-  background-color: #28a745; /* green when active */
+  background-color: #28a745;
 }
 
 input:checked + .slider:before {
   transform: translateX(1.3em);
 }
 
-.loading-overlay {
+/* Updated loading overlay - scoped to main content only and centered */
+.loading-overlay-scoped {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    top: 60px; /* Height of top bar */
+    left: 250px; /* Width of sidebar when expanded */
+    right: 0;
+    bottom: 0;
+    background: rgba(248, 249, 250, 0.98);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9999;
+    z-index: 1050;
+    transition: left 0.3s ease;
 }
+
+/* Hide content when loading */
+.content-hidden {
+    opacity: 0.3;
+    pointer-events: none;
+    user-select: none;
+}
+
+.loading-overlay-scoped {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.925);
+  z-index: 10;
+  backdrop-filter: blur(2px);
+}
+
+.bouncing-dots-loader {
+  display: flex;
+  gap: 8px;
+}
+
+.bouncing-dots-loader div {
+  width: 10px;
+  height: 10px;
+  background: rgb(255, 107, 107);
+  border-radius: 50%;
+  animation: bounce 0.6s infinite alternate;
+}
+
+.bouncing-dots-loader div:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.bouncing-dots-loader div:nth-child(3) {
+  animation-delay: 0.4s;
+}
+.bouncing-dots-loader div:nth-child(4) {
+  animation-delay: 0.6s;
+}
+.bouncing-dots-loader div:nth-child(5) {
+  animation-delay: 0.8s;
+}
+.bouncing-dots-loader div:nth-child(6) {
+  animation-delay: 1s;
+}
+
+@keyframes bounce {
+  to {
+    transform: translateY(-10px);
+    opacity: 0.1;
+  }
+}
+
+
+/* Adjust overlay position when sidebar is collapsed */
+/* .sidebar-collapsed .loading-overlay-scoped {
+    left: 80px;
+}
+
+/* Mobile responsive */
+/* @media (max-width: 768px) {
+    .loading-overlay-scoped {
+        left: 0 !important;
+    }
+} */ */
 
 .compact-view {
     display: grid;

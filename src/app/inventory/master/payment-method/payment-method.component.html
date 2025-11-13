@@ -1,4 +1,22 @@
-<div class="container my-1">
+<!-- Loading Spinner Overlay - Scoped to main content only -->
+<!-- <div class="loading-overlay-scoped" *ngIf="isLoading">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div> -->
+
+<div class="loading-overlay-scoped" *ngIf="isLoading">
+    <div class="bouncing-dots-loader">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+</div>
+
+<div class="container my-1 position-relative">
 
     <!-- Toast container (positioned at top-right) -->
     <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1200">
@@ -14,78 +32,19 @@
         </div>
     </div>
 
-    <!-- Loading Spinner Overlay -->
+    <div class="row align-items-center justify-content-between gy-2 mb-3">
 
+        <!-- Left Section: Show Entries + Columns -->
+        <div class="col-md-4 col-sm-12 d-flex align-items-center gap-3">
+            <!-- Show Entries -->
+            <div class="d-flex align-items-center">
+                <select class="form-select form-select-sm w-auto rounded-pill shadow-sm" [value]="paginator.pageSize"
+                    (change)="onPageSizeChange($event)">
+                    <option *ngFor="let size of PAGE_SIZE_OPTIONS" [value]="size">{{ size }}</option>
+                </select>
+            </div>
 
-    <!-- Header: Title + Search -->
-    <div class="row align-items-center gy-2 mb-3">
-        <!-- Left: PaymentMethod List -->
-        <!-- <div class="col-md-3 col-sm-12">
-            <h4><b>Payment Method List</b></h4>
-        </div> -->
-
-        <!-- Middle: Search (Centered) -->
-        <!-- Search input with search button and clear option -->
-<div class="col-md-5 col-sm-12 d-flex justify-content-center">
-    <div class="w-100" style="max-width: 25rem;">
-        <div class="input-group input-group-sm shadow-sm rounded-pill bg-light border border-dark">
-            <span class="input-group-text bg-transparent border-0 text-dark">
-                <i class="bi bi-search"></i>
-            </span>
-            <input
-                type="text"
-                class="form-control border-0 bg-transparent"
-                placeholder="Search paymentMethods... (Press Enter)"
-                (input)="onSearchInput($event)"
-                (keypress)="onSearchKeyPress($event)"
-                [value]="currentSearchValue"
-            />
-            <!-- Clear button (shows only when there's text) -->
-            <button
-                *ngIf="currentSearchValue"
-                class="btn btn-sm bg-transparent border-0 text-muted"
-                type="button"
-                (click)="clearSearch()"
-                title="Clear search">
-                <i class="bi bi-x-circle"></i>
-            </button>
-            <!-- Search button -->
-            <button
-                class="btn btn-sm bg-transparent border-0 text-dark"
-                type="button"
-                (click)="onSearchButtonClick()"
-                title="Search">
-                <i class="bi bi-arrow-right-circle"></i>
-            </button>
-        </div>
-    </div>
-</div>
-    </div>
-
-    <!-- Toolbar: Show Entries + Active Filter + Columns + Add Button -->
-    <div class="row g-2 justify-content-between align-items-center mb-3">
-        <!-- Show Entries -->
-        <div class="col-md-2 d-flex align-items-center">
-            <label class="me-2 text-muted fw-semibold">Show</label>
-            <select class="form-select form-select-sm w-auto rounded-pill shadow-sm" [value]="paginator.pageSize"
-                (change)="onPageSizeChange($event)">
-                <option *ngFor="let size of PAGE_SIZE_OPTIONS" [value]="size">{{ size }}</option>
-            </select>
-        </div>
-
-        <!-- Active Filter (Uncomment if needed) -->
-        <!-- <div class="col-md-2 d-flex align-items-center">
-            <select class="form-select form-select-sm rounded-pill shadow-sm"
-                    [value]="filterActive === null ? 'all' : filterActive"
-                    (change)="onActiveFilterChange($event.target.value === 'all' ? null : $event.target.value === 'true')">
-                <option value="all">All Active</option>
-                <option value="true">Active</option>
-                <option value="false">Inactive</option>
-            </select>
-        </div> -->
-
-        <!-- Column Selector -->
-        <div class="col-md-2 d-flex align-items-center">
+            <!-- Column Selector -->
             <div class="dropdown">
                 <button class="btn btn-outline-secondary btn-sm rounded-pill shadow-sm dropdown-toggle" type="button"
                     (click)="toggleColumnDropdown()">
@@ -103,15 +62,39 @@
             </div>
         </div>
 
-        <!-- Add PaymentMethod Button -->
-        <div class="col-md-3 d-flex justify-content-md-end justify-content-center">
+        <!-- Middle Section: Search -->
+        <div class="col-md-4 col-sm-12 d-flex justify-content-center">
+            <div class="w-100" style="max-width: 25rem;">
+                <div class="input-group input-group-sm shadow-sm rounded-pill bg-light border border-dark">
+                    <span class="input-group-text bg-transparent border-0 text-dark">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control border-0 bg-transparent"
+                        placeholder="Search paymentMethods... (Press Enter)" (input)="onSearchInput($event)"
+                        (keypress)="onSearchKeyPress($event)" [value]="currentSearchValue" />
+                    <button *ngIf="currentSearchValue" class="btn btn-sm bg-transparent border-0 text-muted"
+                        type="button" (click)="clearSearch()" title="Clear search">
+                        <i class="bi bi-x-circle"></i>
+                    </button>
+                    <button class="btn btn-sm bg-transparent border-0 text-dark" type="button"
+                        (click)="onSearchButtonClick()" title="Search">
+                        <i class="bi bi-arrow-right-circle"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Section: Add Button -->
+        <div class="col-md-4 col-sm-12 d-flex justify-content-md-end justify-content-center">
             <button type="button" class="btn rounded-pill shadow-sm px-4" data-bs-toggle="modal"
                 data-bs-target="#paymentMethodAddModal" (click)="openAddModal()" [disabled]="isLoading"
                 style="background-color: #000000; color: #ffffff;">
                 <i class="bi bi-plus-lg me-1"></i> Add PaymentMethod
             </button>
         </div>
+
     </div>
+
 
     <!-- PaymentMethod Table -->
     <div class="table-responsive">
@@ -126,13 +109,13 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- FIXED: Changed from 'paymentMethods' to 'filteredPaymentMethods' -->
                 <tr *ngFor="let paymentMethod of filteredPaymentMethods">
                     <td *ngIf="isColumnVisible('id')">#{{ paymentMethod.id }}</td>
                     <td *ngIf="isColumnVisible('name')">{{ paymentMethod.name }}</td>
                     <td *ngIf="isColumnVisible('description')">{{ paymentMethod.description || 'N/A' }}</td>
                     <td *ngIf="isColumnVisible('active')">
-                        <span class="badge" [class.bg-success]="paymentMethod.active" [class.bg-danger]="!paymentMethod.active">
+                        <span class="badge" [class.bg-success]="paymentMethod.active"
+                            [class.bg-danger]="!paymentMethod.active">
                             {{ paymentMethod.active ? 'Active' : 'Inactive' }}
                         </span>
                     </td>
@@ -140,13 +123,15 @@
                         <div class="d-flex justify-content-center align-items-center gap-1">
                             <!-- View button -->
                             <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
-                                data-bs-target="#paymentMethodModal" (click)="viewPaymentMethod(paymentMethod)" title="View Details">
+                                data-bs-target="#paymentMethodModal" (click)="viewPaymentMethod(paymentMethod)"
+                                title="View Details">
                                 <i class="fa fa-eye"></i>
                             </button>
 
                             <!-- Edit button -->
                             <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
-                                data-bs-target="#paymentMethodEditModal" (click)="editPaymentMethod(paymentMethod)" title="Edit">
+                                data-bs-target="#paymentMethodEditModal" (click)="editPaymentMethod(paymentMethod)"
+                                title="Edit">
                                 <i class="fa fa-pen"></i>
                             </button>
 
@@ -158,7 +143,8 @@
 
                             <!-- Toggle switch -->
                             <label class="switch m-0" title="Toggle Active">
-                                <input type="checkbox" [checked]="paymentMethod.active" (change)="toggleActive(paymentMethod)">
+                                <input type="checkbox" [checked]="paymentMethod.active"
+                                    (change)="toggleActive(paymentMethod)">
                                 <span class="slider round"></span>
                             </label>
                         </div>
@@ -206,7 +192,8 @@
 </div>
 
 <!-- View PaymentMethod Modal -->
-<div class="modal fade" id="paymentMethodModal" tabindex="-1" aria-labelledby="paymentMethodModalLabel" aria-hidden="true">
+<div class="modal fade" id="paymentMethodModal" tabindex="-1" aria-labelledby="paymentMethodModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -248,7 +235,8 @@
 </div>
 
 <!-- Edit PaymentMethod Modal -->
-<div class="modal fade" id="paymentMethodEditModal" tabindex="-1" aria-labelledby="paymentMethodEditLabel" aria-hidden="true">
+<div class="modal fade" id="paymentMethodEditModal" tabindex="-1" aria-labelledby="paymentMethodEditLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -260,11 +248,12 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label for="paymentMethodId" class="form-label">PaymentMethod ID</label>
-                            <input type="text" class="form-control" id="paymentMethodId" [value]="'#' + selectedPaymentMethod.id"
-                                name="paymentMethodId" readonly />
+                            <input type="text" class="form-control" id="paymentMethodId"
+                                [value]="'#' + selectedPaymentMethod.id" name="paymentMethodId" readonly />
                         </div>
                         <div class="col-md-6">
-                            <label for="paymentMethodName" class="form-label">Name <span class="text-danger">*</span></label>
+                            <label for="paymentMethodName" class="form-label">Name <span
+                                    class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="paymentMethodName"
                                 [(ngModel)]="selectedPaymentMethod.name" name="paymentMethodName" required />
                         </div>
@@ -295,7 +284,8 @@
 </div>
 
 <!-- Add PaymentMethod Modal -->
-<div class="modal fade" id="paymentMethodAddModal" tabindex="-1" aria-labelledby="paymentMethodAddLabel" aria-hidden="true">
+<div class="modal fade" id="paymentMethodAddModal" tabindex="-1" aria-labelledby="paymentMethodAddLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -330,7 +320,7 @@
                 <button type="submit" form="paymentMethodAddForm" class="btn btn-success" (click)="addPaymentMethod()"
                     [disabled]="isLoading">
                     <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
-                    Add PaymentMethod
+                    Add Payment Method
                 </button>
             </div>
         </div>
