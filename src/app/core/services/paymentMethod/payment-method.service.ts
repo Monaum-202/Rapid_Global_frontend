@@ -49,12 +49,12 @@ export class PaymentMethodService extends BaseService {
    * Get paymentMethods filtered by active with pagination
    */
   getAllActive(
-    active: boolean,
+    status: boolean,
     page = 0,
     size = 10
   ): Observable<BaseApiResponse<PaginatedData<PaymentMethod>>> {
     const params = this.buildPaginationParams(page, size)
-      .set('active', active.toString());
+      .set('status', status.toString());
 
     return this.get<PaginatedData<PaymentMethod>>(`${this.ENDPOINT}/all-active`, params);
   }

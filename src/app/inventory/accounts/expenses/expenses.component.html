@@ -1,549 +1,438 @@
-
-<body>
-    <div class="container my-4">
-        <h1>Expense List</h1>
-        <div class="container-fluid pb-4">
-            <div class="row">
-                <div class="col-12">
-                    <div class="row">
-                        <div class="row align-items-center">
-                            <!-- Show Entries -->
-                            <div class="row g-2 p-3">
-                                <!-- Show Entries -->
-                                <div class="col-md-4 d-flex align-items-center">
-                                    <label class="me-2 text-muted fw-semibold">Show</label>
-                                    <select class="form-select form-select-sm w-auto rounded-pill shadow-sm">
-                                        <option>10</option>
-                                        <option>25</option>
-                                        <option>50</option>
-                                        <option>100</option>
-                                    </select>
-                                </div>
-
-                                <!-- Search -->
-                                <div class="col-md-4 d-flex justify-content-center">
-                                    <div class="input-group input-group-sm shadow-sm rounded-pill bg-light border border-dark"
-                                        style="max-width: 300px;">
-                                        <span class="input-group-text bg-transparent border-0 text-dark">
-                                            <i class="bi bi-search"></i>
-                                        </span>
-                                        <input type="text" class="form-control border-0 bg-transparent"
-                                            placeholder="Search..." aria-label="Search" />
-                                    </div>
-                                </div>
-
-                                <!-- Add Expense Button -->
-                                <div class="col-md-4 d-flex justify-content-md-end">
-                                    <button type="button" class="btn rounded-pill shadow-sm px-4"
-                                        data-bs-toggle="modal" data-bs-target="#expenseModal"
-                                        style="background-color: #000000; color: #ffffff;">
-                                        <i class="bi bi-plus-lg me-1"></i> Add Expense
-                                    </button>
-                                </div>
-                            </div>
-
-                           <div class="table-responsive">
-    <table class="table table-hover mb-0">
-        <thead class="rounded-pill" style="background-color: #000000; ">
-            <tr>
-                <th>ID</th>
-                <th>Expense Type</th>
-                <th>DATE</th>
-                <th>Amount</th>
-                <th>Paid To</th>
-                <th>Approved By</th>
-                <th>ACTIONS</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>#EXP-00001</td>
-                <td>Office Supplies</td>
-                <td>12/03/2024</td>
-                <td>$1551</td>
-                <td>Office Depot</td>
-                <td>John Manager</td>
-                <td>
-                    <div class="btn-group">
-                        <!-- Edit button -->
-                        <button type="button" class="btn btn-outline-success btn-sm"
-                            data-bs-toggle="modal" data-bs-target="#expenseModal"
-                            title="Edit">
-                            <i class="fa fa-pencil"></i>
-                        </button>
-
-                        <!-- View button -->
-                        <button type="button" class="btn btn-outline-primary btn-sm"
-                            data-bs-toggle="modal" data-bs-target="#expenseViewModal"
-                            data-expense-id="EXP-00001"
-                            title="View">
-                            <i class="fa fa-eye"></i>
-                        </button>
-
-                        <!-- Approve button -->
-                        <button type="button" class="btn btn-outline-info btn-sm"
-                            title="Approve">
-                            <i class="fa fa-check"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>#EXP-00002</td>
-                <td>Travel</td>
-                <td>16/03/2024</td>
-                <td>$850</td>
-                <td>Hotel Grand</td>
-                <td>-</td>
-                <td>
-                    <div class="btn-group">
-                        <!-- Edit button -->
-                        <button type="button" class="btn btn-outline-success btn-sm"
-                            data-bs-toggle="modal" data-bs-target="#expenseModal"
-                            title="Edit">
-                            <i class="fa fa-pencil"></i>
-                        </button>
-
-                        <!-- View button -->
-                        <button type="button" class="btn btn-outline-primary btn-sm"
-                            data-bs-toggle="modal" data-bs-target="#expenseViewModal"
-                            data-expense-id="EXP-00002"
-                            title="View">
-                            <i class="fa fa-eye"></i>
-                        </button>
-
-                        <!-- Approve button -->
-                        <button type="button" class="btn btn-outline-info btn-sm"
-                            title="Approve">
-                            <i class="fa fa-check"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>#EXP-00003</td>
-                <td>Equipment</td>
-                <td>10/03/2024</td>
-                <td>$1200</td>
-                <td>Tech Solutions Ltd</td>
-                <td>Sarah Director</td>
-                <td>
-                    <div class="btn-group">
-                        <!-- Edit button -->
-                        <button type="button" class="btn btn-outline-success btn-sm"
-                            data-bs-toggle="modal" data-bs-target="#expenseModal"
-                            title="Edit">
-                            <i class="fa fa-pencil"></i>
-                        </button>
-
-                        <!-- View button -->
-                        <button type="button" class="btn btn-outline-primary btn-sm"
-                            data-bs-toggle="modal" data-bs-target="#expenseViewModal"
-                            data-expense-id="EXP-00003"
-                            title="View">
-                            <i class="fa fa-eye"></i>
-                        </button>
-
-                        <!-- Approve button -->
-                        <button type="button" class="btn btn-outline-info btn-sm"
-                            title="Approve">
-                            <i class="fa fa-check"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>#EXP-00004</td>
-                <td>Utilities</td>
-                <td>08/03/2024</td>
-                <td>$320</td>
-                <td>Power Company Inc</td>
-                <td>Auto System</td>
-                <td>
-                    <div class="btn-group">
-                        <!-- Edit button -->
-                        <button type="button" class="btn btn-outline-success btn-sm"
-                            data-bs-toggle="modal" data-bs-target="#expenseModal"
-                            title="Edit">
-                            <i class="fa fa-pencil"></i>
-                        </button>
-
-                        <!-- View button -->
-                        <button type="button" class="btn btn-outline-primary btn-sm"
-                            data-bs-toggle="modal" data-bs-target="#expenseViewModal"
-                            data-expense-id="EXP-00004"
-                            title="View">
-                            <i class="fa fa-eye"></i>
-                        </button>
-
-                        <!-- Approve button -->
-                        <button type="button" class="btn btn-outline-info btn-sm"
-                            title="Approve">
-                            <i class="fa fa-check"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>#EXP-00005</td>
-                <td>Marketing</td>
-                <td>05/03/2024</td>
-                <td>$750</td>
-                <td>Digital Ads Agency</td>
-                <td>-</td>
-                <td>
-                    <div class="btn-group">
-                        <!-- Edit button -->
-                        <button type="button" class="btn btn-outline-success btn-sm"
-                            data-bs-toggle="modal" data-bs-target="#expenseModal"
-                            title="Edit">
-                            <i class="fa fa-pencil"></i>
-                        </button>
-
-                        <!-- View button -->
-                        <button type="button" class="btn btn-outline-primary btn-sm"
-                            data-bs-toggle="modal" data-bs-target="#expenseViewModal"
-                            data-expense-id="EXP-00005"
-                            title="View">
-                            <i class="fa fa-eye"></i>
-                        </button>
-
-                        <!-- Approve button -->
-                        <button type="button" class="btn btn-outline-info btn-sm"
-                            title="Approve">
-                            <i class="fa fa-check"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-                            <p class="text-muted mb-0 mt-3">Showing 1 to 3 of 3 entries</p>
-                            <div class="d-flex justify-content-center mt-3">
-                                <div class="btn-group">
-                                    <button class="btn btn-outline-dark btn-sm"><i
-                                            class="bi bi-chevron-left">..</i></button>
-                                    <button class="btn btn-success btn-sm">1</button>
-                                    <button class="btn btn-outline-dark btn-sm">2</button>
-                                    <button class="btn btn-outline-dark btn-sm">3</button>
-                                    <button class="btn btn-outline-dark btn-sm"><i
-                                            class="bi bi-chevron-right">..</i></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Expense Modal -->
-                    <div class="modal fade" id="expenseModal" tabindex="-1" aria-labelledby="expenseModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-lg modal-dialog-centered">
-                            <div class="modal-content">
-                                <!-- Modal Header -->
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="expenseModalLabel">Add Expense</h5>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                                </div>
-
-                                <!-- Modal Body -->
-                                <div class="modal-body">
-                                    <form id="expenseForm">
-                                        <div class="row g-3">
-                                            <!-- Expense Category (First) -->
-                                            <div class="col-md-6">
-                                                <label for="expenseCategory" class="form-label">Expense Category</label>
-                                                <select class="form-select" id="expenseCategory" required>
-                                                    <option value="">Select Category</option>
-                                                    <option value="Office Supplies">Office Supplies</option>
-                                                    <option value="Utilities">Utilities</option>
-                                                    <option value="Travel">Travel</option>
-                                                    <option value="Marketing">Marketing</option>
-                                                    <option value="Equipment">Equipment</option>
-                                                    <option value="Other">Other</option>
-                                                </select>
-                                            </div>
-
-                                            <!-- Date (with today as default) -->
-                                            <div class="col-md-6">
-                                                <label for="date" class="form-label">Date</label>
-                                                <input type="date" class="form-control" id="date" required />
-                                            </div>
-
-                                            <!-- Status (Dropdown)
-                                            <div class="col-md-6">
-                                                <label for="status" class="form-label">Status</label>
-                                                <select class="form-select" id="status" required>
-                                                    <option value="Pending">Pending</option>
-                                                    <option value="Approved">Approved</option>
-                                                    <option value="Rejected">Rejected</option>
-                                                </select>
-                                            </div> -->
-
-                                            <!-- Amount -->
-                                            <div class="col-md-6">
-                                                <label for="amount" class="form-label">Amount</label>
-                                                <input type="number" class="form-control" id="amount" required />
-                                            </div>
-
-                                            <!-- Payment Method -->
-                                            <div class="col-md-6">
-                                                <label for="paymentMethod" class="form-label">Payment Method</label>
-                                                <select class="form-select" id="paymentMethod" required>
-                                                    <option value="">Select Method</option>
-                                                    <option value="Cash">Cash</option>
-                                                    <option value="Credit Card">Credit Card</option>
-                                                    <option value="Bank Transfer">Bank Transfer</option>
-                                                    <option value="Check">Check</option>
-                                                    <option value="Digital Wallet">Digital Wallet</option>
-                                                </select>
-                                            </div>
-
-                                            <!-- Paid To -->
-                                            <div class="col-md-6">
-                                                <label for="paidTo" class="form-label">Paid To</label>
-                                                <input type="text" class="form-control" id="paidTo" />
-                                            </div>
-
-                                            <!-- Attachment -->
-                                            <div class="col-md-6">
-                                                <label for="attachment" class="form-label">Attachment</label>
-                                                <input type="file" class="form-control" id="attachment" />
-                                            </div>
-
-                                            <!-- Approved By -->
-                                            <div class="col-md-6">
-                                                <label for="approvedBy" class="form-label">Approved By</label>
-                                                <select class="form-select" id="approvedBy">
-                                                    <option value="">Select Approver</option>
-                                                    <option value="John Doe">John Doe</option>
-                                                    <option value="Jane Smith">Jane Smith</option>
-                                                    <option value="Robert Johnson">Robert Johnson</option>
-                                                </select>
-                                            </div>
-
-                                            <!-- Approval Date -->
-                                            <div class="col-md-6">
-                                                <label for="approvalDate" class="form-label">Approval Date</label>
-                                                <input type="date" class="form-control" id="approvalDate" />
-                                            </div>
-
-                                            <!-- Description (Last) -->
-                                            <div class="col-12">
-                                                <label for="description" class="form-label">Description</label>
-                                                <textarea class="form-control" id="description" rows="3"></textarea>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-
-                                <!-- Modal Footer -->
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-                                        Close
-                                    </button>
-                                    <button type="button" class="btn btn-success" id="saveExpenseBtn">
-                                        Save Expense
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- View Modal -->
-                    <div class="modal fade" id="purchaseModal" tabindex="-1" aria-labelledby="purchaseModalLabel"
-                        aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="purchaseModalLabel">
-                                        Purchase Item Details
-                                    </h5>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="compact-view">
-                                        <div class="compact-item">
-                                            <div class="compact-label">ID</div>
-                                            <div class="compact-value">#PR-00002</div>
-                                        </div>
-                                        <div class="compact-item">
-                                            <div class="compact-label">ITEMS</div>
-                                            <div class="compact-value">Cloth</div>
-                                        </div>
-                                        <div class="compact-item">
-                                            <div class="compact-label">PURCHASE STATUS</div>
-                                            <div class="compact-value">
-                                                <span class="status-badge status-received">Received</span>
-                                            </div>
-                                        </div>
-                                        <div class="compact-item">
-                                            <div class="compact-label">ORDER BY</div>
-                                            <div class="compact-value">Jean Dyer</div>
-                                        </div>
-                                        <div class="compact-item">
-                                            <div class="compact-label">DATE</div>
-                                            <div class="compact-value">12/03/2021</div>
-                                        </div>
-                                        <div class="compact-item">
-                                            <div class="compact-label">SUPPLIER</div>
-                                            <div class="compact-value">Cloth Supplier</div>
-                                        </div>
-                                        <div class="compact-item">
-                                            <div class="compact-label">TOTAL</div>
-                                            <div class="compact-value">$1551</div>
-                                        </div>
-                                        <div class="compact-item">
-                                            <div class="compact-label">PAID</div>
-                                            <div class="compact-value">$1500</div>
-                                        </div>
-                                        <div class="compact-item">
-                                            <div class="compact-label">BALANCE</div>
-                                            <div class="compact-value">$551</div>
-                                        </div>
-                                        <div class="compact-item">
-                                            <div class="compact-label">PAYMENT STATUS</div>
-                                            <div class="compact-value">
-                                                <span class="status-badge status-pending">Pending</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-danger action-btn" data-bs-dismiss="modal">
-                                        Close
-                                    </button>
-                                    <button type="button" class="btn btn-primary action-btn">
-                                        Edit Details
-                                    </button>
-                                    <button type="button" class="btn btn-success action-btn">
-                                        Approve Payment
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="loading-overlay-scoped" *ngIf="isLoading">
+    <div class="bouncing-dots-loader">
+        <div></div><div></div><div></div><div></div><div></div><div></div>
     </div>
+</div>
 
-    <!-- Toast Container for Success Message -->
-    <div class="toast-container">
-        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+<div class="container my-1 position-relative">
+
+    <!-- Toast container (positioned at top-right) -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1200">
+        <div *ngIf="errorMessage" class="toast align-items-center text-bg-danger border-0 show" role="alert"
+            aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body">
-                    <i class="bi bi-check-circle-fill me-2"></i>
-                    Expense saved successfully!
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    {{ errorMessage }}
                 </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="clearError()"></button>
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Set today's date as default in the expense modal
-        document.addEventListener('DOMContentLoaded', function() {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('date').value = today;
+    <div class="row align-items-center justify-content-between gy-2 m-3">
 
-            // Add event listener for status change
-            const statusSelect = document.getElementById('status');
-            const approvedBySelect = document.getElementById('approvedBy');
-            const approvalDateInput = document.getElementById('approvalDate');
+        <!-- Left Section: Show Entries + Columns -->
+        <div class="col-md-4 col-sm-12 d-flex align-items-center gap-3">
+            <!-- Show Entries -->
+            <div class="d-flex align-items-center">
+                <select class="form-select form-select-sm w-auto rounded-pill shadow-sm" [value]="paginator.pageSize"
+                    (change)="onPageSizeChange($event)">
+                    <option *ngFor="let size of PAGE_SIZE_OPTIONS" [value]="size">{{ size }}</option>
+                </select>
+            </div>
 
-            statusSelect.addEventListener('change', function() {
-                if (this.value === 'Approved') {
-                    approvedBySelect.disabled = false;
-                    approvalDateInput.disabled = false;
-                    approvalDateInput.value = today;
-                } else {
-                    approvedBySelect.disabled = true;
-                    approvalDateInput.disabled = true;
-                    approvalDateInput.value = '';
-                }
-            });
+            <!-- Column Selector -->
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm rounded-pill shadow-sm dropdown-toggle" type="button"
+                    (click)="toggleColumnDropdown()">
+                    <i class="bi bi-columns-gap me-1"></i> Columns
+                </button>
+                <div class="dropdown-menu p-3 shadow" [class.show]="showColumnDropdown" style="min-width: 200px;">
+                    <div class="form-check" *ngFor="let column of columns">
+                        <input class="form-check-input" type="checkbox" [id]="'column-' + column.key"
+                            [(ngModel)]="column.visible" />
+                        <label class="form-check-label" [for]="'column-' + column.key">
+                            {{ column.label }}
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            // Initialize the state on page load
-            if (statusSelect.value !== 'Approved') {
-                approvedBySelect.disabled = true;
-                approvalDateInput.disabled = true;
-            }
+        <!-- Middle Section: Search -->
+        <div class="col-md-4 col-sm-12 d-flex justify-content-center">
+            <div class="w-100" style="max-width: 25rem;">
+                <div class="input-group input-group-sm shadow-sm rounded-pill bg-light border border-dark">
+                    <span class="input-group-text bg-transparent border-0 text-dark">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control border-0 bg-transparent"
+                        placeholder="Search... (Press Enter)" (input)="onSearchInput($event)"
+                        (keypress)="onSearchKeyPress($event)" [value]="currentSearchValue" />
+                    <button *ngIf="currentSearchValue" class="btn btn-sm bg-transparent border-0 text-muted"
+                        type="button" (click)="clearSearch()" title="Clear search">
+                        <i class="bi bi-x-circle"></i>
+                    </button>
+                    <button class="btn btn-sm bg-transparent border-0 text-dark" type="button"
+                        (click)="onSearchButtonClick()" title="Search">
+                        <i class="bi bi-arrow-right-circle"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
 
-            // Handle form submission
-            const saveExpenseBtn = document.getElementById('saveExpenseBtn');
-            const expenseForm = document.getElementById('expenseForm');
-            const expenseModal = document.getElementById('expenseModal');
-            const successToast = new bootstrap.Toast(document.getElementById('successToast'));
+        <!-- Right Section: Add Button -->
+        <div class="col-md-4 col-sm-12 d-flex justify-content-md-end justify-content-center">
+            <button type="button" class="btn rounded-pill shadow-sm px-4" data-bs-toggle="modal"
+                data-bs-target="#expenseAddModal" (click)="openAddModal()" [disabled]="isLoading"
+                style="background-color: #000000; color: #ffffff;">
+                <i class="bi bi-plus-lg me-1"></i> Add Expense
+            </button>
+        </div>
+    </div>
 
-            saveExpenseBtn.addEventListener('click', function() {
-                // Validate required fields
-                const expenseCategory = document.getElementById('expenseCategory');
-                const date = document.getElementById('date');
-                const amount = document.getElementById('amount');
-                const paymentMethod = document.getElementById('paymentMethod');
 
-                let isValid = true;
+    <!-- Expense Table -->
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle text-nowrap">
+            <thead>
+                <tr>
+                    <th *ngIf="isColumnVisible('id')">ID</th>
+                    <th *ngIf="isColumnVisible('expenseCategory')">EXPENSE TYPE</th>
+                    <th *ngIf="isColumnVisible('date')">DATE</th>
+                    <th *ngIf="isColumnVisible('amount')">AMOUNT</th>
+                    <th *ngIf="isColumnVisible('paidTo')">PAID TO</th>
+                    <th *ngIf="isColumnVisible('approvedBy')">APPROVED BY</th>
+                    <th *ngIf="isColumnVisible('status')">STATUS</th>
+                    <th class="text-center">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let expense of filteredExpenses">
+                    <td *ngIf="isColumnVisible('id')">#{{ expense.id }}</td>
+                    <td *ngIf="isColumnVisible('expenseCategory')">{{ expense.expenseCategory }}</td>
+                    <td *ngIf="isColumnVisible('date')">{{ expense.date | date:'dd/MM/yyyy' }}</td>
+                    <td *ngIf="isColumnVisible('amount')">${{ expense.amount | number:'1.2-2' }}</td>
+                    <td *ngIf="isColumnVisible('paidTo')">{{ expense.paidTo || 'N/A' }}</td>
+                    <td *ngIf="isColumnVisible('approvedBy')">{{ expense.approvedBy || '-' }}</td>
+                    <td *ngIf="isColumnVisible('status')">
+                        <span class="badge"
+                            [class.bg-warning]="expense.status === 'Pending'"
+                            [class.bg-success]="expense.status === 'Approved'"
+                            [class.bg-danger]="expense.status === 'Rejected'">
+                            {{ expense.status }}
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center align-items-center gap-1">
+                            <!-- View button -->
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#expenseViewModal" (click)="viewExpense(expense)"
+                                title="View Details">
+                                <i class="fa fa-eye"></i>
+                            </button>
 
-                // Reset validation styles
-                [expenseCategory, date, amount, paymentMethod].forEach(field => {
-                    field.classList.remove('is-invalid');
-                });
+                            <!-- Edit button -->
+                            <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#expenseEditModal" (click)="editExpense(expense)"
+                                title="Edit">
+                                <i class="fa fa-pen"></i>
+                            </button>
 
-                // Check required fields
-                if (!expenseCategory.value) {
-                    expenseCategory.classList.add('is-invalid');
-                    isValid = false;
-                }
+                            <!-- Delete button -->
+                            <button type="button" class="btn btn-outline-danger btn-sm"
+                                (click)="deleteExpense(expense)" title="Delete">
+                                <i class="fa fa-trash"></i>
+                            </button>
 
-                if (!date.value) {
-                    date.classList.add('is-invalid');
-                    isValid = false;
-                }
+                            <!-- Approve button -->
+                            <button type="button" class="btn btn-outline-info btn-sm"
+                                (click)="approveExpense(expense)"
+                                [disabled]="expense.status === 'Approved'"
+                                title="Approve">
+                                <i class="fa fa-check"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
 
-                if (!amount.value || amount.value <= 0) {
-                    amount.classList.add('is-invalid');
-                    isValid = false;
-                }
+                <!-- No data message -->
+                <tr *ngIf="filteredExpenses.length === 0 && !isLoading">
+                    <td [attr.colspan]="visibleColumnsCount" class="text-center text-muted py-4">
+                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                        {{ searchTerm ? 'No expenses found matching your search' : 'No expenses found' }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-                if (!paymentMethod.value) {
-                    paymentMethod.classList.add('is-invalid');
-                    isValid = false;
-                }
+    <!-- Pagination Info and Controls -->
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <p class="text-muted mb-0">
+            Showing {{ paginator.from }} to {{ paginator.to }} of {{ paginator.totalElements }} entries
+        </p>
 
-                if (isValid) {
-                    // Here you would typically send the data to a server
-                    // For demo purposes, we'll just show a success message
+        <div class="btn-group">
+            <!-- Previous -->
+            <button class="btn btn-outline-dark btn-sm" (click)="previousPage()"
+                [disabled]="!canGoPrevious || isLoading">
+                <i class="bi bi-chevron-left"></i>
+            </button>
 
-                    // Close the modal
-                    const modal = bootstrap.Modal.getInstance(expenseModal);
-                    modal.hide();
+            <!-- Page Numbers -->
+            <button *ngFor="let page of getPageNumbers()" class="btn btn-sm"
+                [class.btn-success]="page === paginator.currentPage"
+                [class.btn-outline-dark]="page !== paginator.currentPage" (click)="goToPage(page)"
+                [disabled]="isLoading">
+                {{ page + 1 }}
+            </button>
 
-                    // Show success toast
-                    setTimeout(() => {
-                        successToast.show();
-                    }, 500);
+            <!-- Next -->
+            <button class="btn btn-outline-dark btn-sm" (click)="nextPage()" [disabled]="!canGoNext || isLoading">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
 
-                    // Reset form for next use
-                    setTimeout(() => {
-                        expenseForm.reset();
-                        document.getElementById('date').value = today;
-                        approvedBySelect.disabled = true;
-                        approvalDateInput.disabled = true;
-                    }, 1000);
-                }
-            });
+<!-- View Expense Modal -->
+<div class="modal fade" id="expenseViewModal" tabindex="-1" aria-labelledby="expenseViewModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="expenseViewModalLabel">Expense Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" *ngIf="selectedExpense">
+                <div class="compact-view">
+                    <div class="compact-item">
+                        <div class="compact-label">ID</div>
+                        <div class="compact-value">#{{ selectedExpense.id }}</div>
+                    </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Expense Category</div>
+                        <div class="compact-value">{{ selectedExpense.expenseCategory }}</div>
+                    </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Date</div>
+                        <div class="compact-value">{{ selectedExpense.date | date:'dd/MM/yyyy' }}</div>
+                    </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Amount</div>
+                        <div class="compact-value">${{ selectedExpense.amount | number:'1.2-2' }}</div>
+                    </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Payment Method</div>
+                        <div class="compact-value">{{ selectedExpense.paymentMethod || 'N/A' }}</div>
+                    </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Paid To</div>
+                        <div class="compact-value">{{ selectedExpense.paidTo || 'N/A' }}</div>
+                    </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Status</div>
+                        <span class="badge"
+                            [class.bg-warning]="selectedExpense.status === 'Pending'"
+                            [class.bg-success]="selectedExpense.status === 'Approved'"
+                            [class.bg-danger]="selectedExpense.status === 'Rejected'">
+                            {{ selectedExpense.status }}
+                        </span>
+                    </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Approved By</div>
+                        <div class="compact-value">{{ selectedExpense.approvedBy || '-' }}</div>
+                    </div>
+                    <div class="compact-item" *ngIf="selectedExpense.approvalDate">
+                        <div class="compact-label">Approval Date</div>
+                        <div class="compact-value">{{ selectedExpense.approvalDate | date:'dd/MM/yyyy' }}</div>
+                    </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Description</div>
+                        <div class="compact-value">{{ selectedExpense.description || 'N/A' }}</div>
+                    </div>
+                    <div class="compact-item" *ngIf="selectedExpense.attachment">
+                        <div class="compact-label">Attachment</div>
+                        <div class="compact-value">
+                            <a [href]="selectedExpense.attachment" target="_blank">View Attachment</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-            // Clear validation when user starts typing in invalid fields
-            expenseForm.querySelectorAll('.form-control, .form-select').forEach(field => {
-                field.addEventListener('input', function() {
-                    if (this.classList.contains('is-invalid')) {
-                        this.classList.remove('is-invalid');
-                    }
-                });
-            });
-        });
-    </script>
-</body>
+<!-- Edit Expense Modal -->
+<div class="modal fade" id="expenseEditModal" tabindex="-1" aria-labelledby="expenseEditLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="expenseEditLabel">Edit Expense</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" *ngIf="selectedExpense">
+                <form id="expenseEditForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="editExpenseId" class="form-label">Expense ID</label>
+                            <input type="text" class="form-control" id="editExpenseId"
+                                [value]="'#' + selectedExpense.id" readonly />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editExpenseCategory" class="form-label">Expense Category <span
+                                    class="text-danger">*</span></label>
+                            <select class="form-select" id="editExpenseCategory"
+                                [(ngModel)]="selectedExpense.expenseCategory" name="editExpenseCategory" required>
+                                <option value="">Select Category</option>
+                                <option value="Office Supplies">Office Supplies</option>
+                                <option value="Utilities">Utilities</option>
+                                <option value="Travel">Travel</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Equipment">Equipment</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editDate" class="form-label">Date <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="editDate"
+                                [(ngModel)]="selectedExpense.date" name="editDate" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editAmount" class="form-label">Amount <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="editAmount"
+                                [(ngModel)]="selectedExpense.amount" name="editAmount" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editPaymentMethod" class="form-label">Payment Method <span
+                                    class="text-danger">*</span></label>
+                            <select class="form-select" id="editPaymentMethod"
+                                [(ngModel)]="selectedExpense.paymentMethod" name="editPaymentMethod" required>
+                                <option value="">Select Method</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Credit Card">Credit Card</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                                <option value="Check">Check</option>
+                                <option value="Digital Wallet">Digital Wallet</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editPaidTo" class="form-label">Paid To</label>
+                            <input type="text" class="form-control" id="editPaidTo"
+                                [(ngModel)]="selectedExpense.paidTo" name="editPaidTo" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editStatus" class="form-label">Status</label>
+                            <select class="form-select" id="editStatus"
+                                [(ngModel)]="selectedExpense.status" name="editStatus">
+                                <option value="Pending">Pending</option>
+                                <option value="Approved">Approved</option>
+                                <option value="Rejected">Rejected</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editApprovedBy" class="form-label">Approved By</label>
+                            <input type="text" class="form-control" id="editApprovedBy"
+                                [(ngModel)]="selectedExpense.approvedBy" name="editApprovedBy" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editApprovalDate" class="form-label">Approval Date</label>
+                            <input type="date" class="form-control" id="editApprovalDate"
+                                [(ngModel)]="selectedExpense.approvalDate" name="editApprovalDate" />
+                        </div>
+                        <div class="col-12">
+                            <label for="editDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="editDescription"
+                                [(ngModel)]="selectedExpense.description" name="editDescription" rows="3"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="expenseEditForm" class="btn btn-success" (click)="saveExpense()"
+                    [disabled]="isLoading">
+                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Expense Modal -->
+<div class="modal fade" id="expenseAddModal" tabindex="-1" aria-labelledby="expenseAddLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="expenseAddLabel">Add New Expense</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" *ngIf="selectedExpense">
+                <form id="expenseAddForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="addExpenseCategory" class="form-label">Expense Category <span
+                                    class="text-danger">*</span></label>
+                            <select class="form-select" id="addExpenseCategory"
+                                [(ngModel)]="selectedExpense.expenseCategory" name="addExpenseCategory" required>
+                                <option value="">Select Category</option>
+                                <option value="Office Supplies">Office Supplies</option>
+                                <option value="Utilities">Utilities</option>
+                                <option value="Travel">Travel</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Equipment">Equipment</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="addDate" class="form-label">Date <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="addDate"
+                                [(ngModel)]="selectedExpense.date" name="addDate" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="addAmount" class="form-label">Amount <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="addAmount"
+                                [(ngModel)]="selectedExpense.amount" name="addAmount" required />
+                        </div>
+                        <div class="col-md-6">
+  <label for="addPaymentMethod" class="form-label">
+    Payment Method <span class="text-danger">*</span>
+  </label>
+  <select class="form-select"
+          id="addPaymentMethod"
+          [(ngModel)]="selectedExpense.paymentMethod"
+          name="addPaymentMethod"
+          required>
+    <option value="">Select Method</option>
+    <option *ngFor="let method of paymentMethod" [value]="method.name">
+      {{ method.name }}
+    </option>
+  </select>
+</div>
+
+                        <div class="col-md-6">
+                            <label for="addPaidTo" class="form-label">Paid To</label>
+                            <input type="text" class="form-control" id="addPaidTo"
+                                [(ngModel)]="selectedExpense.paidTo" name="addPaidTo" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="addAttachment" class="form-label">Attachment</label>
+                            <input type="file" class="form-control" id="addAttachment" />
+                        </div>
+                        <div class="col-12">
+                            <label for="addDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="addDescription"
+                                [(ngModel)]="selectedExpense.description" name="addDescription" rows="3"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="expenseAddForm" class="btn btn-success" (click)="addExpense()"
+                    [disabled]="isLoading">
+                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                    Add Expense
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

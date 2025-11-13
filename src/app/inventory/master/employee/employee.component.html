@@ -1,5 +1,10 @@
-<div class="container my-1">
+<div class="loading-overlay-scoped" *ngIf="isLoading">
+    <div class="bouncing-dots-loader">
+        <div></div><div></div><div></div><div></div><div></div><div></div>
+    </div>
+</div>
 
+<div class="container my-1 position-relative">
     <!-- Toast container (positioned at top-right) -->
     <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1200">
         <div *ngIf="errorMessage" class="toast align-items-center text-bg-danger border-0 show" role="alert"
@@ -14,77 +19,26 @@
         </div>
     </div>
 
-    <!-- Loading Spinner Overlay -->
-    <div class="loading-overlay" *ngIf="isLoading">
-        <div class="spinner-border text-primary" role="active">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-    </div>
+    <div class="row align-items-center justify-content-between gy-2 my-3">
+        <!-- Left Section: Show Entries + Columns -->
+        <div class="col-md-4 col-sm-12 d-flex align-items-center gap-3">
+            <!-- Show Entries -->
+            <div class="d-flex align-items-center">
+                <select class="form-select form-select-sm w-auto rounded-pill shadow-sm" [value]="paginator.pageSize"
+                    (change)="onPageSizeChange($event)">
+                    <option *ngFor="let size of PAGE_SIZE_OPTIONS" [value]="size">
+                        {{ size }}
+                    </option>
+                </select>
+            </div>
 
-    <!-- Header: Title + Search -->
-    <div class="row align-items-center gy-2 mb-3">
-        <!-- Left: Employee List -->
-        <!-- <div class="col-md-3 col-sm-12">
-            <h3><b>Employee List</b></h3>
-        </div> -->
-
-        <!-- Middle: Search (Centered) -->
-        <!-- Search input with search button and clear option -->
-<div class="col-md-5 col-sm-12 d-flex justify-content-center">
-    <div class="w-100" style="max-width: 25rem;">
-        <div class="input-group input-group-sm shadow-sm rounded-pill bg-light border border-dark">
-            <span class="input-group-text bg-transparent border-0 text-dark">
-                <i class="bi bi-search"></i>
-            </span>
-            <input
-                type="text"
-                class="form-control border-0 bg-transparent"
-                placeholder="Search employees... (Press Enter)"
-                (input)="onSearchInput($event)"
-                (keypress)="onSearchKeyPress($event)"
-                [value]="currentSearchValue"
-            />
-            <!-- Clear button (shows only when there's text) -->
-            <button
-                *ngIf="currentSearchValue"
-                class="btn btn-sm bg-transparent border-0 text-muted"
-                type="button"
-                (click)="clearSearch()"
-                title="Clear search">
-                <i class="bi bi-x-circle"></i>
-            </button>
-            <!-- Search button -->
-            <button
-                class="btn btn-sm bg-transparent border-0 text-dark"
-                type="button"
-                (click)="onSearchButtonClick()"
-                title="Search">
-                <i class="bi bi-arrow-right-circle"></i>
-            </button>
-        </div>
-    </div>
-
-    </div>
-
-    <!-- Toolbar: Show Entries + Active Filter + Columns + Add Button -->
-    <div class="row g-2 justify-content-between align-items-center mb-3">
-        <!-- Show Entries -->
-        <div class="col-md-2 d-flex align-items-center">
-            <label class="me-2 text-muted fw-semibold">Show</label>
-            <select class="form-select form-select-sm w-auto rounded-pill shadow-sm" [value]="paginator.pageSize"
-                (change)="onPageSizeChange($event)">
-                <option *ngFor="let size of PAGE_SIZE_OPTIONS" [value]="size">{{ size }}</option>
-            </select>
-        </div>
-
-        <!-- Column Selector -->
-        <div class="col-md-2 d-flex align-items-center">
+            <!-- Column Selector -->
             <div class="dropdown">
                 <button class="btn btn-outline-secondary btn-sm rounded-pill shadow-sm dropdown-toggle" type="button"
                     (click)="toggleColumnDropdown()">
                     <i class="bi bi-columns-gap me-1"></i> Columns
                 </button>
-                <div class="dropdown-menu p-3 shadow" [class.show]="showColumnDropdown" style="min-width: 200px;">
+                <div class="dropdown-menu p-3 shadow" [class.show]="showColumnDropdown" style="min-width: 200px">
                     <div class="form-check" *ngFor="let column of columns">
                         <input class="form-check-input" type="checkbox" [id]="'column-' + column.key"
                             [(ngModel)]="column.visible" />
@@ -96,11 +50,33 @@
             </div>
         </div>
 
-        <!-- Add Employee Button -->
-        <div class="col-md-3 d-flex justify-content-md-end justify-content-center">
+        <!-- Middle Section: Search -->
+        <div class="col-md-4 col-sm-12 d-flex justify-content-center">
+            <div class="w-100" style="max-width: 25rem">
+                <div class="input-group input-group-sm shadow-sm rounded-pill bg-light border border-dark">
+                    <span class="input-group-text bg-transparent border-0 text-dark">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control border-0 bg-transparent"
+                        placeholder="Search... (Press Enter)" (input)="onSearchInput($event)"
+                        (keypress)="onSearchKeyPress($event)" [value]="currentSearchValue" />
+                    <button *ngIf="currentSearchValue" class="btn btn-sm bg-transparent border-0 text-muted"
+                        type="button" (click)="clearSearch()" title="Clear search">
+                        <i class="bi bi-x-circle"></i>
+                    </button>
+                    <button class="btn btn-sm bg-transparent border-0 text-dark" type="button"
+                        (click)="onSearchButtonClick()" title="Search">
+                        <i class="bi bi-arrow-right-circle"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Section: Add Button -->
+        <div class="col-md-4 col-sm-12 d-flex justify-content-md-end justify-content-center">
             <button type="button" class="btn rounded-pill shadow-sm px-4" data-bs-toggle="modal"
                 data-bs-target="#employeeAddModal" (click)="openAddModal()" [disabled]="isLoading"
-                style="background-color: #000000; color: #ffffff;">
+                style="background-color: #000000; color: #ffffff">
                 <i class="bi bi-plus-lg me-1"></i> Add Employee
             </button>
         </div>
@@ -124,15 +100,23 @@
             <tbody>
                 <!-- FIXED: Changed from 'employees' to 'filteredEmployees' -->
                 <tr *ngFor="let employee of filteredEmployees">
-                    <td *ngIf="isColumnVisible('employeeId')">{{ employee.employeeId }}</td>
+                    <td *ngIf="isColumnVisible('employeeId')">
+                        {{ employee.employeeId }}
+                    </td>
                     <td *ngIf="isColumnVisible('name')">{{ employee.name }}</td>
-                    <td *ngIf="isColumnVisible('email')">{{ employee.email || 'N/A' }}</td>
+                    <td *ngIf="isColumnVisible('email')">
+                        {{ employee.email || "N/A" }}
+                    </td>
                     <td *ngIf="isColumnVisible('phone')">{{ employee.phone }}</td>
-                    <td *ngIf="isColumnVisible('salary')">${{ employee.salary | number:'1.2-2' }}</td>
-                    <td *ngIf="isColumnVisible('joiningDate')">{{ employee.joiningDate | date:'MMM d, yyyy' }}</td>
+                    <td *ngIf="isColumnVisible('salary')">
+                        ${{ employee.salary | number : "1.2-2" }}
+                    </td>
+                    <td *ngIf="isColumnVisible('joiningDate')">
+                        {{ employee.joiningDate | date : "MMM d, yyyy" }}
+                    </td>
                     <td *ngIf="isColumnVisible('active')">
                         <span class="badge" [class.bg-success]="employee.active" [class.bg-danger]="!employee.active">
-                            {{ employee.active ? 'Active' : 'Inactive' }}
+                            {{ employee.active ? "Active" : "Inactive" }}
                         </span>
                     </td>
                     <td class="text-center">
@@ -157,7 +141,7 @@
 
                             <!-- Toggle switch -->
                             <label class="switch m-0" title="Toggle Active">
-                                <input type="checkbox" [checked]="employee.active" (change)="toggleActive(employee)">
+                                <input type="checkbox" [checked]="employee.active" (change)="toggleActive(employee)" />
                                 <span class="slider round"></span>
                             </label>
                         </div>
@@ -168,7 +152,11 @@
                 <tr *ngIf="filteredEmployees.length === 0 && !isLoading">
                     <td [attr.colspan]="visibleColumnsCount" class="text-center text-muted py-4">
                         <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                        {{ searchTerm ? 'No employees found matching your search' : 'No employees found' }}
+                        {{
+                        searchTerm
+                        ? "No employees found matching your search"
+                        : "No employees found"
+                        }}
                     </td>
                 </tr>
             </tbody>
@@ -178,7 +166,8 @@
     <!-- Pagination Info and Controls -->
     <div class="d-flex justify-content-between align-items-center mt-3">
         <p class="text-muted mb-0">
-            Showing {{ paginator.from }} to {{ paginator.to }} of {{ paginator.totalElements }} entries
+            Showing {{ paginator.from }} to {{ paginator.to }} of
+            {{ paginator.totalElements }} entries
         </p>
 
         <div class="btn-group">
@@ -224,7 +213,9 @@
                     </div>
                     <div class="compact-item">
                         <div class="compact-label">Email</div>
-                        <div class="compact-value">{{ selectedEmployee.email || 'N/A' }}</div>
+                        <div class="compact-value">
+                            {{ selectedEmployee.email || "N/A" }}
+                        </div>
                     </div>
                     <div class="compact-item">
                         <div class="compact-label">Phone</div>
@@ -232,11 +223,15 @@
                     </div>
                     <div class="compact-item">
                         <div class="compact-label">Salary</div>
-                        <div class="compact-value">${{ selectedEmployee.salary | number:'1.2-2' }}</div>
+                        <div class="compact-value">
+                            ${{ selectedEmployee.salary | number : "1.2-2" }}
+                        </div>
                     </div>
                     <div class="compact-item">
                         <div class="compact-label">Joining Date</div>
-                        <div class="compact-value">{{ selectedEmployee.joiningDate | date:'MMM d, yyyy' }}</div>
+                        <div class="compact-value">
+                            {{ selectedEmployee.joiningDate | date : "MMM d, yyyy" }}
+                        </div>
                     </div>
                     <div class="compact-item">
                         <div class="compact-label">Sequence Number</div>
@@ -246,13 +241,15 @@
                         <div class="compact-label">Status</div>
                         <span class="badge" [class.bg-success]="selectedEmployee.active"
                             [class.bg-danger]="!selectedEmployee.active">
-                            {{ selectedEmployee.active ? 'Active' : 'Inactive' }}
+                            {{ selectedEmployee.active ? "Active" : "Inactive" }}
                         </span>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
             </div>
         </div>
     </div>
@@ -312,7 +309,9 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
                 <button type="submit" form="employeeForm" class="btn btn-success" (click)="saveEmployee()"
                     [disabled]="isLoading">
                     <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
@@ -373,7 +372,9 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
                 <button type="submit" form="employeeAddForm" class="btn btn-success" (click)="addEmployee()"
                     [disabled]="isLoading">
                     <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>

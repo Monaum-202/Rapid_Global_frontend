@@ -1,10 +1,224 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { finalize, takeUntil } from 'rxjs';
+import { TableColumn } from 'src/app/core/components/base-crud.component';
+import { simpleCrudComponent } from 'src/app/core/components/simpleCrud.component';
+import { Expense, ExpenseReqDto, ExpenseService } from 'src/app/core/services/expense/expense.service';
+import { PageHeaderService } from 'src/app/core/services/page-header/page-header.service';
+import { PaymentMethod, PaymentMethodService } from 'src/app/core/services/paymentMethod/payment-method.service';
+
+
+enum ModalType {
+  VIEW = 'expenseViewModal',
+  ADD = 'expenseAddModal',
+  EDIT = 'expenseEditModal'
+}
 
 @Component({
-  selector: 'app-expenses',
+  selector: 'app-expense',
   templateUrl: './expenses.component.html',
   styleUrls: ['./expenses.component.css']
 })
-export class ExpensesComponent {
+export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDto> implements OnInit {
+  entityName = 'Expense';
+  entityNameLower = 'expense';
+  paymentMethod: PaymentMethod[] = [];
 
+  columns: TableColumn<Expense>[] = [
+    { key: 'id', label: 'ID', visible: true },
+    { key: 'expenseCategory', label: 'Expense Type', visible: true },
+    { key: 'date', label: 'Date', visible: true },
+    { key: 'amount', label: 'Amount', visible: true },
+    { key: 'paidTo', label: 'Paid To', visible: true },
+    { key: 'approvedBy', label: 'Approved By', visible: true },
+    { key: 'status', label: 'Status', visible: true }
+  ];
+
+  // Expose items with proper naming for template
+  get expenses(): Expense[] {
+    return this.items;
+  }
+  get selectedExpense(): Expense | null {
+    return this.selectedItem;
+  }
+
+  set selectedExpense(value: Expense | null) {
+    this.selectedItem = value;
+  }
+
+  get filteredExpenses(): Expense[] {
+    return this.items;
+  }
+
+  constructor(
+    public service: ExpenseService,
+    public pageHeaderService: PageHeaderService,
+    public paymentMethodService: PaymentMethodService
+  ) {
+    super();
+  }
+
+  ngOnInit(): void {
+    this.pageHeaderService.setTitle('Expense List');
+    this.loadItems();
+    this.loadPaymentMethods();
+  }
+
+  // ==================== Component-Specific Methods ====================
+
+  createNew(): Expense {
+    const today = new Date().toISOString().split('T')[0];
+    return {
+      id: 0,
+      expenseCategory: '',
+      date: today,
+      amount: 0,
+      paymentMethod: 0,
+      paidTo: '',
+      status: 'Pending',
+      approvedBy: '',
+      approvalDate: '',
+      description: '',
+      attachment: ''
+    };
+  }
+
+  isValid(expense: Expense | null): boolean {
+    if (!expense) return false;
+    return !!(
+      expense.expenseCategory &&
+      expense.date &&
+      expense.amount > 0 &&
+      expense.paymentMethod
+    );
+  }
+
+  mapToDto(expense: Expense): ExpenseReqDto {
+    return {
+      expenseCategory: expense.expenseCategory,
+      date: expense.date,
+      amount: expense.amount,
+      paymentMethod: expense.paymentMethod,
+      paidTo: expense.paidTo,
+      status: expense.status,
+      approvedBy: expense.approvedBy,
+      approvalDate: expense.approvalDate,
+      description: expense.description,
+      attachment: expense.attachment
+    };
+  }
+
+  // ==================== Template-Friendly Method Names ====================
+
+  openAddModal(): void {
+    this.selectedExpense = this.createNew();
+  }
+
+  viewExpense(expense: Expense): void {
+    this.viewItem(expense);
+  }
+
+  editExpense(expense: Expense): void {
+    this.editItem(expense);
+  }
+
+  addExpense(): void {
+    if (!this.isValid(this.selectedExpense)) {
+      this.errorMessage = 'Please fill in all required fields (Category, Date, Amount, Payment Method)';
+      return;
+    }
+
+    const dto = this.mapToDto(this.selectedExpense!);
+
+    this.isLoading = true;
+    this.service.create(dto)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response: any) => {
+          if (response.success) {
+            this.handleCrudSuccess('Expense added successfully', ModalType.ADD);
+          }
+        },
+        error: (error: any) => this.handleError('Failed to add expense', error)
+      });
+  }
+
+  saveExpense(): void {
+    if (!this.isValid(this.selectedExpense) || !this.selectedExpense?.id) {
+      this.errorMessage = 'Invalid expense data';
+      return;
+    }
+
+    const dto = this.mapToDto(this.selectedExpense);
+
+    this.isLoading = true;
+    this.service.update(this.selectedExpense.id, dto)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response: any) => {
+          if (response.success) {
+            this.handleCrudSuccess('Expense updated successfully', ModalType.EDIT);
+          }
+        },
+        error: (error: any) => this.handleError('Failed to update expense', error)
+      });
+  }
+
+  deleteExpense(expense: Expense): void {
+    const displayName = `${expense.expenseCategory} - $${expense.amount}`;
+    this.deleteItem(expense, displayName);
+  }
+
+  approveExpense(expense: Expense): void {
+    if (expense.status === 'Approved') {
+      this.errorMessage = 'Expense is already approved';
+      return;
+    }
+
+    // Create a copy of the expense with approved status
+    const approvedExpense: Expense = {
+      ...expense,
+      status: 'Approved',
+      approvalDate: new Date().toISOString().split('T')[0]
+    };
+
+    const dto = this.mapToDto(approvedExpense);
+
+    this.isLoading = true;
+    this.service.update(expense.id, dto)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response: any) => {
+          if (response.success) {
+            this.loadItems();
+            // Show success message (you can use a toast service here)
+            console.log('Expense approved successfully');
+          }
+        },
+        error: (error: any) => this.handleError('Failed to approve expense', error)
+      });
+  }
+
+  loadExpenses(isSearchOperation = false): void {
+    this.loadItems(isSearchOperation);
+  }
+
+  loadPaymentMethods(): void {
+    this.paymentMethodService.getAllActive(true, 0, 100).subscribe({
+      next: (res) => {
+        this.paymentMethod = res.data.data; // adjust if your response structure is different
+      },
+      error: (err) => {
+        console.error('Failed to load payment methods', err);
+      }
+    });
+  }
 }
