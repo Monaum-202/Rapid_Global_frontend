@@ -6,8 +6,7 @@ import { TransectionCategory, TransectionCategoryReqDto, TransectionCategoryServ
 
 enum ModalType {
   VIEW = 'transectionCategoryModal',
-  ADD = 'transectionCategoryAddModal',
-  EDIT = 'transectionCategoryEditModal'
+  FORM = 'transectionCategoryFormModal' // Combined Add/Edit modal
 }
 
 @Component({
@@ -18,6 +17,7 @@ enum ModalType {
 export class TransectionCategoryComponent extends BaseCrudComponent<TransectionCategory, TransectionCategoryReqDto> implements OnInit {
   entityName = 'TransectionCategory';
   entityNameLower = 'transectionCategory';
+  isEditMode = false; // Track whether we're editing or adding
 
   columns: TableColumn<TransectionCategory>[] = [
     { key: 'id', label: 'SL', visible: true },
@@ -27,7 +27,6 @@ export class TransectionCategoryComponent extends BaseCrudComponent<TransectionC
     { key: 'active', label: 'Active', visible: true }
   ];
 
-  // Expose items with proper naming for template
   get transectionCategorys(): TransectionCategory[] {
     return this.items;
   }
@@ -44,6 +43,16 @@ export class TransectionCategoryComponent extends BaseCrudComponent<TransectionC
     return this.items;
   }
 
+  // Computed property for modal title
+  get modalTitle(): string {
+    return this.isEditMode ? 'Edit Transaction Category' : 'Add New Transaction Category';
+  }
+
+  // Computed property for submit button text
+  get submitButtonText(): string {
+    return this.isEditMode ? 'Save Changes' : 'Add Category';
+  }
+
   constructor(
     public service: TransectionCategoryService,
     public pageHeaderService: PageHeaderService
@@ -52,11 +61,9 @@ export class TransectionCategoryComponent extends BaseCrudComponent<TransectionC
   }
 
   ngOnInit(): void {
-    this.pageHeaderService.setTitle('Payment Method List');
+    this.pageHeaderService.setTitle('Transection Type List');
     this.loadItems();
   }
-
-  // ==================== Component-Specific Methods ====================
 
   createNew(): TransectionCategory {
     return {
@@ -64,14 +71,14 @@ export class TransectionCategoryComponent extends BaseCrudComponent<TransectionC
       name: '',
       description: '',
       active: true,
-      type:undefined,
+      type: undefined,
       sqn: 0
     };
   }
 
   isValid(transectionCategory: TransectionCategory | null): boolean {
     if (!transectionCategory) return false;
-    return !!(transectionCategory.name && transectionCategory.description && transectionCategory.sqn && transectionCategory.type);
+    return !!(transectionCategory.name && transectionCategory.sqn && transectionCategory.type);
   }
 
   mapToDto(transectionCategory: TransectionCategory): TransectionCategoryReqDto {
@@ -83,30 +90,37 @@ export class TransectionCategoryComponent extends BaseCrudComponent<TransectionC
     };
   }
 
-  // ==================== Template-Friendly Method Names ====================
-
+  // Open modal for adding new category
   openAddModal(): void {
+    this.isEditMode = false;
     this.selectedTransectionCategory = this.createNew();
+  }
+
+  // Open modal for editing existing category
+  editTransectionCategory(transectionCategory: TransectionCategory): void {
+    this.isEditMode = true;
+    this.editItem(transectionCategory);
   }
 
   viewTransectionCategory(transectionCategory: TransectionCategory): void {
     this.viewItem(transectionCategory);
   }
 
-  editTransectionCategory(transectionCategory: TransectionCategory): void {
-    this.editItem(transectionCategory);
-  }
-
-  addTransectionCategory(): void {
+  // Single save method that handles both add and edit
+  saveTransectionCategory(): void {
     if (!this.isValid(this.selectedTransectionCategory)) {
       this.errorMessage = 'Please fill in all required fields';
       return;
     }
 
     const dto = this.mapToDto(this.selectedTransectionCategory!);
-
     this.isLoading = true;
-    this.service.create(dto)
+
+    const operation = this.isEditMode && this.selectedTransectionCategory?.id
+      ? this.service.update(this.selectedTransectionCategory.id, dto)
+      : this.service.create(dto);
+
+    operation
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => this.isLoading = false)
@@ -114,34 +128,18 @@ export class TransectionCategoryComponent extends BaseCrudComponent<TransectionC
       .subscribe({
         next: (response) => {
           if (response.success) {
-            this.handleCrudSuccess('TransectionCategory added successfully', ModalType.ADD);
+            const message = this.isEditMode
+              ? 'Transaction Category updated successfully'
+              : 'Transaction Category added successfully';
+            this.handleCrudSuccess(message, ModalType.FORM);
           }
         },
-        error: (error) => this.handleError('Failed to add transectionCategory', error)
-      });
-  }
-
-  saveTransectionCategory(): void {
-    if (!this.isValid(this.selectedTransectionCategory) || !this.selectedTransectionCategory?.id) {
-      this.errorMessage = 'Invalid transectionCategory data';
-      return;
-    }
-
-    const dto = this.mapToDto(this.selectedTransectionCategory);
-
-    this.isLoading = true;
-    this.service.update(this.selectedTransectionCategory.id, dto)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.isLoading = false)
-      )
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.handleCrudSuccess('TransectionCategory updated successfully', ModalType.EDIT);
-          }
-        },
-        error: (error) => this.handleError('Failed to update transectionCategory', error)
+        error: (error) => {
+          const message = this.isEditMode
+            ? 'Failed to update transaction category'
+            : 'Failed to add transaction category';
+          this.handleError(message, error);
+        }
       });
   }
 
@@ -154,18 +152,16 @@ export class TransectionCategoryComponent extends BaseCrudComponent<TransectionC
   }
 
   openDeleteModal(transectionCategory: TransectionCategory) {
-  this.selectedTransectionCategory = transectionCategory;
-
-  const modal = new (window as any).bootstrap.Modal(
-    document.getElementById('confirmDeleteModal')
-  );
-  modal.show();
-}
-
-confirmDelete() {
-  if (this.selectedTransectionCategory) {
-    this.deleteItem(this.selectedTransectionCategory, this.selectedTransectionCategory.name);
+    this.selectedTransectionCategory = transectionCategory;
+    const modal = new (window as any).bootstrap.Modal(
+      document.getElementById('confirmDeleteModal')
+    );
+    modal.show();
   }
-}
 
+  confirmDelete() {
+    if (this.selectedTransectionCategory) {
+      this.deleteItem(this.selectedTransectionCategory, this.selectedTransectionCategory.name);
+    }
+  }
 }

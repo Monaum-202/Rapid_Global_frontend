@@ -1,6 +1,11 @@
 <div class="loading-overlay-scoped" *ngIf="isLoading">
     <div class="bouncing-dots-loader">
-        <div></div><div></div><div></div><div></div><div></div><div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
     </div>
 </div>
 
@@ -82,14 +87,13 @@
         </div>
     </div>
 
-
     <!-- Expense Table -->
     <div class="table-responsive">
         <table class="table table-hover mb-0 align-middle text-nowrap">
             <thead>
                 <tr>
                     <th *ngIf="isColumnVisible('id')">ID</th>
-                    <th *ngIf="isColumnVisible('expenseCategory')">EXPENSE TYPE</th>
+                    <th *ngIf="isColumnVisible('transectionCategory')">EXPENSE TYPE</th>
                     <th *ngIf="isColumnVisible('date')">DATE</th>
                     <th *ngIf="isColumnVisible('amount')">AMOUNT</th>
                     <th *ngIf="isColumnVisible('paidTo')">PAID TO</th>
@@ -101,14 +105,13 @@
             <tbody>
                 <tr *ngFor="let expense of filteredExpenses">
                     <td *ngIf="isColumnVisible('id')">#{{ expense.id }}</td>
-                    <td *ngIf="isColumnVisible('expenseCategory')">{{ expense.expenseCategory }}</td>
+                    <td *ngIf="isColumnVisible('transectionCategory')">{{ expense.transectionCategory }}</td>
                     <td *ngIf="isColumnVisible('date')">{{ expense.date | date:'dd/MM/yyyy' }}</td>
                     <td *ngIf="isColumnVisible('amount')">${{ expense.amount | number:'1.2-2' }}</td>
                     <td *ngIf="isColumnVisible('paidTo')">{{ expense.paidTo || 'N/A' }}</td>
                     <td *ngIf="isColumnVisible('approvedBy')">{{ expense.approvedBy || '-' }}</td>
                     <td *ngIf="isColumnVisible('status')">
-                        <span class="badge"
-                            [class.bg-warning]="expense.status === 'Pending'"
+                        <span class="badge" [class.bg-warning]="expense.status === 'Pending'"
                             [class.bg-success]="expense.status === 'Approved'"
                             [class.bg-danger]="expense.status === 'Rejected'">
                             {{ expense.status }}
@@ -118,29 +121,25 @@
                         <div class="d-flex justify-content-center align-items-center gap-1">
                             <!-- View button -->
                             <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
-                                data-bs-target="#expenseViewModal" (click)="viewExpense(expense)"
-                                title="View Details">
+                                data-bs-target="#expenseViewModal" (click)="viewExpense(expense)" title="View Details">
                                 <i class="fa fa-eye"></i>
                             </button>
 
                             <!-- Edit button -->
                             <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
-                                data-bs-target="#expenseEditModal" (click)="editExpense(expense)"
-                                title="Edit">
+                                data-bs-target="#expenseEditModal" (click)="editExpense(expense)" title="Edit">
                                 <i class="fa fa-pen"></i>
                             </button>
 
                             <!-- Delete button -->
-                            <button type="button" class="btn btn-outline-danger btn-sm"
-                                (click)="deleteExpense(expense)" title="Delete">
+                            <button type="button" class="btn btn-outline-danger btn-sm" (click)="deleteExpense(expense)"
+                                title="Delete">
                                 <i class="fa fa-trash"></i>
                             </button>
 
                             <!-- Approve button -->
-                            <button type="button" class="btn btn-outline-info btn-sm"
-                                (click)="approveExpense(expense)"
-                                [disabled]="expense.status === 'Approved'"
-                                title="Approve">
+                            <button type="button" class="btn btn-outline-info btn-sm" (click)="approveExpense(expense)"
+                                [disabled]="expense.status === 'Approved'" title="Approve">
                                 <i class="fa fa-check"></i>
                             </button>
                         </div>
@@ -188,8 +187,7 @@
 </div>
 
 <!-- View Expense Modal -->
-<div class="modal fade" id="expenseViewModal" tabindex="-1" aria-labelledby="expenseViewModalLabel"
-    aria-hidden="true">
+<div class="modal fade" id="expenseViewModal" tabindex="-1" aria-labelledby="expenseViewModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -204,7 +202,7 @@
                     </div>
                     <div class="compact-item">
                         <div class="compact-label">Expense Category</div>
-                        <div class="compact-value">{{ selectedExpense.expenseCategory }}</div>
+                        <div class="compact-value">{{ selectedExpense.transectionCategory }}</div>
                     </div>
                     <div class="compact-item">
                         <div class="compact-label">Date</div>
@@ -224,8 +222,7 @@
                     </div>
                     <div class="compact-item">
                         <div class="compact-label">Status</div>
-                        <span class="badge"
-                            [class.bg-warning]="selectedExpense.status === 'Pending'"
+                        <span class="badge" [class.bg-warning]="selectedExpense.status === 'Pending'"
                             [class.bg-success]="selectedExpense.status === 'Approved'"
                             [class.bg-danger]="selectedExpense.status === 'Rejected'">
                             {{ selectedExpense.status }}
@@ -259,8 +256,7 @@
 </div>
 
 <!-- Edit Expense Modal -->
-<div class="modal fade" id="expenseEditModal" tabindex="-1" aria-labelledby="expenseEditLabel"
-    aria-hidden="true">
+<div class="modal fade" id="expenseEditModal" tabindex="-1" aria-labelledby="expenseEditLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -279,7 +275,7 @@
                             <label for="editExpenseCategory" class="form-label">Expense Category <span
                                     class="text-danger">*</span></label>
                             <select class="form-select" id="editExpenseCategory"
-                                [(ngModel)]="selectedExpense.expenseCategory" name="editExpenseCategory" required>
+                                [(ngModel)]="selectedExpense.transectionCategory" name="editExpenseCategory" required>
                                 <option value="">Select Category</option>
                                 <option value="Office Supplies">Office Supplies</option>
                                 <option value="Utilities">Utilities</option>
@@ -291,8 +287,8 @@
                         </div>
                         <div class="col-md-6">
                             <label for="editDate" class="form-label">Date <span class="text-danger">*</span></label>
-                            <input type="date" class="form-control" id="editDate"
-                                [(ngModel)]="selectedExpense.date" name="editDate" required />
+                            <input type="date" class="form-control" id="editDate" [(ngModel)]="selectedExpense.date"
+                                name="editDate" required />
                         </div>
                         <div class="col-md-6">
                             <label for="editAmount" class="form-label">Amount <span class="text-danger">*</span></label>
@@ -314,13 +310,13 @@
                         </div>
                         <div class="col-md-6">
                             <label for="editPaidTo" class="form-label">Paid To</label>
-                            <input type="text" class="form-control" id="editPaidTo"
-                                [(ngModel)]="selectedExpense.paidTo" name="editPaidTo" />
+                            <input type="text" class="form-control" id="editPaidTo" [(ngModel)]="selectedExpense.paidTo"
+                                name="editPaidTo" />
                         </div>
                         <div class="col-md-6">
                             <label for="editStatus" class="form-label">Status</label>
-                            <select class="form-select" id="editStatus"
-                                [(ngModel)]="selectedExpense.status" name="editStatus">
+                            <select class="form-select" id="editStatus" [(ngModel)]="selectedExpense.status"
+                                name="editStatus">
                                 <option value="Pending">Pending</option>
                                 <option value="Approved">Approved</option>
                                 <option value="Rejected">Rejected</option>
@@ -357,8 +353,7 @@
 </div>
 
 <!-- Add Expense Modal -->
-<div class="modal fade" id="expenseAddModal" tabindex="-1" aria-labelledby="expenseAddLabel"
-    aria-hidden="true">
+<div class="modal fade" id="expenseAddModal" tabindex="-1" aria-labelledby="expenseAddLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -369,23 +364,21 @@
                 <form id="expenseAddForm">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label for="addExpenseCategory" class="form-label">Expense Category <span
-                                    class="text-danger">*</span></label>
-                            <select class="form-select" id="addExpenseCategory"
-                                [(ngModel)]="selectedExpense.expenseCategory" name="addExpenseCategory" required>
-                                <option value="">Select Category</option>
-                                <option value="Office Supplies">Office Supplies</option>
-                                <option value="Utilities">Utilities</option>
-                                <option value="Travel">Travel</option>
-                                <option value="Marketing">Marketing</option>
-                                <option value="Equipment">Equipment</option>
-                                <option value="Other">Other</option>
+                            <label for="addTransectionCategory" class="form-label">
+                                Transection Category <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" id="addTransectionCategory"
+                                [(ngModel)]="selectedExpense.transectionCategory" name="addTransectionCategory"
+                                required>
+                                <option *ngFor="let method of transectionCategory" [value]="method.name">
+                                    {{ method.name }}
+                                </option>
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label for="addDate" class="form-label">Date <span class="text-danger">*</span></label>
-                            <input type="date" class="form-control" id="addDate"
-                                [(ngModel)]="selectedExpense.date" name="addDate" required />
+                            <input type="date" class="form-control" id="addDate" [(ngModel)]="selectedExpense.date"
+                                name="addDate" required />
                         </div>
                         <div class="col-md-6">
                             <label for="addAmount" class="form-label">Amount <span class="text-danger">*</span></label>
@@ -393,25 +386,21 @@
                                 [(ngModel)]="selectedExpense.amount" name="addAmount" required />
                         </div>
                         <div class="col-md-6">
-  <label for="addPaymentMethod" class="form-label">
-    Payment Method <span class="text-danger">*</span>
-  </label>
-  <select class="form-select"
-          id="addPaymentMethod"
-          [(ngModel)]="selectedExpense.paymentMethod"
-          name="addPaymentMethod"
-          required>
-    <option value="">Select Method</option>
-    <option *ngFor="let method of paymentMethod" [value]="method.name">
-      {{ method.name }}
-    </option>
-  </select>
-</div>
+                            <label for="addPaymentMethod" class="form-label">
+                                Payment Method <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" id="addPaymentMethod"
+                                [(ngModel)]="selectedExpense.paymentMethod" name="addPaymentMethod" required>
+                                <option *ngFor="let method of paymentMethod" [value]="method.name">
+                                    {{ method.name }}
+                                </option>
+                            </select>
+                        </div>
 
                         <div class="col-md-6">
                             <label for="addPaidTo" class="form-label">Paid To</label>
-                            <input type="text" class="form-control" id="addPaidTo"
-                                [(ngModel)]="selectedExpense.paidTo" name="addPaidTo" />
+                            <input type="text" class="form-control" id="addPaidTo" [(ngModel)]="selectedExpense.paidTo"
+                                name="addPaidTo" />
                         </div>
                         <div class="col-md-6">
                             <label for="addAttachment" class="form-label">Attachment</label>
@@ -419,8 +408,8 @@
                         </div>
                         <div class="col-12">
                             <label for="addDescription" class="form-label">Description</label>
-                            <textarea class="form-control" id="addDescription"
-                                [(ngModel)]="selectedExpense.description" name="addDescription" rows="3"></textarea>
+                            <textarea class="form-control" id="addDescription" [(ngModel)]="selectedExpense.description"
+                                name="addDescription" rows="3"></textarea>
                         </div>
                     </div>
                 </form>

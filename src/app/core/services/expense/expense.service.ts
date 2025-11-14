@@ -7,7 +7,7 @@ import { BaseService } from '../base/base.service';
 
 export interface Expense {
   id: number;
-  expenseCategory: string;
+  transectionCategory: number;
   date: string;
   amount: number;
   paymentMethod: number;
@@ -21,7 +21,7 @@ export interface Expense {
 
 // Define the DTO for creating/updating expenses
 export interface ExpenseReqDto {
-  expenseCategory: string;
+  transectionCategory: number;
   date: string;
   amount: number;
   paymentMethod: number;

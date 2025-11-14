@@ -5,6 +5,7 @@ import { simpleCrudComponent } from 'src/app/core/components/simpleCrud.componen
 import { Expense, ExpenseReqDto, ExpenseService } from 'src/app/core/services/expense/expense.service';
 import { PageHeaderService } from 'src/app/core/services/page-header/page-header.service';
 import { PaymentMethod, PaymentMethodService } from 'src/app/core/services/paymentMethod/payment-method.service';
+import { TransectionCategory, TransectionCategoryService } from 'src/app/core/services/transectionCategory/transection-category.service';
 
 
 enum ModalType {
@@ -22,10 +23,11 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
   entityName = 'Expense';
   entityNameLower = 'expense';
   paymentMethod: PaymentMethod[] = [];
+  transectionCategory: TransectionCategory[] = [];
 
   columns: TableColumn<Expense>[] = [
     { key: 'id', label: 'ID', visible: true },
-    { key: 'expenseCategory', label: 'Expense Type', visible: true },
+    { key: 'transectionCategory', label: 'Expense Type', visible: true },
     { key: 'date', label: 'Date', visible: true },
     { key: 'amount', label: 'Amount', visible: true },
     { key: 'paidTo', label: 'Paid To', visible: true },
@@ -52,7 +54,8 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
   constructor(
     public service: ExpenseService,
     public pageHeaderService: PageHeaderService,
-    public paymentMethodService: PaymentMethodService
+    public paymentMethodService: PaymentMethodService,
+    public transectionCategoryService: TransectionCategoryService
   ) {
     super();
   }
@@ -61,6 +64,8 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
     this.pageHeaderService.setTitle('Expense List');
     this.loadItems();
     this.loadPaymentMethods();
+    this.loadTransectionCategory();
+
   }
 
   // ==================== Component-Specific Methods ====================
@@ -69,7 +74,7 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
     const today = new Date().toISOString().split('T')[0];
     return {
       id: 0,
-      expenseCategory: '',
+      transectionCategory: 0,
       date: today,
       amount: 0,
       paymentMethod: 0,
@@ -85,7 +90,7 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
   isValid(expense: Expense | null): boolean {
     if (!expense) return false;
     return !!(
-      expense.expenseCategory &&
+      expense.transectionCategory &&
       expense.date &&
       expense.amount > 0 &&
       expense.paymentMethod
@@ -94,7 +99,7 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
 
   mapToDto(expense: Expense): ExpenseReqDto {
     return {
-      expenseCategory: expense.expenseCategory,
+      transectionCategory: expense.transectionCategory,
       date: expense.date,
       amount: expense.amount,
       paymentMethod: expense.paymentMethod,
@@ -170,7 +175,7 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
   }
 
   deleteExpense(expense: Expense): void {
-    const displayName = `${expense.expenseCategory} - $${expense.amount}`;
+    const displayName = `${expense.transectionCategory} - $${expense.amount}`;
     this.deleteItem(expense, displayName);
   }
 
@@ -215,6 +220,17 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
     this.paymentMethodService.getAllActive(true, 0, 100).subscribe({
       next: (res) => {
         this.paymentMethod = res.data.data; // adjust if your response structure is different
+      },
+      error: (err) => {
+        console.error('Failed to load payment methods', err);
+      }
+    });
+  }
+
+  loadTransectionCategory(): void {
+    this.transectionCategoryService.getAllActive(true, "EXPENSE", 0 ,100).subscribe({
+      next: (res) => {
+        this.transectionCategory = res.data.data;
       },
       error: (err) => {
         console.error('Failed to load payment methods', err);

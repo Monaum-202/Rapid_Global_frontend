@@ -64,7 +64,7 @@ export class TransectionCategoryService extends BaseService {
     params = params.set('type', type);
   }
 
-  return this.get<PaginatedData<TransectionCategory>>(`${this.ENDPOINT}/all`, params);
+  return this.get<PaginatedData<TransectionCategory>>(`${this.ENDPOINT}/all-active`, params);
 }
 
   /**
