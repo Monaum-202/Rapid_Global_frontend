@@ -23,13 +23,14 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
   entityName = 'Expense';
   entityNameLower = 'expense';
   paymentMethod: PaymentMethod[] = [];
-  transectionCategory: TransectionCategory[] = [];
+  expenseCategory: TransectionCategory[] = [];
 
   columns: TableColumn<Expense>[] = [
-    { key: 'id', label: 'ID', visible: true },
-    { key: 'transectionCategory', label: 'Expense Type', visible: true },
-    { key: 'date', label: 'Date', visible: true },
+    { key: 'expenseId', label: 'EXP ID', visible: true },
+    { key: 'categoryName', label: 'Expense Type', visible: true },
+    { key: 'expenseDate', label: 'Date', visible: true },
     { key: 'amount', label: 'Amount', visible: true },
+    { key: 'paymentMethodName', label: 'Payment Method', visible: false},
     { key: 'paidTo', label: 'Paid To', visible: true },
     { key: 'approvedBy', label: 'Approved By', visible: true },
     { key: 'status', label: 'Status', visible: true }
@@ -74,41 +75,44 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
     const today = new Date().toISOString().split('T')[0];
     return {
       id: 0,
-      transectionCategory: 0,
-      date: today,
+      expenseId:'',
+      categoryId: 0,
+      categoryName: '',
+      paymentMethodId: 0,
+      paymentMethodName: '',
       amount: 0,
-      paymentMethod: 0,
       paidTo: '',
-      status: 'Pending',
+      expenseDate: '',
+      description: '',
       approvedBy: '',
       approvalDate: '',
-      description: '',
-      attachment: ''
+      status: '',
     };
+
   }
 
   isValid(expense: Expense | null): boolean {
     if (!expense) return false;
     return !!(
-      expense.transectionCategory &&
-      expense.date &&
+      expense.categoryId &&
+      expense.expenseDate &&
       expense.amount > 0 &&
-      expense.paymentMethod
+      expense.paymentMethodId
     );
   }
 
   mapToDto(expense: Expense): ExpenseReqDto {
     return {
-      transectionCategory: expense.transectionCategory,
-      date: expense.date,
+      expenseCategory: expense.categoryId,
+      expenseDate: expense.expenseDate,
       amount: expense.amount,
-      paymentMethod: expense.paymentMethod,
+      paymentMethodId: expense.paymentMethodId,
       paidTo: expense.paidTo,
       status: expense.status,
       approvedBy: expense.approvedBy,
       approvalDate: expense.approvalDate,
       description: expense.description,
-      attachment: expense.attachment
+      // attachment: expense.attachment
     };
   }
 
@@ -175,7 +179,7 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
   }
 
   deleteExpense(expense: Expense): void {
-    const displayName = `${expense.transectionCategory} - $${expense.amount}`;
+    const displayName = `${expense.categoryName} - $${expense.amount}`;
     this.deleteItem(expense, displayName);
   }
 
@@ -228,9 +232,9 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
   }
 
   loadTransectionCategory(): void {
-    this.transectionCategoryService.getAllActive(true, "EXPENSE", 0 ,100).subscribe({
+    this.transectionCategoryService.getAllActive(true, "EXPENSE", 0, 100).subscribe({
       next: (res) => {
-        this.transectionCategory = res.data.data;
+        this.expenseCategory = res.data.data;
       },
       error: (err) => {
         console.error('Failed to load payment methods', err);

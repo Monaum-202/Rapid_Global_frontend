@@ -7,24 +7,28 @@ import { BaseService } from '../base/base.service';
 
 export interface Expense {
   id: number;
-  transectionCategory: number;
-  date: string;
+  expenseId:string;
+  categoryId: number;
+  categoryName: string;          // <-- ADD THIS
+  paymentMethodId: number;
+  paymentMethodName: string;     // <-- ADD THIS
   amount: number;
-  paymentMethod: number;
-  paidTo?: string;
-  status: 'Pending' | 'Approved' | 'Rejected';
+  paidTo: string;
+  expenseDate: string;
+  description: string;
   approvedBy?: string;
   approvalDate?: string;
-  description?: string;
-  attachment?: string;
+  status: string;
 }
+
 
 // Define the DTO for creating/updating expenses
 export interface ExpenseReqDto {
-  transectionCategory: number;
-  date: string;
+
+  expenseCategory: number;
+  expenseDate: string;
   amount: number;
-  paymentMethod: number;
+  paymentMethodId: number;
   paidTo?: string;
   status?: string;
   approvedBy?: string;

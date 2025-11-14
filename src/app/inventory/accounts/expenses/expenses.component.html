@@ -92,11 +92,12 @@
         <table class="table table-hover mb-0 align-middle text-nowrap">
             <thead>
                 <tr>
-                    <th *ngIf="isColumnVisible('id')">ID</th>
-                    <th *ngIf="isColumnVisible('transectionCategory')">EXPENSE TYPE</th>
+                    <th *ngIf="isColumnVisible('expenseId')">EXP ID</th>
+                    <th *ngIf="isColumnVisible('categoryName')">EXPENSE TYPE</th>
                     <th *ngIf="isColumnVisible('date')">DATE</th>
                     <th *ngIf="isColumnVisible('amount')">AMOUNT</th>
                     <th *ngIf="isColumnVisible('paidTo')">PAID TO</th>
+                    <th *ngIf="isColumnVisible('paymentMethodName')">PAYMENT METHOD</th>
                     <th *ngIf="isColumnVisible('approvedBy')">APPROVED BY</th>
                     <th *ngIf="isColumnVisible('status')">STATUS</th>
                     <th class="text-center">ACTIONS</th>
@@ -104,11 +105,12 @@
             </thead>
             <tbody>
                 <tr *ngFor="let expense of filteredExpenses">
-                    <td *ngIf="isColumnVisible('id')">#{{ expense.id }}</td>
-                    <td *ngIf="isColumnVisible('transectionCategory')">{{ expense.transectionCategory }}</td>
-                    <td *ngIf="isColumnVisible('date')">{{ expense.date | date:'dd/MM/yyyy' }}</td>
+                    <td *ngIf="isColumnVisible('expenseId')">#{{ expense.expenseId }}</td>
+                    <td *ngIf="isColumnVisible('categoryName')">{{ expense.categoryName }}</td>
+                    <td *ngIf="isColumnVisible('date')">{{ expense.expenseDate | date:'dd/MM/yyyy' }}</td>
                     <td *ngIf="isColumnVisible('amount')">${{ expense.amount | number:'1.2-2' }}</td>
                     <td *ngIf="isColumnVisible('paidTo')">{{ expense.paidTo || 'N/A' }}</td>
+                    <td *ngIf="isColumnVisible('paymentMethodName')">{{ expense.paymentMethodName }}</td>
                     <td *ngIf="isColumnVisible('approvedBy')">{{ expense.approvedBy || '-' }}</td>
                     <td *ngIf="isColumnVisible('status')">
                         <span class="badge" [class.bg-warning]="expense.status === 'Pending'"
@@ -202,11 +204,11 @@
                     </div>
                     <div class="compact-item">
                         <div class="compact-label">Expense Category</div>
-                        <div class="compact-value">{{ selectedExpense.transectionCategory }}</div>
+                        <div class="compact-value">{{ selectedExpense.categoryName }}</div>
                     </div>
                     <div class="compact-item">
                         <div class="compact-label">Date</div>
-                        <div class="compact-value">{{ selectedExpense.date | date:'dd/MM/yyyy' }}</div>
+                        <div class="compact-value">{{ selectedExpense.expenseDate | date:'dd/MM/yyyy' }}</div>
                     </div>
                     <div class="compact-item">
                         <div class="compact-label">Amount</div>
@@ -214,7 +216,7 @@
                     </div>
                     <div class="compact-item">
                         <div class="compact-label">Payment Method</div>
-                        <div class="compact-value">{{ selectedExpense.paymentMethod || 'N/A' }}</div>
+                        <div class="compact-value">{{ selectedExpense.paymentMethodName || 'N/A' }}</div>
                     </div>
                     <div class="compact-item">
                         <div class="compact-label">Paid To</div>
@@ -240,12 +242,12 @@
                         <div class="compact-label">Description</div>
                         <div class="compact-value">{{ selectedExpense.description || 'N/A' }}</div>
                     </div>
-                    <div class="compact-item" *ngIf="selectedExpense.attachment">
+                    <!-- <div class="compact-item" *ngIf="selectedExpense.attachment">
                         <div class="compact-label">Attachment</div>
                         <div class="compact-value">
                             <a [href]="selectedExpense.attachment" target="_blank">View Attachment</a>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             <div class="modal-footer">
@@ -275,7 +277,7 @@
                             <label for="editExpenseCategory" class="form-label">Expense Category <span
                                     class="text-danger">*</span></label>
                             <select class="form-select" id="editExpenseCategory"
-                                [(ngModel)]="selectedExpense.transectionCategory" name="editExpenseCategory" required>
+                                [(ngModel)]="selectedExpense.categoryName" name="editExpenseCategory" required>
                                 <option value="">Select Category</option>
                                 <option value="Office Supplies">Office Supplies</option>
                                 <option value="Utilities">Utilities</option>
@@ -287,7 +289,7 @@
                         </div>
                         <div class="col-md-6">
                             <label for="editDate" class="form-label">Date <span class="text-danger">*</span></label>
-                            <input type="date" class="form-control" id="editDate" [(ngModel)]="selectedExpense.date"
+                            <input type="date" class="form-control" id="editDate" [(ngModel)]="selectedExpense.expenseDate"
                                 name="editDate" required />
                         </div>
                         <div class="col-md-6">
@@ -299,7 +301,7 @@
                             <label for="editPaymentMethod" class="form-label">Payment Method <span
                                     class="text-danger">*</span></label>
                             <select class="form-select" id="editPaymentMethod"
-                                [(ngModel)]="selectedExpense.paymentMethod" name="editPaymentMethod" required>
+                                [(ngModel)]="selectedExpense.paymentMethodName" name="editPaymentMethod" required>
                                 <option value="">Select Method</option>
                                 <option value="Cash">Cash</option>
                                 <option value="Credit Card">Credit Card</option>
@@ -368,16 +370,16 @@
                                 Transection Category <span class="text-danger">*</span>
                             </label>
                             <select class="form-select" id="addTransectionCategory"
-                                [(ngModel)]="selectedExpense.transectionCategory" name="addTransectionCategory"
+                                [(ngModel)]="selectedExpense.categoryId" name="addTransectionCategory"
                                 required>
-                                <option *ngFor="let method of transectionCategory" [value]="method.name">
+                                <option *ngFor="let method of expenseCategory" [value]="method.id">
                                     {{ method.name }}
                                 </option>
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label for="addDate" class="form-label">Date <span class="text-danger">*</span></label>
-                            <input type="date" class="form-control" id="addDate" [(ngModel)]="selectedExpense.date"
+                            <input type="date" class="form-control" id="addDate" [(ngModel)]="selectedExpense.expenseDate"
                                 name="addDate" required />
                         </div>
                         <div class="col-md-6">
@@ -390,8 +392,8 @@
                                 Payment Method <span class="text-danger">*</span>
                             </label>
                             <select class="form-select" id="addPaymentMethod"
-                                [(ngModel)]="selectedExpense.paymentMethod" name="addPaymentMethod" required>
-                                <option *ngFor="let method of paymentMethod" [value]="method.name">
+                                [(ngModel)]="selectedExpense.paymentMethodId" name="addPaymentMethod" required>
+                                <option *ngFor="let method of paymentMethod" [value]="method.id">
                                     {{ method.name }}
                                 </option>
                             </select>
