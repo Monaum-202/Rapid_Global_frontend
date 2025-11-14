@@ -33,6 +33,7 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { EmployeeComponent } from './inventory/master/employee/employee.component';
 import { AuthInterceptorService } from './core/services/auth-interceptor.service';
 import { PaymentMethodComponent } from './inventory/master/payment-method/payment-method.component';
+import { TransectionCategoryComponent } from './inventory/master/transection-category/transection-category.component';
 
 @NgModule({
   declarations: [
@@ -64,6 +65,7 @@ import { PaymentMethodComponent } from './inventory/master/payment-method/paymen
     LoginComponent,
     EmployeeComponent,
     PaymentMethodComponent,
+    TransectionCategoryComponent,
 
   ],
   imports: [

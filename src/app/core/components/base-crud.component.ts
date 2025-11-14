@@ -201,33 +201,31 @@ export abstract class BaseCrudComponent<T extends BaseEntity, TDto> implements O
       });
   }
 
-  deleteItem(item: T, itemName: string): void {
-    if (!item.id) return;
+deleteItem(item: T, itemName: string): void {
+  if (!item.id) return;
 
-    const confirmed = confirm(`Are you sure you want to delete ${itemName}?`);
-    if (!confirmed) return;
-
-    const deleteMethod = (this.service as any)[`delete${this.entityName}`];
-    if (!deleteMethod) {
-      console.error(`Delete method not found for ${this.entityName}`);
-      return;
-    }
-
-    this.isLoading = true;
-    deleteMethod.call(this.service, item.id)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.isLoading = false)
-      )
-      .subscribe({
-        next: (response: any) => {
-          if (response.success) {
-            this.handleCrudSuccess(`${this.entityName} deleted successfully`);
-          }
-        },
-        error: (error: any) => this.handleError(`Failed to delete ${this.entityNameLower}`, error)
-      });
+  const deleteMethod = (this.service as any)[`delete${this.entityName}`];
+  if (!deleteMethod) {
+    console.error(`Delete method not found for ${this.entityName}`);
+    return;
   }
+
+  this.isLoading = true;
+  deleteMethod.call(this.service, item.id)
+    .pipe(
+      takeUntil(this.destroy$),
+      finalize(() => this.isLoading = false)
+    )
+    .subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          this.handleCrudSuccess(`${this.entityName} deleted successfully`);
+        }
+      },
+      error: (error: any) => this.handleError(`Failed to delete ${this.entityNameLower}`, error)
+    });
+}
+
 
   abstract createNew(): T;
   abstract isValid(item: T | null): boolean;

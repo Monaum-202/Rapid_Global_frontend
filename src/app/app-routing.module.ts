@@ -27,6 +27,7 @@ import { LoginComponent } from './auth/login/login.component';
 import { authGuard } from './core/guards/auth.guard';
 import { EmployeeComponent } from './inventory/master/employee/employee.component';
 import { PaymentMethodComponent } from './inventory/master/payment-method/payment-method.component';
+import { TransectionCategoryComponent } from './inventory/master/transection-category/transection-category.component';
 
 const routes: Routes = [
   {
@@ -49,6 +50,7 @@ const routes: Routes = [
       // Master / Configuration
       { path: 'employee', component: EmployeeComponent },
       { path: 'payment-method', component: PaymentMethodComponent },
+      { path: 'transection-catregory', component: TransectionCategoryComponent},
 
       // Sales
       { path: 'sales-list', component: SalesListComponent },

@@ -20,7 +20,7 @@ export class PaymentMethodComponent extends BaseCrudComponent<PaymentMethod, Pay
   entityNameLower = 'paymentMethod';
 
   columns: TableColumn<PaymentMethod>[] = [
-    { key: 'id', label: 'ID', visible: true },
+    { key: 'id', label: 'SL', visible: true },
     { key: 'name', label: 'Name', visible: true },
     { key: 'description', label: 'Description', visible: true },
     { key: 'active', label: 'Active', visible: true }
@@ -149,4 +149,20 @@ export class PaymentMethodComponent extends BaseCrudComponent<PaymentMethod, Pay
   loadPaymentMethods(isSearchOperation = false): void {
     this.loadItems(isSearchOperation);
   }
+
+  openDeleteModal(paymentMethod: PaymentMethod) {
+  this.selectedPaymentMethod = paymentMethod;
+
+  const modal = new (window as any).bootstrap.Modal(
+    document.getElementById('confirmDeleteModal')
+  );
+  modal.show();
+}
+
+confirmDelete() {
+  if (this.selectedPaymentMethod) {
+    this.deleteItem(this.selectedPaymentMethod, this.selectedPaymentMethod.name);
+  }
+}
+
 }
