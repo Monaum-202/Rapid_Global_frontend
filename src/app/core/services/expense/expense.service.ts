@@ -9,9 +9,9 @@ export interface Expense {
   id: number;
   expenseId:string;
   categoryId: number;
-  categoryName: string;          // <-- ADD THIS
+  categoryName: string;
   paymentMethodId: number;
-  paymentMethodName: string;     // <-- ADD THIS
+  paymentMethodName: string;
   amount: number;
   paidTo: string;
   expenseDate: string;
