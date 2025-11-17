@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { finalize, takeUntil } from 'rxjs';
 import { TableColumn } from 'src/app/core/components/base-crud.component';
 import { simpleCrudComponent } from 'src/app/core/components/simpleCrud.component';
+import { Employee, EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { Expense, ExpenseReqDto, ExpenseService } from 'src/app/core/services/expense/expense.service';
 import { PageHeaderService } from 'src/app/core/services/page-header/page-header.service';
 import { PaymentMethod, PaymentMethodService } from 'src/app/core/services/paymentMethod/payment-method.service';
@@ -24,6 +25,7 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
   entityNameLower = 'expense';
   paymentMethod: PaymentMethod[] = [];
   expenseCategory: TransectionCategory[] = [];
+  employee:Employee[] = [];
 
   columns: TableColumn<Expense>[] = [
     { key: 'expenseId', label: 'EXP ID', visible: true },
@@ -56,7 +58,8 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
     public service: ExpenseService,
     public pageHeaderService: PageHeaderService,
     public paymentMethodService: PaymentMethodService,
-    public transectionCategoryService: TransectionCategoryService
+    public transectionCategoryService: TransectionCategoryService,
+    public employeeService: EmployeeService
   ) {
     super();
   }
@@ -66,7 +69,7 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
     this.loadItems();
     this.loadPaymentMethods();
     this.loadTransectionCategory();
-
+    this.loadEmployees();
   }
 
   // ==================== Component-Specific Methods ====================
@@ -231,6 +234,17 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
     });
   }
 
+  loadEmployees(): void{
+    this.employeeService.getAllActive(true,0,100).subscribe({
+      next: (res) => {
+        this.employee = res.data.data;
+      },
+      error: (err) => {
+        console.error('Failed to load employees', err)
+      }
+    })
+  }
+
   loadTransectionCategory(): void {
     this.transectionCategoryService.getAllActive(true, "EXPENSE", 0, 100).subscribe({
       next: (res) => {
@@ -241,4 +255,6 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
       }
     });
   }
+
+
 }

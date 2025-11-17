@@ -113,8 +113,8 @@
                     <td *ngIf="isColumnVisible('paymentMethodName')">{{ expense.paymentMethodName }}</td>
                     <td *ngIf="isColumnVisible('approvedBy')">{{ expense.approvedBy || '-' }}</td>
                     <td *ngIf="isColumnVisible('status')">
-                        <span class="badge" [class.bg-warning]="expense.status === 'Pending'"
-                            [class.bg-success]="expense.status === 'Approved'"
+                        <span class="badge" [class.bg-warning]="expense.status === 'PENDING'"
+                            [class.bg-success]="expense.status === 'APPROVED'"
                             [class.bg-danger]="expense.status === 'Rejected'">
                             {{ expense.status }}
                         </span>
@@ -129,7 +129,7 @@
 
                             <!-- Edit button -->
                             <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
-                                data-bs-target="#expenseEditModal" (click)="editExpense(expense)" title="Edit">
+                                data-bs-target="#expenseEditModal" (click)="editExpense(expense)" [hidden]="expense.status === 'APPROVED'" title="Edit">
                                 <i class="fa fa-pen"></i>
                             </button>
 
@@ -141,7 +141,7 @@
 
                             <!-- Approve button -->
                             <button type="button" class="btn btn-outline-info btn-sm" (click)="approveExpense(expense)"
-                                [disabled]="expense.status === 'Approved'" title="Approve">
+                                [hidden]="expense.status === 'APPROVED'" title="Approve">
                                 <i class="fa fa-check"></i>
                             </button>
                         </div>
