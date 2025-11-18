@@ -398,7 +398,17 @@
                                 </option>
                             </select>
                         </div>
-
+                        <div class="col-md-6">
+                            <label for="addEmployee" class="form-label">
+                                Employee
+                            </label>
+                            <select class="form-select" id="addEmployee"
+                                [(ngModel)]="selectedExpense.employeeId" name="addEmployee" >
+                                <option *ngFor="let method of employee" [ngValue]="method.id">
+                                    {{ method.name }}
+                                </option>
+                            </select>
+                        </div>
                         <div class="col-md-6">
                             <label for="addPaidTo" class="form-label">Paid To</label>
                             <input type="text" class="form-control" id="addPaidTo" [(ngModel)]="selectedExpense.paidTo"

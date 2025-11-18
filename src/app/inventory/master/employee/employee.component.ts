@@ -6,9 +6,9 @@ import { PageHeaderService } from 'src/app/core/services/page-header/page-header
 
 enum ModalType {
   VIEW = 'employeeModal',
-  ADD = 'employeeAddModal',
-  EDIT = 'employeeEditModal'
+  FORM = 'employeeFormModal'
 }
+
 
 @Component({
   selector: 'app-employee',
@@ -19,6 +19,7 @@ export class EmployeeComponent extends BaseCrudComponent<Employee, EmployeeReqDt
   // Required abstract properties
   entityName = 'Employee';
   entityNameLower = 'employee';
+   isEditMode = false;
 
   columns: TableColumn<Employee>[] = [
     { key: 'employeeId', label: 'EMP ID', visible: true },
@@ -53,9 +54,6 @@ export class EmployeeComponent extends BaseCrudComponent<Employee, EmployeeReqDt
     super();
   }
 
-  // ngOnInit(): void {
-  //   this.loadItems();
-  // }
   ngOnInit(): void {
   this.pageHeaderService.setTitle('Employee List');
   this.loadItems();
@@ -73,7 +71,8 @@ export class EmployeeComponent extends BaseCrudComponent<Employee, EmployeeReqDt
       salary: 0,
       joiningDate: this.getTodayDate(),
       sqn: maxSqn + 1,
-      active: true
+      active: true,
+      totalLend: 0
     };
   }
 
@@ -106,53 +105,53 @@ export class EmployeeComponent extends BaseCrudComponent<Employee, EmployeeReqDt
     this.editItem(employee);
   }
 
-  addEmployee(): void {
-    if (!this.isValid(this.selectedEmployee)) {
-      this.errorMessage = 'Please fill in all required fields';
-      return;
-    }
+  // addEmployee(): void {
+  //   if (!this.isValid(this.selectedEmployee)) {
+  //     this.errorMessage = 'Please fill in all required fields';
+  //     return;
+  //   }
 
-    const dto = this.mapToDto(this.selectedEmployee!);
+  //   const dto = this.mapToDto(this.selectedEmployee!);
 
-    this.isLoading = true;
-    this.service.create(dto)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.isLoading = false)
-      )
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.handleCrudSuccess('Employee added successfully', ModalType.ADD);
-          }
-        },
-        error: (error) => this.handleError('Failed to add employee', error)
-      });
-  }
+  //   this.isLoading = true;
+  //   this.service.create(dto)
+  //     .pipe(
+  //       takeUntil(this.destroy$),
+  //       finalize(() => this.isLoading = false)
+  //     )
+  //     .subscribe({
+  //       next: (response) => {
+  //         if (response.success) {
+  //           this.handleCrudSuccess('Employee added successfully', ModalType.ADD);
+  //         }
+  //       },
+  //       error: (error) => this.handleError('Failed to add employee', error)
+  //     });
+  // }
 
-  saveEmployee(): void {
-    if (!this.isValid(this.selectedEmployee) || !this.selectedEmployee?.id) {
-      this.errorMessage = 'Invalid employee data';
-      return;
-    }
+  // saveEmployee(): void {
+  //   if (!this.isValid(this.selectedEmployee) || !this.selectedEmployee?.id) {
+  //     this.errorMessage = 'Invalid employee data';
+  //     return;
+  //   }
 
-    const dto = this.mapToDto(this.selectedEmployee);
+  //   const dto = this.mapToDto(this.selectedEmployee);
 
-    this.isLoading = true;
-    this.service.update(this.selectedEmployee.id, dto)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.isLoading = false)
-      )
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.handleCrudSuccess('Employee updated successfully', ModalType.EDIT);
-          }
-        },
-        error: (error) => this.handleError('Failed to update employee', error)
-      });
-  }
+  //   this.isLoading = true;
+  //   this.service.update(this.selectedEmployee.id, dto)
+  //     .pipe(
+  //       takeUntil(this.destroy$),
+  //       finalize(() => this.isLoading = false)
+  //     )
+  //     .subscribe({
+  //       next: (response) => {
+  //         if (response.success) {
+  //           this.handleCrudSuccess('Employee updated successfully', ModalType.EDIT);
+  //         }
+  //       },
+  //       error: (error) => this.handleError('Failed to update employee', error)
+  //     });
+  // }
 
   deleteEmployee(employee: Employee): void {
     this.deleteItem(employee, employee.name);
@@ -161,4 +160,73 @@ export class EmployeeComponent extends BaseCrudComponent<Employee, EmployeeReqDt
   loadEmployees(isSearchOperation = false): void {
     this.loadItems(isSearchOperation);
   }
+
+//    openAddModal(): void {
+//   this.isEditMode = false;
+//   this.selectedEmployee = this.createNew();
+// }
+
+// // Update the editEmployee method
+// editEmployee(employee: Employee): void {
+//   this.isEditMode = true;
+//   this.editItem(employee);
+// }
+
+// Add this new combined save method
+saveEmployeeForm(): void {
+  if (this.isEditMode) {
+    this.saveEmployee();
+  } else {
+    this.addEmployee();
+  }
+}
+
+// Update the handleCrudSuccess calls in addEmployee and saveEmployee
+addEmployee(): void {
+  if (!this.isValid(this.selectedEmployee)) {
+    this.errorMessage = 'Please fill in all required fields';
+    return;
+  }
+
+  const dto = this.mapToDto(this.selectedEmployee!);
+
+  this.isLoading = true;
+  this.service.create(dto)
+    .pipe(
+      takeUntil(this.destroy$),
+      finalize(() => this.isLoading = false)
+    )
+    .subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.handleCrudSuccess('Employee added successfully', ModalType.FORM);
+        }
+      },
+      error: (error) => this.handleError('Failed to add employee', error)
+    });
+}
+
+saveEmployee(): void {
+  if (!this.isValid(this.selectedEmployee) || !this.selectedEmployee?.id) {
+    this.errorMessage = 'Invalid employee data';
+    return;
+  }
+
+  const dto = this.mapToDto(this.selectedEmployee);
+
+  this.isLoading = true;
+  this.service.update(this.selectedEmployee.id, dto)
+    .pipe(
+      takeUntil(this.destroy$),
+      finalize(() => this.isLoading = false)
+    )
+    .subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.handleCrudSuccess('Employee updated successfully', ModalType.FORM);
+        }
+      },
+      error: (error) => this.handleError('Failed to update employee', error)
+    });
+}
 }

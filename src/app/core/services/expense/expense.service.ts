@@ -12,6 +12,8 @@ export interface Expense {
   categoryName: string;
   paymentMethodId: number;
   paymentMethodName: string;
+  employeeId: number;
+  employeeName: string;
   amount: number;
   paidTo: string;
   expenseDate: string;
@@ -29,6 +31,7 @@ export interface ExpenseReqDto {
   expenseDate: string;
   amount: number;
   paymentMethodId: number;
+  employeeId: number;
   paidTo?: string;
   status?: string;
   approvedBy?: string;
@@ -88,7 +91,7 @@ export class ExpenseService extends BaseService {
    * Create a new expense
    */
   create(dto: ExpenseReqDto): Observable<BaseApiResponse<Expense>> {
-    this.validateExpenseDto(dto);
+    // this.validateExpenseDto(dto);
     return this.post<Expense>(this.ENDPOINT, dto);
   }
 
@@ -96,7 +99,7 @@ export class ExpenseService extends BaseService {
    * Update an existing expense
    */
   update(id: number, dto: ExpenseReqDto): Observable<BaseApiResponse<Expense>> {
-    this.validateExpenseDto(dto);
+    // this.validateExpenseDto(dto);
     return this.put<Expense>(`${this.ENDPOINT}/${id}`, dto);
   }
 
@@ -128,11 +131,11 @@ export class ExpenseService extends BaseService {
   /**
    * Validate expense DTO before sending to backend
    */
-  private validateExpenseDto(dto: ExpenseReqDto): void {
-    if (!dto.paidTo?.trim()) {
-      throw new Error('Expense name is required');
-    }
-  }
+  // private validateExpenseDto(dto: ExpenseReqDto): void {
+  //   if (!dto.paidTo?.trim()) {
+  //     throw new Error('Expense name is required');
+  //   }
+  // }
 
   /**
    * Build filter parameters for advanced search (future use)

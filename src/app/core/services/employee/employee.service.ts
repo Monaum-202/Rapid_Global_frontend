@@ -17,6 +17,7 @@ export interface Employee {
   createdAt?: string;
   updatedAt?: string;
   lends?: any[];
+  totalLend: number;
 }
 
 export interface EmployeeReqDto {

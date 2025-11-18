@@ -1,6 +1,11 @@
 <div class="loading-overlay-scoped" *ngIf="isLoading">
     <div class="bouncing-dots-loader">
-        <div></div><div></div><div></div><div></div><div></div><div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
     </div>
 </div>
 
@@ -74,11 +79,12 @@
 
         <!-- Right Section: Add Button -->
         <div class="col-md-4 col-sm-12 d-flex justify-content-md-end justify-content-center">
-            <button type="button" class="btn rounded-pill shadow-sm px-4" data-bs-toggle="modal"
-                data-bs-target="#employeeAddModal" (click)="openAddModal()" [disabled]="isLoading"
-                style="background-color: #000000; color: #ffffff">
-                <i class="bi bi-plus-lg me-1"></i> Add Employee
-            </button>
+            <button type="button" class="btn rounded-pill shadow-sm px-4"
+        data-bs-toggle="modal" data-bs-target="#employeeFormModal"
+        (click)="openAddModal()" [disabled]="isLoading"
+        style="background-color: #000000; color: #ffffff">
+    <i class="bi bi-plus-lg me-1"></i> Add Employee
+</button>
         </div>
     </div>
 
@@ -109,7 +115,7 @@
                     </td>
                     <td *ngIf="isColumnVisible('phone')">{{ employee.phone }}</td>
                     <td *ngIf="isColumnVisible('salary')">
-                        ${{ employee.salary | number : "1.2-2" }}
+                        {{ employee.salary | number : "1.2-2" }}
                     </td>
                     <td *ngIf="isColumnVisible('joiningDate')">
                         {{ employee.joiningDate | date : "MMM d, yyyy" }}
@@ -129,7 +135,7 @@
 
                             <!-- Edit button -->
                             <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
-                                data-bs-target="#employeeEditModal" (click)="editEmployee(employee)" title="Edit">
+                                data-bs-target="#employeeFormModal" (click)="editEmployee(employee)" title="Edit">
                                 <i class="fa fa-pen"></i>
                             </button>
 
@@ -205,7 +211,7 @@
                 <div class="compact-view">
                     <div class="compact-item">
                         <div class="compact-label">ID</div>
-                        <div class="compact-value">#{{ selectedEmployee.id }}</div>
+                        <div class="compact-value">{{ selectedEmployee.employeeId }}</div>
                     </div>
                     <div class="compact-item">
                         <div class="compact-label">Name</div>
@@ -224,7 +230,7 @@
                     <div class="compact-item">
                         <div class="compact-label">Salary</div>
                         <div class="compact-value">
-                            ${{ selectedEmployee.salary | number : "1.2-2" }}
+                            {{ selectedEmployee.salary | number : "1.2-2" }}
                         </div>
                     </div>
                     <div class="compact-item">
@@ -234,8 +240,8 @@
                         </div>
                     </div>
                     <div class="compact-item">
-                        <div class="compact-label">Sequence Number</div>
-                        <div class="compact-value">{{ selectedEmployee.sqn }}</div>
+                        <div class="compact-label">Lend</div>
+                        <div class="compact-value">{{ selectedEmployee.totalLend }}</div>
                     </div>
                     <div class="compact-item">
                         <div class="compact-label">Status</div>
@@ -255,53 +261,73 @@
     </div>
 </div>
 
-<!-- Edit Employee Modal -->
-<div class="modal fade" id="employeeEditModal" tabindex="-1" aria-labelledby="employeeEditLabel" aria-hidden="true">
+<div class="modal fade" id="employeeFormModal" tabindex="-1" aria-labelledby="employeeFormLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="employeeEditLabel">Edit Employee</h5>
+                <h5 class="modal-title" id="employeeFormLabel">
+                    {{ isEditMode ? 'Edit Employee' : 'Add New Employee' }}
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" *ngIf="selectedEmployee">
                 <form id="employeeForm">
                     <div class="row g-3">
-                        <div class="col-md-6">
+                        <!-- Employee ID - Only visible in edit mode -->
+                        <div class="col-md-6" *ngIf="isEditMode">
                             <label for="employeeId" class="form-label">Employee ID</label>
                             <input type="text" class="form-control" id="employeeId" [value]="'#' + selectedEmployee.id"
                                 name="employeeId" readonly />
                         </div>
-                        <div class="col-md-6">
-                            <label for="employeeName" class="form-label">Name <span class="text-danger">*</span></label>
+
+                        <!-- Name -->
+                        <div [class.col-md-6]="isEditMode" [class.col-md-12]="!isEditMode">
+                            <label for="employeeName" class="form-label">
+                                Name <span class="text-danger">*</span>
+                            </label>
                             <input type="text" class="form-control" id="employeeName"
                                 [(ngModel)]="selectedEmployee.name" name="employeeName" required />
                         </div>
+
+                        <!-- Email -->
                         <div class="col-md-6">
                             <label for="employeeEmail" class="form-label">Email</label>
                             <input type="email" class="form-control" id="employeeEmail"
                                 [(ngModel)]="selectedEmployee.email" name="employeeEmail" />
                         </div>
+
+                        <!-- Phone -->
                         <div class="col-md-6">
-                            <label for="employeePhone" class="form-label">Phone <span
-                                    class="text-danger">*</span></label>
+                            <label for="employeePhone" class="form-label">
+                                Phone <span class="text-danger">*</span>
+                            </label>
                             <input type="text" class="form-control" id="employeePhone"
                                 [(ngModel)]="selectedEmployee.phone" name="employeePhone" required />
                         </div>
+
+                        <!-- Salary -->
                         <div class="col-md-6">
-                            <label for="employeeSalary" class="form-label">Salary <span
-                                    class="text-danger">*</span></label>
+                            <label for="employeeSalary" class="form-label">
+                                Salary <span class="text-danger">*</span>
+                            </label>
                             <input type="number" class="form-control" id="employeeSalary"
                                 [(ngModel)]="selectedEmployee.salary" name="employeeSalary" required />
                         </div>
+
+                        <!-- Joining Date -->
                         <div class="col-md-6">
-                            <label for="employeeJoiningDate" class="form-label">Joining Date <span
-                                    class="text-danger">*</span></label>
+                            <label for="employeeJoiningDate" class="form-label">
+                                Joining Date <span class="text-danger">*</span>
+                            </label>
                             <input type="date" class="form-control" id="employeeJoiningDate"
                                 [(ngModel)]="selectedEmployee.joiningDate" name="employeeJoiningDate" required />
                         </div>
+
+                        <!-- Sequence Number -->
                         <div class="col-md-6">
-                            <label for="employeeSqn" class="form-label">Sequence Number <span
-                                    class="text-danger">*</span></label>
+                            <label for="employeeSqn" class="form-label">
+                                Sequence Number <span class="text-danger">*</span>
+                            </label>
                             <input type="number" class="form-control" id="employeeSqn"
                                 [(ngModel)]="selectedEmployee.sqn" name="employeeSqn" required />
                         </div>
@@ -312,73 +338,10 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     Close
                 </button>
-                <button type="submit" form="employeeForm" class="btn btn-success" (click)="saveEmployee()"
+                <button type="submit" form="employeeForm" class="btn btn-success" (click)="saveEmployeeForm()"
                     [disabled]="isLoading">
                     <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
-                    Save Changes
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Add Employee Modal -->
-<div class="modal fade" id="employeeAddModal" tabindex="-1" aria-labelledby="employeeAddLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="employeeAddLabel">Add New Employee</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" *ngIf="selectedEmployee">
-                <form id="employeeAddForm">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="addEmployeeName" class="form-label">Name <span
-                                    class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="addEmployeeName"
-                                [(ngModel)]="selectedEmployee.name" name="addEmployeeName" required />
-                        </div>
-                        <div class="col-md-6">
-                            <label for="addEmployeeEmail" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="addEmployeeEmail"
-                                [(ngModel)]="selectedEmployee.email" name="addEmployeeEmail" />
-                        </div>
-                        <div class="col-md-6">
-                            <label for="addEmployeePhone" class="form-label">Phone <span
-                                    class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="addEmployeePhone"
-                                [(ngModel)]="selectedEmployee.phone" name="addEmployeePhone" required />
-                        </div>
-                        <div class="col-md-6">
-                            <label for="addEmployeeSalary" class="form-label">Salary <span
-                                    class="text-danger">*</span></label>
-                            <input type="number" class="form-control" id="addEmployeeSalary"
-                                [(ngModel)]="selectedEmployee.salary" name="addEmployeeSalary" required />
-                        </div>
-                        <div class="col-md-6">
-                            <label for="addEmployeeJoiningDate" class="form-label">Joining Date <span
-                                    class="text-danger">*</span></label>
-                            <input type="date" class="form-control" id="addEmployeeJoiningDate"
-                                [(ngModel)]="selectedEmployee.joiningDate" name="addEmployeeJoiningDate" required />
-                        </div>
-                        <div class="col-md-6">
-                            <label for="addEmployeeSqn" class="form-label">Sequence Number <span
-                                    class="text-danger">*</span></label>
-                            <input type="number" class="form-control" id="addEmployeeSqn"
-                                [(ngModel)]="selectedEmployee.sqn" name="addEmployeeSqn" required />
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    Close
-                </button>
-                <button type="submit" form="employeeAddForm" class="btn btn-success" (click)="addEmployee()"
-                    [disabled]="isLoading">
-                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
-                    Add Employee
+                    {{ isEditMode ? 'Save Changes' : 'Add Employee' }}
                 </button>
             </div>
         </div>
