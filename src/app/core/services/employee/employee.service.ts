@@ -4,6 +4,32 @@ import { Observable } from 'rxjs';
 import { BaseApiResponse, PaginatedData } from '../../models/api-response.model';
 import { BaseService } from '../base/base.service';
 
+export interface LendRecord {
+  id: number;
+  expenseId: string;
+  categoryName: string;
+  amount: number;
+  paymentMethodName: string;
+  date: string;
+  description: string;
+  employeeId: string;
+  employeeName: string;
+  paidTo: string;
+  status: 'APPROVED' | 'PENDING' | 'REJECTED';
+  approvedAt: string | null;
+  approvedByName: string | null;
+}
+
+export interface LendsPaginatedData {
+  current_page: number;
+  data: LendRecord[];
+  from: number;
+  last_page: number;
+  per_page: number;
+  to: number;
+  total: number;
+}
+
 export interface Employee {
   id: number;
   employeeId: string;
@@ -16,7 +42,7 @@ export interface Employee {
   active: boolean;
   createdAt?: string;
   updatedAt?: string;
-  lends?: any[];
+  lends?: LendsPaginatedData;
   totalLend: number;
 }
 

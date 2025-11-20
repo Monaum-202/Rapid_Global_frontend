@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { finalize, takeUntil } from 'rxjs';
 import { BaseCrudComponent, TableColumn } from 'src/app/core/components/base-crud.component';
-import { Employee, EmployeeReqDto, EmployeeService } from 'src/app/core/services/employee/employee.service';
+import { Employee, EmployeeReqDto, EmployeeService, LendRecord } from 'src/app/core/services/employee/employee.service';
 import { PageHeaderService } from 'src/app/core/services/page-header/page-header.service';
 
 enum ModalType {
   VIEW = 'employeeModal',
   FORM = 'employeeFormModal'
 }
-
 
 @Component({
   selector: 'app-employee',
@@ -19,7 +18,12 @@ export class EmployeeComponent extends BaseCrudComponent<Employee, EmployeeReqDt
   // Required abstract properties
   entityName = 'Employee';
   entityNameLower = 'employee';
-   isEditMode = false;
+  isEditMode = false;
+
+  // Lend pagination properties
+  lendCurrentPage = 1;
+  lendPageSize = 10;
+  isLoadingLends = false;
 
   columns: TableColumn<Employee>[] = [
     { key: 'employeeId', label: 'EMP ID', visible: true },
@@ -48,16 +52,17 @@ export class EmployeeComponent extends BaseCrudComponent<Employee, EmployeeReqDt
     return this.items;
   }
 
-  constructor(public service: EmployeeService,
+  constructor(
+    public service: EmployeeService,
     public pageHeaderService: PageHeaderService
   ) {
     super();
   }
 
   ngOnInit(): void {
-  this.pageHeaderService.setTitle('Employee List');
-  this.loadItems();
-}
+    this.pageHeaderService.setTitle('Employee List');
+    this.loadItems();
+  }
 
   // Implement required abstract methods
   createNew(): Employee {
@@ -94,64 +99,19 @@ export class EmployeeComponent extends BaseCrudComponent<Employee, EmployeeReqDt
 
   // Template-friendly wrapper methods
   openAddModal(): void {
+    this.isEditMode = false;
     this.selectedEmployee = this.createNew();
   }
 
   viewEmployee(employee: Employee): void {
+    this.lendCurrentPage = 1;
     this.viewItem(employee);
   }
 
   editEmployee(employee: Employee): void {
+    this.isEditMode = true;
     this.editItem(employee);
   }
-
-  // addEmployee(): void {
-  //   if (!this.isValid(this.selectedEmployee)) {
-  //     this.errorMessage = 'Please fill in all required fields';
-  //     return;
-  //   }
-
-  //   const dto = this.mapToDto(this.selectedEmployee!);
-
-  //   this.isLoading = true;
-  //   this.service.create(dto)
-  //     .pipe(
-  //       takeUntil(this.destroy$),
-  //       finalize(() => this.isLoading = false)
-  //     )
-  //     .subscribe({
-  //       next: (response) => {
-  //         if (response.success) {
-  //           this.handleCrudSuccess('Employee added successfully', ModalType.ADD);
-  //         }
-  //       },
-  //       error: (error) => this.handleError('Failed to add employee', error)
-  //     });
-  // }
-
-  // saveEmployee(): void {
-  //   if (!this.isValid(this.selectedEmployee) || !this.selectedEmployee?.id) {
-  //     this.errorMessage = 'Invalid employee data';
-  //     return;
-  //   }
-
-  //   const dto = this.mapToDto(this.selectedEmployee);
-
-  //   this.isLoading = true;
-  //   this.service.update(this.selectedEmployee.id, dto)
-  //     .pipe(
-  //       takeUntil(this.destroy$),
-  //       finalize(() => this.isLoading = false)
-  //     )
-  //     .subscribe({
-  //       next: (response) => {
-  //         if (response.success) {
-  //           this.handleCrudSuccess('Employee updated successfully', ModalType.EDIT);
-  //         }
-  //       },
-  //       error: (error) => this.handleError('Failed to update employee', error)
-  //     });
-  // }
 
   deleteEmployee(employee: Employee): void {
     this.deleteItem(employee, employee.name);
@@ -161,72 +121,133 @@ export class EmployeeComponent extends BaseCrudComponent<Employee, EmployeeReqDt
     this.loadItems(isSearchOperation);
   }
 
-//    openAddModal(): void {
-//   this.isEditMode = false;
-//   this.selectedEmployee = this.createNew();
-// }
-
-// // Update the editEmployee method
-// editEmployee(employee: Employee): void {
-//   this.isEditMode = true;
-//   this.editItem(employee);
-// }
-
-// Add this new combined save method
-saveEmployeeForm(): void {
-  if (this.isEditMode) {
-    this.saveEmployee();
-  } else {
-    this.addEmployee();
-  }
-}
-
-// Update the handleCrudSuccess calls in addEmployee and saveEmployee
-addEmployee(): void {
-  if (!this.isValid(this.selectedEmployee)) {
-    this.errorMessage = 'Please fill in all required fields';
-    return;
+  // Combined save method
+  saveEmployeeForm(): void {
+    if (this.isEditMode) {
+      this.saveEmployee();
+    } else {
+      this.addEmployee();
+    }
   }
 
-  const dto = this.mapToDto(this.selectedEmployee!);
+  addEmployee(): void {
+    if (!this.isValid(this.selectedEmployee)) {
+      this.errorMessage = 'Please fill in all required fields';
+      return;
+    }
 
-  this.isLoading = true;
-  this.service.create(dto)
-    .pipe(
-      takeUntil(this.destroy$),
-      finalize(() => this.isLoading = false)
-    )
-    .subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.handleCrudSuccess('Employee added successfully', ModalType.FORM);
-        }
-      },
-      error: (error) => this.handleError('Failed to add employee', error)
-    });
-}
+    const dto = this.mapToDto(this.selectedEmployee!);
 
-saveEmployee(): void {
-  if (!this.isValid(this.selectedEmployee) || !this.selectedEmployee?.id) {
-    this.errorMessage = 'Invalid employee data';
-    return;
+    this.isLoading = true;
+    this.service.create(dto)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.handleCrudSuccess('Employee added successfully', ModalType.FORM);
+          }
+        },
+        error: (error) => this.handleError('Failed to add employee', error)
+      });
   }
 
-  const dto = this.mapToDto(this.selectedEmployee);
+  saveEmployee(): void {
+    if (!this.isValid(this.selectedEmployee) || !this.selectedEmployee?.id) {
+      this.errorMessage = 'Invalid employee data';
+      return;
+    }
 
-  this.isLoading = true;
-  this.service.update(this.selectedEmployee.id, dto)
-    .pipe(
-      takeUntil(this.destroy$),
-      finalize(() => this.isLoading = false)
-    )
-    .subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.handleCrudSuccess('Employee updated successfully', ModalType.FORM);
-        }
-      },
-      error: (error) => this.handleError('Failed to update employee', error)
-    });
-}
+    const dto = this.mapToDto(this.selectedEmployee);
+
+    this.isLoading = true;
+    this.service.update(this.selectedEmployee.id, dto)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.handleCrudSuccess('Employee updated successfully', ModalType.FORM);
+          }
+        },
+        error: (error) => this.handleError('Failed to update employee', error)
+      });
+  }
+
+  // ==================== Lend Pagination Methods ====================
+
+  getLendsForCurrentPage(): LendRecord[] {
+    if (!this.selectedEmployee?.lends?.data) {
+      return [];
+    }
+    return this.selectedEmployee.lends.data;
+  }
+
+  getLendPageNumbers(): number[] {
+    if (!this.selectedEmployee?.lends) {
+      return [];
+    }
+
+    const totalPages = this.selectedEmployee.lends.last_page;
+    const current = this.lendCurrentPage;
+    const pages: number[] = [];
+
+    // Show max 5 page numbers
+    const maxVisible = 5;
+    let start = Math.max(1, current - Math.floor(maxVisible / 2));
+    let end = Math.min(totalPages, start + maxVisible - 1);
+
+    // Adjust start if we're near the end
+    if (end - start < maxVisible - 1) {
+      start = Math.max(1, end - maxVisible + 1);
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  }
+
+  goToLendPage(page: number): void {
+    if (page === this.lendCurrentPage || !this.selectedEmployee?.id) {
+      return;
+    }
+
+    this.lendCurrentPage = page;
+    this.loadEmployeeLends(this.selectedEmployee.id, page - 1);
+  }
+
+  nextLendPage(): void {
+    if (this.selectedEmployee?.lends && this.lendCurrentPage < this.selectedEmployee.lends.last_page) {
+      this.goToLendPage(this.lendCurrentPage + 1);
+    }
+  }
+
+  previousLendPage(): void {
+    if (this.lendCurrentPage > 1) {
+      this.goToLendPage(this.lendCurrentPage - 1);
+    }
+  }
+
+  private loadEmployeeLends(employeeId: number, page: number = 0): void {
+    this.isLoadingLends = true;
+    this.service.getById(employeeId)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoadingLends = false)
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success && this.selectedEmployee) {
+            this.selectedEmployee.lends = response.data.lends;
+          }
+        },
+        error: (error) => this.handleError('Failed to load lend details', error)
+      });
+  }
 }
