@@ -84,7 +84,9 @@
                 style="background-color: #000000; color: #ffffff">
                 <i class="bi bi-plus-lg me-1"></i> Add Employee
             </button>
+
         </div>
+
     </div>
 
     <!-- Employee Table -->
@@ -275,6 +277,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" *ngIf="selectedEmployee">
+
                 <!-- Lends Table -->
                 <div class="table-responsive" style="max-height: 400px;">
                     <table class="table table-hover table-sm mb-0 align-middle">
@@ -289,7 +292,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let lend of getLendsForCurrentPage()">
+                            <tr *ngFor="let lend of selectedEmployee.lends">
                                 <td>{{ lend.expenseId }}</td>
                                 <td>{{ lend.date | date : 'MMM d, yyyy' }}</td>
                                 <td>{{ lend.categoryName }}</td>
@@ -306,41 +309,14 @@
                                     </span>
                                 </td>
                             </tr>
-                            <!-- <tr *ngIf="!selectedEmployee.lends?.data || selectedEmployee.lends.data.length === 0">
+                            <tr *ngIf="!selectedEmployee.lends || selectedEmployee.lends.length === 0">
                                 <td colspan="6" class="text-center text-muted py-4">
                                     <i class="bi bi-inbox fs-3 d-block mb-2"></i>
                                     No lend records found
                                 </td>
-                            </tr> -->
+                            </tr>
                         </tbody>
                     </table>
-                </div>
-
-                <!-- Pagination for Lends -->
-                <div class="d-flex justify-content-between align-items-center mt-3" *ngIf="selectedEmployee.lends && selectedEmployee.lends.data && selectedEmployee.lends.data.length > 0">
-                    <p class="text-muted mb-0 small">
-                        Showing {{ selectedEmployee.lends.from }} to {{ selectedEmployee.lends.to }} of {{ selectedEmployee.lends.total }} entries
-                    </p>
-                    <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-dark"
-                            (click)="previousLendPage()"
-                            [disabled]="lendCurrentPage <= 1 || isLoadingLends">
-                            <i class="bi bi-chevron-left"></i>
-                        </button>
-                        <button *ngFor="let page of getLendPageNumbers()"
-                            class="btn"
-                            [class.btn-success]="page === lendCurrentPage"
-                            [class.btn-outline-dark]="page !== lendCurrentPage"
-                            (click)="goToLendPage(page)"
-                            [disabled]="isLoadingLends">
-                            {{ page }}
-                        </button>
-                        <button class="btn btn-outline-dark"
-                            (click)="nextLendPage()"
-                            [disabled]="lendCurrentPage >= selectedEmployee.lends.last_page || isLoadingLends">
-                            <i class="bi bi-chevron-right"></i>
-                        </button>
-                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -351,6 +327,8 @@
         </div>
     </div>
 </div>
+
+<!-- add/edit -->
 
 <div class="modal fade" id="employeeFormModal" tabindex="-1" aria-labelledby="employeeFormLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">

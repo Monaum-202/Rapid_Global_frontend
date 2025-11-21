@@ -20,16 +20,6 @@ export interface LendRecord {
   approvedByName: string | null;
 }
 
-export interface LendsPaginatedData {
-  current_page: number;
-  data: LendRecord[];
-  from: number;
-  last_page: number;
-  per_page: number;
-  to: number;
-  total: number;
-}
-
 export interface Employee {
   id: number;
   employeeId: string;
@@ -42,7 +32,7 @@ export interface Employee {
   active: boolean;
   createdAt?: string;
   updatedAt?: string;
-  lends?: LendsPaginatedData;
+  lends?: LendRecord[];
   totalLend: number;
 }
 

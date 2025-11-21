@@ -12,11 +12,11 @@ export interface Expense {
   categoryName: string;
   paymentMethodId: number;
   paymentMethodName: string;
-  employeeId: number;
+  employeeId?: number;
   employeeName: string;
   amount: number;
   paidTo: string;
-  expenseDate: string;
+  date: string;
   description: string;
   approvedBy?: string;
   approvalDate?: string;
@@ -31,7 +31,7 @@ export interface ExpenseReqDto {
   expenseDate: string;
   amount: number;
   paymentMethodId: number;
-  employeeId: number;
+  employeeId?: number;
   paidTo?: string;
   status?: string;
   approvedBy?: string;

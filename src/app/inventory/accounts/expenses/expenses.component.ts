@@ -10,9 +10,8 @@ import { TransectionCategory, TransectionCategoryService } from 'src/app/core/se
 
 
 enum ModalType {
-  VIEW = 'expenseViewModal',
-  ADD = 'expenseAddModal',
-  EDIT = 'expenseEditModal'
+  VIEW = 'expenseModal',
+  FORM = 'expenseFormModal'
 }
 
 @Component({
@@ -26,11 +25,12 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
   paymentMethod: PaymentMethod[] = [];
   expenseCategory: TransectionCategory[] = [];
   employee:Employee[] = [];
+  isEditMode = false;
 
   columns: TableColumn<Expense>[] = [
     { key: 'expenseId', label: 'EXP ID', visible: true },
     { key: 'categoryName', label: 'Expense Type', visible: true },
-    { key: 'expenseDate', label: 'Date', visible: true },
+    { key: 'date', label: 'Date', visible: true },
     { key: 'amount', label: 'Amount', visible: true },
     { key: 'paymentMethodName', label: 'Payment Method', visible: false},
     { key: 'paidTo', label: 'Paid To', visible: true },
@@ -87,7 +87,7 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
       employeeName: '',
       amount: 0,
       paidTo: '',
-      expenseDate: '',
+      date: '',
       description: '',
       approvedBy: '',
       approvalDate: '',
@@ -100,7 +100,7 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
     if (!expense) return false;
     return !!(
       expense.categoryId &&
-      expense.expenseDate &&
+      expense.date &&
       expense.amount > 0 &&
       expense.paymentMethodId
     );
@@ -109,7 +109,7 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
   mapToDto(expense: Expense): ExpenseReqDto {
     return {
       expenseCategory: expense.categoryId,
-      expenseDate: expense.expenseDate,
+      expenseDate: expense.date,
       amount: expense.amount,
       paymentMethodId: expense.paymentMethodId,
       employeeId: expense.employeeId,
@@ -125,16 +125,29 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
   // ==================== Template-Friendly Method Names ====================
 
   openAddModal(): void {
-    this.selectedExpense = this.createNew();
-  }
+  this.selectedExpense = this.createNew();
+  this.isEditMode = false;
+}
 
   viewExpense(expense: Expense): void {
     this.viewItem(expense);
   }
 
   editExpense(expense: Expense): void {
-    this.editItem(expense);
-  }
+  this.selectedExpense = {
+    ...expense,
+    categoryId: Number(expense.categoryId),
+    paymentMethodId: Number(expense.paymentMethodId),
+    employeeId: expense.employeeId ? Number(expense.employeeId) : 0
+  };
+  this.isEditMode = true;
+
+  // Debug logging
+  console.log('Editing expense:', this.selectedExpense);
+  console.log('Available categories:', this.expenseCategory);
+  console.log('Available payment methods:', this.paymentMethod);
+  console.log('Available employees:', this.employee);
+}
 
   addExpense(): void {
     if (!this.isValid(this.selectedExpense)) {
@@ -153,13 +166,20 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
       .subscribe({
         next: (response: any) => {
           if (response.success) {
-            this.handleCrudSuccess('Expense added successfully', ModalType.ADD);
+            this.handleCrudSuccess('Expense added successfully', ModalType.FORM);
           }
         },
         error: (error: any) => this.handleError('Failed to add expense', error)
       });
   }
-
+// Combined save method
+  saveExpenseForm(): void {
+    if (this.isEditMode) {
+      this.saveExpense();
+    } else {
+      this.addExpense();
+    }
+  }
   saveExpense(): void {
     if (!this.isValid(this.selectedExpense) || !this.selectedExpense?.id) {
       this.errorMessage = 'Invalid expense data';
@@ -177,7 +197,7 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
       .subscribe({
         next: (response: any) => {
           if (response.success) {
-            this.handleCrudSuccess('Expense updated successfully', ModalType.EDIT);
+            this.handleCrudSuccess('Expense updated successfully', ModalType.FORM);
           }
         },
         error: (error: any) => this.handleError('Failed to update expense', error)
@@ -227,37 +247,44 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
   }
 
   loadPaymentMethods(): void {
-    this.paymentMethodService.getAllActive(true, 0, 100).subscribe({
-      next: (res) => {
-        this.paymentMethod = res.data.data; // adjust if your response structure is different
-      },
-      error: (err) => {
-        console.error('Failed to load payment methods', err);
-      }
-    });
-  }
+  this.paymentMethodService.getAllActive(true, 0, 100).subscribe({
+    next: (res) => {
+      this.paymentMethod = res.data.data.map(method => ({
+        ...method,
+        id: Number(method.id) // Ensure ID is a number
+      }));
+    },
+    error: (err) => {
+      console.error('Failed to load payment methods', err);
+    }
+  });
+}
 
-  loadEmployees(): void{
-    this.employeeService.getAllActive(true,0,100).subscribe({
-      next: (res) => {
-        this.employee = res.data.data;
-      },
-      error: (err) => {
-        console.error('Failed to load employees', err)
-      }
-    })
-  }
+loadEmployees(): void {
+  this.employeeService.getAllActive(true, 0, 100).subscribe({
+    next: (res) => {
+      this.employee = res.data.data.map(emp => ({
+        ...emp,
+        id: Number(emp.id) // Ensure ID is a number
+      }));
+    },
+    error: (err) => {
+      console.error('Failed to load employees', err);
+    }
+  });
+}
 
-  loadTransectionCategory(): void {
-    this.transectionCategoryService.getAllActive(true, "EXPENSE", 0, 100).subscribe({
-      next: (res) => {
-        this.expenseCategory = res.data.data;
-      },
-      error: (err) => {
-        console.error('Failed to load payment methods', err);
-      }
-    });
-  }
-
-
+loadTransectionCategory(): void {
+  this.transectionCategoryService.getAllActive(true, "EXPENSE", 0, 100).subscribe({
+    next: (res) => {
+      this.expenseCategory = res.data.data.map(cat => ({
+        ...cat,
+        id: Number(cat.id) // Ensure ID is a number
+      }));
+    },
+    error: (err) => {
+      console.error('Failed to load expense categories', err);
+    }
+  });
+}
 }

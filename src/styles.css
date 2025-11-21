@@ -43,7 +43,7 @@ body {
 }
 
 .table tbody td {
-    padding: 5px 5px;
+    padding: 1px 1px;
     vertical-align: middle;
     text-align: center;
 }
@@ -79,13 +79,6 @@ body {
     font-weight: 500;
 }
 
-.status-badge {
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 500;
-}
-
 .status-received {
     background-color: #d1e7dd;
     color: #0f5132;
@@ -103,25 +96,72 @@ body {
 }
 
 .modal-header {
-    background: #000;
+    background-color: #000000;
+    padding: 0.8rem 1.2rem;
     color: #fff;
     border-top-left-radius: 0.75rem;
     border-top-right-radius: 0.75rem;
-    padding: 1rem;
 }
 
 .modal-body {
     padding: 1.25rem; /* rem instead of px */
 }
-
-.modal-body {
-    padding: 20px;
+.form-label{
+    color: #000000;
+    font-weight: bolder;
 }
+.compact-label{
+    color: #000000;
+    font-weight: bolder;
+}
+
+/* .modal-body {
+    padding: 20px;
+} */
 
 .action-btn {
     border-radius: 8px;
     padding: 8px 16px;
 }
+
+.custom-modal {
+    border-radius: 0.75rem;
+}
+
+
+.label-text {
+    font-size: 0.95rem;
+    font-weight: bolder;
+    color: #1d1d1d;
+}
+
+.value-text {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.value-strong {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.status-badge {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.85rem;
+    border-radius: 0.5rem;
+}
+
+.close-btn {
+    padding: 0.6rem 1.4rem;
+    font-size: 0.9rem;
+    border-radius: 0.4rem;
+}
+
+.modal-body div {
+    font-size: 0.95rem;
+}
+
+
 
 .input-group:focus-within {
     box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.15);
