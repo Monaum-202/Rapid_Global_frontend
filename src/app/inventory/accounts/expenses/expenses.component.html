@@ -135,11 +135,10 @@
                             </button>
 
                             <!-- Delete button -->
-                            <button type="button" class="btn btn-outline-danger btn-sm" (click)="deleteExpense(expense)"
-                                title="Delete">
+                            <button type="button" class="btn btn-outline-danger btn-sm"
+                                (click)="openDeleteModal(expense)" title="Delete">
                                 <i class="fa fa-trash"></i>
                             </button>
-
                             <!-- Approve button -->
                             <button type="button" class="btn btn-outline-info btn-sm" (click)="approveExpense(expense)"
                                 [hidden]="expense.status === 'APPROVED'" title="Approve">
@@ -207,22 +206,18 @@
                         <label class="label-text">Expense ID</label>
                         <div class="value-text">{{ selectedExpense.expenseId }}</div>
                     </div>
-
                     <div class="col-md-6">
                         <label class="label-text">Expense Category</label>
                         <div class="value-text">{{ selectedExpense.categoryName }}</div>
                     </div>
-
                     <div class="col-md-6">
                         <label class="label-text">Date</label>
                         <div>{{ selectedExpense.date | date:'dd/MM/yyyy' }}</div>
                     </div>
-
                     <div class="col-md-6">
                         <label class="label-text">Amount</label>
                         <div class="value-strong">{{ selectedExpense.amount | number:'1.2-2' }}</div>
                     </div>
-
                     <div class="col-md-6">
                         <label class="label-text">Payment Method</label>
                         <div>{{ selectedExpense.paymentMethodName || 'N/A' }}</div>
@@ -268,8 +263,6 @@
         </div>
     </div>
 </div>
-
-
 
 <!-- Add Expense Modal -->
 <div class="modal fade" id="expenseFormModal" tabindex="-1" aria-labelledby="expenseFormLabel" aria-hidden="true">
@@ -352,6 +345,30 @@
                     Add Expense
                 </button>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+
+            <div class="modal-body text-center p-4">
+
+                <h4 class="fw-bold">Delete Item?</h4>
+                <p class="text-muted mb-4">
+                    You are really want to delete <strong>{{ selectedExpense?.expenseId }}</strong>.
+                </p>
+
+                <div class="d-flex justify-content-center gap-3">
+                    <button class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-danger px-4" (click)="confirmDelete()" data-bs-dismiss="modal">
+                        Delete
+                    </button>
+                </div>
+
+            </div>
+
         </div>
     </div>
 </div>

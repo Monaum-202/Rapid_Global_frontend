@@ -204,9 +204,24 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
       });
   }
 
-  deleteExpense(expense: Expense): void {
-    const displayName = `${expense.categoryName} - $${expense.amount}`;
-    this.deleteItem(expense, displayName);
+  // deleteExpense(expense: Expense): void {
+  //   const displayName = `${expense.categoryName} - $${expense.amount}`;
+  //   this.deleteItem(expense, displayName);
+  // }
+
+  openDeleteModal(expense: Expense) {
+    this.selectedExpense = expense;
+
+    const modal = new (window as any).bootstrap.Modal(
+      document.getElementById('confirmDeleteModal')
+    );
+    modal.show();
+  }
+
+  confirmDelete() {
+    if (this.selectedExpense) {
+      this.deleteItem(this.selectedExpense, this.selectedExpense.expenseId);
+    }
   }
 
   approveExpense(expense: Expense): void {

@@ -247,7 +247,7 @@ body {
   width: 35px;
   height: 35px;
   border-radius: 50%;
-  overflow: hidden;
+  overflow:visible;
   cursor: pointer;
   border: 2px solid #ccc;
 }

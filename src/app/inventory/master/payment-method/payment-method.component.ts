@@ -142,27 +142,27 @@ export class PaymentMethodComponent extends BaseCrudComponent<PaymentMethod, Pay
       });
   }
 
-  deletePaymentMethod(paymentMethod: PaymentMethod): void {
-    this.deleteItem(paymentMethod, paymentMethod.name);
-  }
+  // deletePaymentMethod(paymentMethod: PaymentMethod): void {
+  //   this.deleteItem(paymentMethod, paymentMethod.name);
+  // }
 
   loadPaymentMethods(isSearchOperation = false): void {
     this.loadItems(isSearchOperation);
   }
 
   openDeleteModal(paymentMethod: PaymentMethod) {
-  this.selectedPaymentMethod = paymentMethod;
+    this.selectedPaymentMethod = paymentMethod;
 
-  const modal = new (window as any).bootstrap.Modal(
-    document.getElementById('confirmDeleteModal')
-  );
-  modal.show();
-}
-
-confirmDelete() {
-  if (this.selectedPaymentMethod) {
-    this.deleteItem(this.selectedPaymentMethod, this.selectedPaymentMethod.name);
+    const modal = new (window as any).bootstrap.Modal(
+      document.getElementById('confirmDeleteModal')
+    );
+    modal.show();
   }
-}
+
+  confirmDelete() {
+    if (this.selectedPaymentMethod) {
+      this.deleteItem(this.selectedPaymentMethod, this.selectedPaymentMethod.name);
+    }
+  }
 
 }

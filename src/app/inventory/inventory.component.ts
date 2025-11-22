@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { PageHeaderService } from '../core/services/page-header/page-header.service';
 import { SideNavComponent } from './side-nav/side-nav.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-inventory',
@@ -24,7 +25,10 @@ export class InventoryComponent implements AfterViewInit, OnInit {
   searchPlaceholder: string = '';
   showSearch: boolean = true;
 
-  constructor(private pageHeaderService: PageHeaderService) {}
+  constructor(
+    private pageHeaderService: PageHeaderService,
+    private router: Router
+  ) {}
 
   @ViewChild('sideNav') sideNav!: SideNavComponent;
 
@@ -37,5 +41,14 @@ export class InventoryComponent implements AfterViewInit, OnInit {
 
   toggleMenu() {
     this.sideNav.toggleSidebar();
+  }
+
+  confirmLogout() {
+    // Remove login session
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+
+    // Redirect to login page
+    this.router.navigate(['/login']);
   }
 }

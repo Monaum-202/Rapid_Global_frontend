@@ -187,9 +187,6 @@ export abstract class simpleCrudComponent<T extends BaseEntity, TDto> implements
   deleteItem(item: T, itemName: string): void {
     if (!item.id) return;
 
-    const confirmed = confirm(`Are you sure you want to delete ${itemName}?`);
-    if (!confirmed) return;
-
     const deleteMethod = (this.service as any)[`delete${this.entityName}`];
     if (!deleteMethod) {
       console.error(`Delete method not found for ${this.entityName}`);
