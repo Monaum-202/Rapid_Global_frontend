@@ -1,0 +1,351 @@
+
+<div class="loading-overlay-scoped" *ngIf="isLoading">
+    <div class="bouncing-dots-loader">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+</div>
+
+<div class="container my-1 position-relative">
+
+    <!-- Toast container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1200">
+        <div *ngIf="errorMessage" class="toast align-items-center text-bg-danger border-0 show" role="alert"
+            aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    {{ errorMessage }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="clearError()"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row align-items-center justify-content-between gy-2 m-3">
+
+        <!-- Left Section: Show Entries + Columns -->
+        <div class="col-md-4 col-sm-12 d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center">
+                <select class="form-select form-select-sm w-auto rounded-pill shadow-sm" [value]="paginator.pageSize"
+                    (change)="onPageSizeChange($event)">
+                    <option *ngFor="let size of PAGE_SIZE_OPTIONS" [value]="size">{{ size }}</option>
+                </select>
+            </div>
+
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm rounded-pill shadow-sm dropdown-toggle" type="button"
+                    (click)="toggleColumnDropdown()">
+                    <i class="bi bi-columns-gap me-1"></i> Columns
+                </button>
+                <div class="dropdown-menu p-3 shadow" [class.show]="showColumnDropdown" style="min-width: 200px;">
+                    <div class="form-check" *ngFor="let column of columns">
+                        <input class="form-check-input" type="checkbox" [id]="'column-' + column.key"
+                            [(ngModel)]="column.visible" />
+                        <label class="form-check-label" [for]="'column-' + column.key">
+                            {{ column.label }}
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle Section: Search -->
+        <div class="col-md-4 col-sm-12 d-flex justify-content-center">
+            <div class="w-100" style="max-width: 25rem;">
+                <div class="input-group input-group-sm shadow-sm rounded-pill bg-light border border-dark">
+                    <span class="input-group-text bg-transparent border-0 text-dark">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control border-0 bg-transparent"
+                        placeholder="Search... (Press Enter)" (input)="onSearchInput($event)"
+                        (keypress)="onSearchKeyPress($event)" [value]="currentSearchValue" />
+                    <button *ngIf="currentSearchValue" class="btn btn-sm bg-transparent border-0 text-muted"
+                        type="button" (click)="clearSearch()" title="Clear search">
+                        <i class="bi bi-x-circle"></i>
+                    </button>
+                    <button class="btn btn-sm bg-transparent border-0 text-dark" type="button"
+                        (click)="onSearchButtonClick()" title="Search">
+                        <i class="bi bi-arrow-right-circle"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Section: Add Button -->
+        <div class="col-md-4 col-sm-12 d-flex justify-content-md-end justify-content-center">
+            <button type="button" class="btn rounded-pill shadow-sm px-4" data-bs-toggle="modal"
+                data-bs-target="#userFormModal" (click)="openAddModal()" [disabled]="isLoading"
+                style="background-color: #000000; color: #ffffff;">
+                <i class="bi bi-plus-lg me-1"></i> Add User
+            </button>
+        </div>
+    </div>
+
+    <!-- User Table -->
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle text-nowrap">
+            <thead>
+                <tr>
+                    <th *ngIf="isColumnVisible('userName')">USERNAME</th>
+                    <th *ngIf="isColumnVisible('email')">EMAIL</th>
+                    <th *ngIf="isColumnVisible('fullName')">NAME</th>
+                    <th *ngIf="isColumnVisible('roleName')">ROLE</th>
+                    <th *ngIf="isColumnVisible('phone')">PHONE</th>
+                    <th *ngIf="isColumnVisible('isActive')">STATUS</th>
+                    <th class="text-center">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let user of filteredUsers">
+                    <td *ngIf="isColumnVisible('userName')">{{ user.userName }}</td>
+                    <td *ngIf="isColumnVisible('email')">{{ user.email }}</td>
+                    <td *ngIf="isColumnVisible('fullName')">{{ user.fullName }}</td>
+                    <td *ngIf="isColumnVisible('roleName')">{{ user.roleName }}</td>
+                    <td *ngIf="isColumnVisible('phone')">{{ user.phone || '-' }}</td>
+                    <td *ngIf="isColumnVisible('isActive')">
+                        <span class="badge" [class.bg-success]="user.isActive" [class.bg-danger]="!user.isActive">
+                            {{ user.isActive ? 'ACTIVE' : 'INACTIVE' }}
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center align-items-center gap-1">
+                            <!-- View button -->
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#userViewModal" (click)="viewUser(user)" title="View Details">
+                                <i class="fa fa-eye"></i>
+                            </button>
+
+                            <!-- Edit button -->
+                            <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#userFormModal" (click)="editUser(user)" title="Edit">
+                                <i class="fa fa-pen"></i>
+                            </button>
+
+                            <!-- Delete button -->
+                            <button type="button" class="btn btn-outline-danger btn-sm" (click)="openDeleteModal(user)"
+                                *ngIf="roleId === 1" title="Delete">
+                                <i class="fa fa-trash"></i>
+                            </button>
+
+                            <!-- Toggle Status button -->
+                            <button type="button" class="btn btn-sm"
+                                [class.btn-outline-warning]="user.isActive"
+                                [class.btn-outline-success]="!user.isActive"
+                                (click)="toggleUserStatus(user)"
+                                [title]="user.isActive ? 'Deactivate' : 'Activate'">
+                                <i [class.fa-toggle-on]="user.isActive" [class.fa-toggle-off]="!user.isActive" class="fa"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- No data message -->
+                <tr *ngIf="filteredUsers.length === 0 && !isLoading">
+                    <td [attr.colspan]="visibleColumnsCount" class="text-center text-muted py-4">
+                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                        {{ searchTerm ? 'No users found matching your search' : 'No users found' }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Info and Controls -->
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <p class="text-muted mb-0">
+            Showing {{ paginator.from }} to {{ paginator.to }} of {{ paginator.totalElements }} entries
+        </p>
+
+        <div class="btn-group">
+            <button class="btn btn-outline-dark btn-sm" (click)="previousPage()"
+                [disabled]="!canGoPrevious || isLoading">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+
+            <button *ngFor="let page of getPageNumbers()" class="btn btn-sm"
+                [class.btn-success]="page === paginator.currentPage"
+                [class.btn-outline-dark]="page !== paginator.currentPage" (click)="goToPage(page)"
+                [disabled]="isLoading">
+                {{ page + 1 }}
+            </button>
+
+            <button class="btn btn-outline-dark btn-sm" (click)="nextPage()" [disabled]="!canGoNext || isLoading">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- View User Modal -->
+<div class="modal fade" id="userViewModal" tabindex="-1" aria-labelledby="userViewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content shadow-lg border-0 custom-modal">
+            <div class="modal-header modal-header-bg">
+                <h5 class="modal-title" id="userViewModalLabel">User Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body" *ngIf="selectedUser">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="label-text">Username</label>
+                        <div class="value-text">{{ selectedUser.userName }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="label-text">Email</label>
+                        <div class="value-text">{{ selectedUser.email }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="label-text">Name</label>
+                        <div>{{ selectedUser.fullName || 'N/A' }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="label-text">Role</label>
+                        <div>{{ selectedUser.roleName }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="label-text">Phone</label>
+                        <div>{{ selectedUser.phone || 'N/A' }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="label-text">Country</label>
+                        <div>{{ selectedUser.country || 'N/A' }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="label-text">Location</label>
+                        <div>{{ selectedUser.location || 'N/A' }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="label-text">Date of Birth</label>
+                        <div>{{ selectedUser.dateOfBirth ? (selectedUser.dateOfBirth | date:'dd/MM/yyyy') : 'N/A' }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="label-text">Status</label><br>
+                        <span class="badge status-badge"
+                            [class.bg-success]="selectedUser.isActive"
+                            [class.bg-danger]="!selectedUser.isActive">
+                            {{ selectedUser.isActive ? 'ACTIVE' : 'INACTIVE' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer modal-header-bg">
+                <button type="button" class="btn btn-secondary close-btn" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit User Modal -->
+<div class="modal fade" id="userFormModal" tabindex="-1" aria-labelledby="userFormLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userFormLabel">
+                    {{ isEditMode ? 'Edit User' : 'Add New User' }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" *ngIf="selectedUser">
+                <form id="userForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="userName" class="form-label">
+                                Username <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="userName"
+                                [(ngModel)]="selectedUser.userName" name="userName" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">
+                                Email <span class="text-danger">*</span>
+                            </label>
+                            <input type="email" class="form-control" id="email"
+                                [(ngModel)]="selectedUser.email" name="email" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="password" class="form-label">
+                                Password <span class="text-danger" *ngIf="!isEditMode">*</span>
+                                <small class="text-muted" *ngIf="isEditMode">(Leave blank to keep current)</small>
+                            </label>
+                            <input type="password" class="form-control" id="password"
+                                [(ngModel)]="selectedUser.password" name="password"
+                                [required]="!isEditMode" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="roleId" class="form-label">
+                                Role <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" id="roleId"
+                                [(ngModel)]="selectedUser.roleId" name="roleId" required>
+                                <option [ngValue]="null" disabled>Select Role</option>
+                                <option *ngFor="let role of roles" [ngValue]="role.id">
+                                    {{ role.name }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="fullName" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="fullName"
+                                [(ngModel)]="selectedUser.fullName" name="fullName" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label">Phone</label>
+                            <input type="text" class="form-control" id="phone"
+                                [(ngModel)]="selectedUser.phone" name="phone" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="country" class="form-label">Country</label>
+                            <input type="text" class="form-control" id="country"
+                                [(ngModel)]="selectedUser.country" name="country" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="location" class="form-label">Location</label>
+                            <input type="text" class="form-control" id="location"
+                                [(ngModel)]="selectedUser.location" name="location" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="dateOfBirth" class="form-label">Date of Birth</label>
+                            <input type="date" class="form-control" id="dateOfBirth"
+                                [(ngModel)]="selectedUser.dateOfBirth" name="dateOfBirth" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="userForm" class="btn btn-success" (click)="saveUserForm()"
+                    [disabled]="isLoading">
+                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                    {{ isEditMode ? 'Update User' : 'Add User' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-body text-center p-4">
+                <h4 class="fw-bold">Delete User?</h4>
+                <p class="text-muted mb-4">
+                    You are really want to delete <strong>{{ selectedUser?.userName }}</strong>.
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <button class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-danger px-4" (click)="confirmDelete()" data-bs-dismiss="modal">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

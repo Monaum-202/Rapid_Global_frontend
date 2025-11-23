@@ -44,11 +44,9 @@ export class InventoryComponent implements AfterViewInit, OnInit {
   }
 
   confirmLogout() {
-    // Remove login session
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
 
-    // Redirect to login page
     this.router.navigate(['/login']);
   }
 }

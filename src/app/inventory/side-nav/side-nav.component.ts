@@ -1,5 +1,6 @@
 // side-nav.component.ts
 import { Component, HostListener, OnInit } from '@angular/core';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
   selector: 'app-side-nav',
@@ -10,6 +11,7 @@ export class SideNavComponent implements OnInit {
   isSidebarCollapsed = false;
   isMobileMenuOpen = false;
   isMobileView = false;
+  roleId = 0;
 
   expandSideBar() {
     this.isSidebarCollapsed = false;
@@ -17,17 +19,20 @@ export class SideNavComponent implements OnInit {
     this.isMobileView = false;
   }
 
-  constructor() {
-    console.log('%c🧩 SideNavComponent constructed', 'color: lime;');
+  constructor(
+    private authService: AuthService
+  ) {
+    // console.log('%c🧩 SideNavComponent constructed', 'color: lime;');
   }
 
   ngOnDestroy() {
-    console.log('%c💥 SideNavComponent destroyed', 'color: red; font-weight: bold;');
+    // console.log('%c💥 SideNavComponent destroyed', 'color: red; font-weight: bold;');
   }
 
   ngOnInit() {
     this.checkViewport();
-    console.log('%c✅ SideNavComponent initialized', 'color: cyan;');
+    const id = this.authService.getRoleId();
+    this.roleId = id ?? 0;
   }
 
   @HostListener('window:resize', ['$event'])

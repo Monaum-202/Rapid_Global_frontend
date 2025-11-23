@@ -1,13 +1,12 @@
-
 import { Injectable } from '@angular/core';
-import { HttpParams } from '@angular/common/http';
+import { HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { BaseApiResponse, PaginatedData } from '../../models/api-response.model';
 import { BaseService } from '../base/base.service';
 
 export interface Expense {
   id: number;
-  expenseId:string;
+  expenseId: string;
   categoryId: number;
   categoryName: string;
   paymentMethodId: number;
@@ -20,13 +19,12 @@ export interface Expense {
   description: string;
   approvedBy?: string;
   approvalDate?: string;
+  cancelReason?: string;
   status: string;
+  createdBy: number;
 }
 
-
-// Define the DTO for creating/updating expenses
 export interface ExpenseReqDto {
-
   expenseCategory: number;
   expenseDate: string;
   amount: number;
@@ -91,7 +89,6 @@ export class ExpenseService extends BaseService {
    * Create a new expense
    */
   create(dto: ExpenseReqDto): Observable<BaseApiResponse<Expense>> {
-    // this.validateExpenseDto(dto);
     return this.post<Expense>(this.ENDPOINT, dto);
   }
 
@@ -99,7 +96,6 @@ export class ExpenseService extends BaseService {
    * Update an existing expense
    */
   update(id: number, dto: ExpenseReqDto): Observable<BaseApiResponse<Expense>> {
-    // this.validateExpenseDto(dto);
     return this.put<Expense>(`${this.ENDPOINT}/${id}`, dto);
   }
 
@@ -117,6 +113,21 @@ export class ExpenseService extends BaseService {
     return this.patch<Expense>(`${this.ENDPOINT}/${id}`, {});
   }
 
+  /**
+   * Approve an expense
+   */
+  approveExpense(id: number): Observable<BaseApiResponse<Expense>> {
+    return this.put<Expense>(`${this.ENDPOINT}/${id}/approve`, {});
+  }
+
+  /**
+   * Cancel an expense with reason
+   */
+  cancelExpense(id: number, reason: string): Observable<BaseApiResponse<Expense>> {
+    // Send reason as plain text string directly
+    return this.put<Expense>(`${this.ENDPOINT}/${id}/cancel`, reason);
+  }
+
   // ==================== Helper Methods ====================
 
   /**
@@ -127,15 +138,6 @@ export class ExpenseService extends BaseService {
       .set('page', page.toString())
       .set('size', size.toString());
   }
-
-  /**
-   * Validate expense DTO before sending to backend
-   */
-  // private validateExpenseDto(dto: ExpenseReqDto): void {
-  //   if (!dto.paidTo?.trim()) {
-  //     throw new Error('Expense name is required');
-  //   }
-  // }
 
   /**
    * Build filter parameters for advanced search (future use)

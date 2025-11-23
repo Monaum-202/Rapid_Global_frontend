@@ -115,7 +115,7 @@
                     <td *ngIf="isColumnVisible('status')">
                         <span class="badge" [class.bg-warning]="expense.status === 'PENDING'"
                             [class.bg-success]="expense.status === 'APPROVED'"
-                            [class.bg-danger]="expense.status === 'Rejected'">
+                            [class.bg-danger]="expense.status === 'CANCELED'">
                             {{ expense.status }}
                         </span>
                     </td>
@@ -130,19 +130,30 @@
                             <!-- Edit button -->
                             <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
                                 data-bs-target="#expenseFormModal" (click)="editExpense(expense)"
-                                [hidden]="expense.status === 'APPROVED'" title="Edit">
+                                [hidden]="expense.status === 'APPROVED' || 'CANCELED'" title="Edit">
                                 <i class="fa fa-pen"></i>
                             </button>
 
                             <!-- Delete button -->
                             <button type="button" class="btn btn-outline-danger btn-sm"
-                                (click)="openDeleteModal(expense)" title="Delete">
+                                (click)="openDeleteModal(expense)"
+                                *ngIf="expense.status !== 'APPROVED' && expense.status !== 'CANCELED' && expense.createdBy === userId "
+                                title="Delete">
                                 <i class="fa fa-trash"></i>
                             </button>
+
                             <!-- Approve button -->
                             <button type="button" class="btn btn-outline-info btn-sm" (click)="approveExpense(expense)"
-                                [hidden]="expense.status === 'APPROVED'" title="Approve">
+                                *ngIf="expense.status !== 'APPROVED' && expense.status !== 'CANCELED' && ( roleId === 1 || roleId === 2 )"
+                                title="Approve">
                                 <i class="fa fa-check"></i>
+                            </button>
+
+                            <!-- Cancel button -->
+                            <button type="button" class="btn btn-outline-warning btn-sm"
+                                (click)="openCencelModal(expense)"
+                                *ngIf=" expense.status !== 'CANCELED' && ( roleId === 1 || roleId === 2 )" title="Cancel">
+                                <i class="fa fa-times-circle"></i>
                             </button>
                         </div>
                     </td>
@@ -169,8 +180,7 @@
             <!-- Previous -->
             <button class="btn btn-outline-dark btn-sm" (click)="previousPage()"
                 [disabled]="!canGoPrevious || isLoading">
-                <i class="bi bi-chevron-left">
-                    < </i>
+                <i class="bi bi-chevron-left"></i>
             </button>
 
             <!-- Page Numbers -->
@@ -178,13 +188,15 @@
                 [class.btn-success]="page === paginator.currentPage"
                 [class.btn-outline-dark]="page !== paginator.currentPage" (click)="goToPage(page)"
                 [disabled]="isLoading">
+
                 {{ page + 1 }}
             </button>
 
             <!-- Next -->
             <button class="btn btn-outline-dark btn-sm" (click)="nextPage()" [disabled]="!canGoNext || isLoading">
-                <i class="bi bi-chevron-right">></i>
+                <i class="bi bi-chevron-right"></i>
             </button>
+
         </div>
     </div>
 </div>
@@ -230,10 +242,9 @@
 
                     <div class="col-md-6">
                         <label class="label-text">Status</label><br>
-                        <span class="badge status-badge"
-                            [class.bg-warning]="selectedExpense.status === 'PENDING'"
+                        <span class="badge status-badge" [class.bg-warning]="selectedExpense.status === 'PENDING'"
                             [class.bg-success]="selectedExpense.status === 'APPROVED'"
-                            [class.bg-danger]="selectedExpense.status === 'REJECTED'">
+                            [class.bg-danger]="selectedExpense.status === 'CANCELED'">
                             {{ selectedExpense.status }}
                         </span>
                     </div>
@@ -248,13 +259,17 @@
                         <div>{{ selectedExpense.approvalDate }}</div>
                     </div>
 
-                    <div class="col-12">
+                    <div class="col-md-6">
+                        <label class="label-text">Cancel Rseason</label>
+                        <div class="text-wrap">{{ selectedExpense.cancelReason }}</div>
+                    </div>
+
+                    <div class="col-md-6">
                         <label class="label-text">Description</label>
                         <div class="text-wrap">{{ selectedExpense.description || 'N/A' }}</div>
                     </div>
 
                 </div>
-
             </div>
 
             <div class="modal-footer modal-header-bg">
@@ -367,6 +382,42 @@
                     </button>
                 </div>
 
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="cancelReasonModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Cancel Expense</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body px-4" *ngIf="selectedExpense">
+                <p class="text-muted">
+                    Provide a reason for cancelling
+                    <strong>{{ selectedExpense.expenseId }}</strong>.
+                </p>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Cancel Reason</label>
+                    <textarea class="form-control rounded-3" rows="3" placeholder="Write reason here..."
+                        [(ngModel)]="selectedExpense.cancelReason" name="cancelReason">
+                    </textarea>
+                </div>
+            </div>
+
+            <div class="modal-footer border-0 d-flex justify-content-end gap-2 px-4 pb-4">
+                <button class="btn btn-light px-4" data-bs-dismiss="modal">Close</button>
+
+                <button class="btn btn-danger px-4" (click)="submitCancelReason()"
+                    [disabled]="!selectedExpense?.cancelReason?.trim()" data-bs-dismiss="modal">
+                    Submit
+                </button>
             </div>
 
         </div>

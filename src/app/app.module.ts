@@ -34,6 +34,8 @@ import { EmployeeComponent } from './inventory/master/employee/employee.componen
 import { AuthInterceptorService } from './core/services/auth-interceptor.service';
 import { PaymentMethodComponent } from './inventory/master/payment-method/payment-method.component';
 import { TransectionCategoryComponent } from './inventory/master/transection-category/transection-category.component';
+import { UserComponent } from './inventory/master/user/user/user.component';
+import { ProfileComponent } from './inventory/master/user/profile/profile.component';
 
 @NgModule({
   declarations: [
@@ -66,6 +68,8 @@ import { TransectionCategoryComponent } from './inventory/master/transection-cat
     EmployeeComponent,
     PaymentMethodComponent,
     TransectionCategoryComponent,
+    UserComponent,
+    ProfileComponent,
 
   ],
   imports: [

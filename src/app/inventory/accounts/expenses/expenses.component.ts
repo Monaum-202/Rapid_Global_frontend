@@ -2,16 +2,18 @@ import { Component, OnInit } from '@angular/core';
 import { finalize, takeUntil } from 'rxjs';
 import { TableColumn } from 'src/app/core/components/base-crud.component';
 import { simpleCrudComponent } from 'src/app/core/components/simpleCrud.component';
+import { AuthService } from 'src/app/core/services/auth.service';
 import { Employee, EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { Expense, ExpenseReqDto, ExpenseService } from 'src/app/core/services/expense/expense.service';
 import { PageHeaderService } from 'src/app/core/services/page-header/page-header.service';
 import { PaymentMethod, PaymentMethodService } from 'src/app/core/services/paymentMethod/payment-method.service';
 import { TransectionCategory, TransectionCategoryService } from 'src/app/core/services/transectionCategory/transection-category.service';
 
-
 enum ModalType {
   VIEW = 'expenseModal',
-  FORM = 'expenseFormModal'
+  FORM = 'expenseFormModal',
+  DELETE = 'confirmDeleteModal',
+  CANCEL = 'cancelReasonModal'
 }
 
 @Component({
@@ -24,24 +26,26 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
   entityNameLower = 'expense';
   paymentMethod: PaymentMethod[] = [];
   expenseCategory: TransectionCategory[] = [];
-  employee:Employee[] = [];
+  employee: Employee[] = [];
   isEditMode = false;
+  roleId = 0;
+  userId = 0 ;
 
   columns: TableColumn<Expense>[] = [
     { key: 'expenseId', label: 'EXP ID', visible: true },
     { key: 'categoryName', label: 'Expense Type', visible: true },
     { key: 'date', label: 'Date', visible: true },
     { key: 'amount', label: 'Amount', visible: true },
-    { key: 'paymentMethodName', label: 'Payment Method', visible: false},
+    { key: 'paymentMethodName', label: 'Payment Method', visible: false },
     { key: 'paidTo', label: 'Paid To', visible: true },
     { key: 'approvedBy', label: 'Approved By', visible: true },
     { key: 'status', label: 'Status', visible: true }
   ];
 
-  // Expose items with proper naming for template
   get expenses(): Expense[] {
     return this.items;
   }
+
   get selectedExpense(): Expense | null {
     return this.selectedItem;
   }
@@ -59,7 +63,8 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
     public pageHeaderService: PageHeaderService,
     public paymentMethodService: PaymentMethodService,
     public transectionCategoryService: TransectionCategoryService,
-    public employeeService: EmployeeService
+    public employeeService: EmployeeService,
+    public authService: AuthService
   ) {
     super();
   }
@@ -70,15 +75,17 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
     this.loadPaymentMethods();
     this.loadTransectionCategory();
     this.loadEmployees();
+    const id = this.authService.getRoleId();
+    this.roleId = id ?? 0;
+    const id2 = this.authService.getUserId();
+    this.userId = id2 ?? 0;
   }
-
-  // ==================== Component-Specific Methods ====================
 
   createNew(): Expense {
     const today = new Date().toISOString().split('T')[0];
     return {
       id: 0,
-      expenseId:'',
+      expenseId: '',
       categoryId: 0,
       categoryName: '',
       paymentMethodId: 0,
@@ -87,13 +94,14 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
       employeeName: '',
       amount: 0,
       paidTo: '',
-      date: '',
+      date: today,
       description: '',
       approvedBy: '',
       approvalDate: '',
-      status: '',
+      cancelReason: '',
+      status: 'PENDING',
+      createdBy:0
     };
-
   }
 
   isValid(expense: Expense | null): boolean {
@@ -112,42 +120,34 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
       expenseDate: expense.date,
       amount: expense.amount,
       paymentMethodId: expense.paymentMethodId,
-      employeeId: expense.employeeId,
+      employeeId: expense.employeeId || undefined,
       paidTo: expense.paidTo,
       status: expense.status,
       approvedBy: expense.approvedBy,
       approvalDate: expense.approvalDate,
       description: expense.description,
-      // attachment: expense.attachment
+
     };
   }
 
-  // ==================== Template-Friendly Method Names ====================
-
   openAddModal(): void {
-  this.selectedExpense = this.createNew();
-  this.isEditMode = false;
-}
+    this.selectedExpense = this.createNew();
+    this.isEditMode = false;
+  }
 
   viewExpense(expense: Expense): void {
     this.viewItem(expense);
   }
 
   editExpense(expense: Expense): void {
-  this.selectedExpense = {
-    ...expense,
-    categoryId: Number(expense.categoryId),
-    paymentMethodId: Number(expense.paymentMethodId),
-    employeeId: expense.employeeId ? Number(expense.employeeId) : 0
-  };
-  this.isEditMode = true;
-
-  // Debug logging
-  console.log('Editing expense:', this.selectedExpense);
-  console.log('Available categories:', this.expenseCategory);
-  console.log('Available payment methods:', this.paymentMethod);
-  console.log('Available employees:', this.employee);
-}
+    this.selectedExpense = {
+      ...expense,
+      categoryId: Number(expense.categoryId),
+      paymentMethodId: Number(expense.paymentMethodId),
+      employeeId: expense.employeeId ? Number(expense.employeeId) : 0
+    };
+    this.isEditMode = true;
+  }
 
   addExpense(): void {
     if (!this.isValid(this.selectedExpense)) {
@@ -172,7 +172,7 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
         error: (error: any) => this.handleError('Failed to add expense', error)
       });
   }
-// Combined save method
+
   saveExpenseForm(): void {
     if (this.isEditMode) {
       this.saveExpense();
@@ -180,6 +180,7 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
       this.addExpense();
     }
   }
+
   saveExpense(): void {
     if (!this.isValid(this.selectedExpense) || !this.selectedExpense?.id) {
       this.errorMessage = 'Invalid expense data';
@@ -204,43 +205,75 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
       });
   }
 
-  // deleteExpense(expense: Expense): void {
-  //   const displayName = `${expense.categoryName} - $${expense.amount}`;
-  //   this.deleteItem(expense, displayName);
-  // }
-
-  openDeleteModal(expense: Expense) {
+  openDeleteModal(expense: Expense): void {
     this.selectedExpense = expense;
-
     const modal = new (window as any).bootstrap.Modal(
-      document.getElementById('confirmDeleteModal')
+      document.getElementById(ModalType.DELETE)
     );
     modal.show();
   }
 
-  confirmDelete() {
+  confirmDelete(): void {
     if (this.selectedExpense) {
       this.deleteItem(this.selectedExpense, this.selectedExpense.expenseId);
     }
   }
 
+  /**
+   * Approve expense using dedicated backend endpoint
+   */
   approveExpense(expense: Expense): void {
-    if (expense.status === 'Approved') {
+    if (expense.status === 'APPROVED') {
       this.errorMessage = 'Expense is already approved';
+      setTimeout(() => this.clearError(), 3000);
       return;
     }
 
-    // Create a copy of the expense with approved status
-    const approvedExpense: Expense = {
-      ...expense,
-      status: 'Approved',
-      approvalDate: new Date().toISOString().split('T')[0]
-    };
+    if (confirm(`Are you sure you want to approve expense ${expense.expenseId}?`)) {
+      this.isLoading = true;
+      this.service.approveExpense(expense.id)
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => this.isLoading = false)
+        )
+        .subscribe({
+          next: (response: any) => {
+            if (response.success) {
+              this.loadItems();
+              console.log('Expense approved successfully');
+            } else {
+              this.errorMessage = response.message || 'Failed to approve expense';
+              setTimeout(() => this.clearError(), 3000);
+            }
+          },
+          error: (error: any) => this.handleError('Failed to approve expense', error)
+        });
+    }
+  }
 
-    const dto = this.mapToDto(approvedExpense);
+  /**
+   * Open cancel reason modal
+   */
+  openCencelModal(expense: Expense): void {
+    this.selectedExpense = { ...expense, cancelReason: '' };
+    const modal = new (window as any).bootstrap.Modal(
+      document.getElementById(ModalType.CANCEL)
+    );
+    modal.show();
+  }
+
+  /**
+   * Submit cancel reason
+   */
+  submitCancelReason(): void {
+    if (!this.selectedExpense || !this.selectedExpense.cancelReason?.trim()) {
+      this.errorMessage = 'Please provide a cancellation reason';
+      setTimeout(() => this.clearError(), 3000);
+      return;
+    }
 
     this.isLoading = true;
-    this.service.update(expense.id, dto)
+    this.service.cancelExpense(this.selectedExpense.id, this.selectedExpense.cancelReason.trim())
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => this.isLoading = false)
@@ -249,11 +282,18 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
         next: (response: any) => {
           if (response.success) {
             this.loadItems();
-            // Show success message (you can use a toast service here)
-            console.log('Expense approved successfully');
+            console.log('Expense cancelled successfully');
+            // Close the modal
+            this.closeModal(ModalType.CANCEL);
+          } else {
+            this.errorMessage = response.message || 'Failed to cancel expense';
+            setTimeout(() => this.clearError(), 3000);
           }
         },
-        error: (error: any) => this.handleError('Failed to approve expense', error)
+        error: (error: any) => {
+          this.handleError('Failed to cancel expense', error);
+          // Keep modal open on error so user can retry
+        }
       });
   }
 
@@ -262,44 +302,44 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
   }
 
   loadPaymentMethods(): void {
-  this.paymentMethodService.getAllActive(true, 0, 100).subscribe({
-    next: (res) => {
-      this.paymentMethod = res.data.data.map(method => ({
-        ...method,
-        id: Number(method.id) // Ensure ID is a number
-      }));
-    },
-    error: (err) => {
-      console.error('Failed to load payment methods', err);
-    }
-  });
-}
+    this.paymentMethodService.getAllActive(true, 0, 100).subscribe({
+      next: (res) => {
+        this.paymentMethod = res.data.data.map(method => ({
+          ...method,
+          id: Number(method.id)
+        }));
+      },
+      error: (err) => {
+        console.error('Failed to load payment methods', err);
+      }
+    });
+  }
 
-loadEmployees(): void {
-  this.employeeService.getAllActive(true, 0, 100).subscribe({
-    next: (res) => {
-      this.employee = res.data.data.map(emp => ({
-        ...emp,
-        id: Number(emp.id) // Ensure ID is a number
-      }));
-    },
-    error: (err) => {
-      console.error('Failed to load employees', err);
-    }
-  });
-}
+  loadEmployees(): void {
+    this.employeeService.getAllActive(true, 0, 100).subscribe({
+      next: (res) => {
+        this.employee = res.data.data.map(emp => ({
+          ...emp,
+          id: Number(emp.id)
+        }));
+      },
+      error: (err) => {
+        console.error('Failed to load employees', err);
+      }
+    });
+  }
 
-loadTransectionCategory(): void {
-  this.transectionCategoryService.getAllActive(true, "EXPENSE", 0, 100).subscribe({
-    next: (res) => {
-      this.expenseCategory = res.data.data.map(cat => ({
-        ...cat,
-        id: Number(cat.id) // Ensure ID is a number
-      }));
-    },
-    error: (err) => {
-      console.error('Failed to load expense categories', err);
-    }
-  });
-}
+  loadTransectionCategory(): void {
+    this.transectionCategoryService.getAllActive(true, "EXPENSE", 0, 100).subscribe({
+      next: (res) => {
+        this.expenseCategory = res.data.data.map(cat => ({
+          ...cat,
+          id: Number(cat.id)
+        }));
+      },
+      error: (err) => {
+        console.error('Failed to load expense categories', err);
+      }
+    });
+  }
 }

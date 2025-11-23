@@ -42,18 +42,18 @@ export class AuthService {
 
   // Login method
   login(login: string, password: string): Observable<BaseApiResponse<AuthResponse>> {
-  return this.http.post<BaseApiResponse<AuthResponse>>(`${this.API_URL}/authenticate`, { login, password })
-    .pipe(
-      tap(response => {
-        // Accept both number and string statuses
-        if ((response.status === 200 || response.status === 'success') && response.data) {
-          localStorage.setItem('access_token', response.data.access_token);
-          localStorage.setItem('refresh_token', response.data.refresh_token);
-          this.currentUserSubject.next(true);
-        }
-      })
-    );
-}
+    return this.http.post<BaseApiResponse<AuthResponse>>(`${this.API_URL}/authenticate`, { login, password })
+      .pipe(
+        tap(response => {
+          // Accept both number and string statuses
+          if ((response.status === 200 || response.status === 'success') && response.data) {
+            localStorage.setItem('access_token', response.data.access_token);
+            localStorage.setItem('refresh_token', response.data.refresh_token);
+            this.currentUserSubject.next(true);
+          }
+        })
+      );
+  }
 
 
   // Logout method
@@ -80,7 +80,7 @@ export class AuthService {
     if (!token) {
       return false;
     }
-    
+
     // Check if token is expired
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
@@ -104,4 +104,29 @@ export class AuthService {
         })
       );
   }
+
+  private decodeToken(token: string): any {
+    try {
+      return JSON.parse(atob(token.split('.')[1]));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  getRoleId(): number | null {
+    const token = this.getAccessToken();
+    if (!token) return null;
+
+    const payload = this.decodeToken(token);
+    return payload?.roleId || null;
+  }
+
+  getUserId(): number | null {
+    const token = this.getAccessToken();
+    if (!token) return null;
+
+    const payload = this.decodeToken(token);
+    return payload?.userId || null;
+  }
+
 }

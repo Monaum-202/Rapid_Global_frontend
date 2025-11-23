@@ -28,6 +28,8 @@ import { authGuard } from './core/guards/auth.guard';
 import { EmployeeComponent } from './inventory/master/employee/employee.component';
 import { PaymentMethodComponent } from './inventory/master/payment-method/payment-method.component';
 import { TransectionCategoryComponent } from './inventory/master/transection-category/transection-category.component';
+import { UserComponent } from './inventory/master/user/user/user.component';
+import { ProfileComponent } from './inventory/master/user/profile/profile.component';
 
 const routes: Routes = [
   {
@@ -46,11 +48,13 @@ const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, // Add this
       { path: 'dashboard', component: DashboardComponent },
+      { path: 'profile', component: ProfileComponent},
 
       // Master / Configuration
       { path: 'employee', component: EmployeeComponent },
       { path: 'payment-method', component: PaymentMethodComponent },
       { path: 'transection-catregory', component: TransectionCategoryComponent},
+      { path: 'user', component: UserComponent},
 
       // Sales
       { path: 'sales-list', component: SalesListComponent },
