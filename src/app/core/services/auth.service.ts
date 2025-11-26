@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { environment } from 'src/environments/environment';
 
 export interface LoginRequest {
   login: string;
@@ -26,7 +27,8 @@ export interface BaseApiResponse<T> {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = 'http://localhost:9091/api/auth';
+  private readonly API_URL = `${environment.apiUrl}/api/auth`;
+  // protected readonly BASE_URL = `${environment.apiUrl}/api`;
   private currentUserSubject: BehaviorSubject<boolean>;
   public isAuthenticated: Observable<boolean>;
 

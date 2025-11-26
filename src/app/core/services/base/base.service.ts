@@ -3,6 +3,8 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, retry } from 'rxjs/operators';
 import { BaseApiResponse } from '../../models/api-response.model';
+import { environment } from 'src/environments/environment';
+
 
 export interface RequestConfig {
   skipAuth?: boolean;
@@ -14,7 +16,9 @@ export interface RequestConfig {
   providedIn: 'root'
 })
 export class BaseService {
-  protected readonly BASE_URL = 'http://localhost:9091/api';
+  // protected readonly BASE_URL = 'http://localhost:9091/api';
+  protected readonly BASE_URL = `${environment.apiUrl}/api`;
+
   private readonly DEFAULT_RETRY_COUNT = 1;
 
   constructor(protected http: HttpClient) {}
