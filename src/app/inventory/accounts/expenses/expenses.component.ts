@@ -38,7 +38,7 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
     { key: 'amount', label: 'Amount', visible: true },
     { key: 'paymentMethodName', label: 'Payment Method', visible: false },
     { key: 'paidTo', label: 'Paid To', visible: true },
-    { key: 'approvedBy', label: 'Approved By', visible: true },
+    { key: 'approvedByName', label: 'Approved By', visible: true },
     { key: 'status', label: 'Status', visible: true }
   ];
 
@@ -96,11 +96,12 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
       paidTo: '',
       date: today,
       description: '',
-      approvedBy: '',
+      approvedByName: '',
       approvalDate: '',
       cancelReason: '',
       status: 'PENDING',
-      createdBy:0
+      createdBy:0,
+      createdByName:''
     };
   }
 
@@ -123,7 +124,6 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
       employeeId: expense.employeeId || undefined,
       paidTo: expense.paidTo,
       status: expense.status,
-      approvedBy: expense.approvedBy,
       approvalDate: expense.approvalDate,
       description: expense.description,
 

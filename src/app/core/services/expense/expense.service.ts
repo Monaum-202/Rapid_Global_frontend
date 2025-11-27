@@ -17,11 +17,12 @@ export interface Expense {
   paidTo: string;
   date: string;
   description: string;
-  approvedBy?: string;
+  approvedByName?: string;
   approvalDate?: string;
   cancelReason?: string;
   status: string;
   createdBy: number;
+  createdByName: string;
 }
 
 export interface ExpenseReqDto {
@@ -32,7 +33,6 @@ export interface ExpenseReqDto {
   employeeId?: number;
   paidTo?: string;
   status?: string;
-  approvedBy?: string;
   approvalDate?: string;
   description?: string;
   attachment?: string;
