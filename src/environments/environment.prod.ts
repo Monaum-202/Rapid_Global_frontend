@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://noninterpolating-workless-zoey.ngrok-free.dev'
+  apiUrl: 'http://103.93.32.159:9090'
 };
