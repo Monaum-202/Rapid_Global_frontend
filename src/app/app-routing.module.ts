@@ -30,6 +30,7 @@ import { PaymentMethodComponent } from './inventory/master/payment-method/paymen
 import { TransectionCategoryComponent } from './inventory/master/transection-category/transection-category.component';
 import { UserComponent } from './inventory/master/user/user/user.component';
 import { ProfileComponent } from './inventory/master/user/profile/profile.component';
+import { IncomeComponent } from './inventory/accounts/income/income.component';
 
 const routes: Routes = [
   {
@@ -82,6 +83,7 @@ const routes: Routes = [
 
       // Accounts
       { path: 'expenses', component: ExpensesComponent },
+      { path: 'incomes', component: IncomeComponent},
 
       { path: 'all-orders', component: AllOrdersComponent },
       { path: 'side-bar', component: SideNavComponent },

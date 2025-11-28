@@ -1,0 +1,456 @@
+<div class="loading-overlay-scoped" *ngIf="isLoading">
+    <div class="bouncing-dots-loader">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+</div>
+
+<div class="container my-1 position-relative">
+
+    <!-- Toast container (positioned at top-right) -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1200">
+        <div *ngIf="errorMessage" class="toast align-items-center text-bg-danger border-0 show" role="alert"
+            aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    {{ errorMessage }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="clearError()"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row align-items-center justify-content-between gy-2 m-3">
+
+        <!-- Left Section: Show Entries + Columns -->
+        <div class="col-md-4 col-sm-12 d-flex align-items-center gap-3">
+            <!-- Show Entries -->
+            <div class="d-flex align-items-center">
+                <select class="form-select form-select-sm w-auto rounded-pill shadow-sm" [value]="paginator.pageSize"
+                    (change)="onPageSizeChange($event)">
+                    <option *ngFor="let size of PAGE_SIZE_OPTIONS" [value]="size">{{ size }}</option>
+                </select>
+            </div>
+
+            <!-- Column Selector -->
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm rounded-pill shadow-sm dropdown-toggle" type="button"
+                    (click)="toggleColumnDropdown()">
+                    <i class="bi bi-columns-gap me-1"></i> Columns
+                </button>
+                <div class="dropdown-menu p-3 shadow" [class.show]="showColumnDropdown" style="min-width: 200px;">
+                    <div class="form-check" *ngFor="let column of columns">
+                        <input class="form-check-input" type="checkbox" [id]="'column-' + column.key"
+                            [(ngModel)]="column.visible" />
+                        <label class="form-check-label" [for]="'column-' + column.key">
+                            {{ column.label }}
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle Section: Search -->
+        <div class="col-md-4 col-sm-12 d-flex justify-content-center">
+            <div class="w-100" style="max-width: 25rem;">
+                <div class="input-group input-group-sm shadow-sm rounded-pill bg-light border border-dark">
+                    <span class="input-group-text bg-transparent border-0 text-dark">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control border-0 bg-transparent"
+                        placeholder="Search... (Press Enter)" (input)="onSearchInput($event)"
+                        (keypress)="onSearchKeyPress($event)" [value]="currentSearchValue" />
+                    <button *ngIf="currentSearchValue" class="btn btn-sm bg-transparent border-0 text-muted"
+                        type="button" (click)="clearSearch()" title="Clear search">
+                        <i class="bi bi-x-circle"></i>
+                    </button>
+                    <button class="btn btn-sm bg-transparent border-0 text-dark" type="button"
+                        (click)="onSearchButtonClick()" title="Search">
+                        <i class="bi bi-arrow-right-circle"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Section: Add Button -->
+        <div class="col-md-4 col-sm-12 d-flex justify-content-md-end justify-content-center">
+            <button type="button" class="btn rounded-pill shadow-sm px-4" data-bs-toggle="modal"
+                data-bs-target="#incomeFormModal" (click)="openAddModal()" [disabled]="isLoading"
+                style="background-color: #000000; color: #ffffff;">
+                <i class="bi bi-plus-lg me-1"></i> Add Income
+            </button>
+        </div>
+    </div>
+
+    <!-- Income Table -->
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle text-nowrap">
+            <thead>
+                <tr>
+                    <th *ngIf="isColumnVisible('incomeId')">Income ID</th>
+                    <th *ngIf="isColumnVisible('categoryName')">INCOME TYPE</th>
+                    <th *ngIf="isColumnVisible('date')">DATE</th>
+                    <th *ngIf="isColumnVisible('amount')">AMOUNT</th>
+                    <th *ngIf="isColumnVisible('paidFrom')">PAID FROM</th>
+                    <th *ngIf="isColumnVisible('paymentMethodName')">PAYMENT METHOD</th>
+                    <th *ngIf="isColumnVisible('status')">STATUS</th>
+                    <th class="text-center">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let income of filteredIncomes">
+                    <td *ngIf="isColumnVisible('incomeId')">#{{ income.incomeId }}</td>
+                    <td *ngIf="isColumnVisible('categoryName')">{{ income.categoryName }}</td>
+                    <td *ngIf="isColumnVisible('date')">{{ income.date | date:'dd/MM/yyyy' }}</td>
+                    <td *ngIf="isColumnVisible('amount')">{{ income.amount | number:'1.2-2' }}</td>
+                    <td *ngIf="isColumnVisible('paidFrom')">{{ income.paidFrom }}</td>
+                    <td *ngIf="isColumnVisible('paymentMethodName')">{{ income.paymentMethodName }}</td>
+                    <td *ngIf="isColumnVisible('status')">
+                        <span class="badge" [class.bg-warning]="income.status === 'PENDING'"
+                            [class.bg-success]="income.status === 'APPROVED'"
+                            [class.bg-danger]="income.status === 'CANCELED'">
+                            {{ income.status }}
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center align-items-center gap-1">
+                            <!-- View button -->
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#incomeModal" (click)="viewIncome(income)" title="View Details">
+                                <i class="fa fa-eye"></i>
+                            </button>
+
+                            <!-- Edit button -->
+                            <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#incomeFormModal" (click)="editIncome(income)"
+                                [hidden]="income.status === 'APPROVED' || income.status === 'CANCELED'" title="Edit">
+                                <i class="fa fa-pen"></i>
+                            </button>
+
+                            <!-- Delete button -->
+                            <button type="button" class="btn btn-outline-danger btn-sm"
+                                (click)="openDeleteModal(income)"
+                                *ngIf="income.status !== 'APPROVED' && income.status !== 'CANCELED' && income.createdBy === userId"
+                                title="Delete">
+                                <i class="fa fa-trash"></i>
+                            </button>
+
+                            <!-- Approve button -->
+                            <button type="button" class="btn btn-outline-info btn-sm" (click)="approveIncome(income)"
+                                *ngIf="income.status !== 'APPROVED' && income.status !== 'CANCELED' && (roleId === 1 || roleId === 2)"
+                                title="Approve">
+                                <i class="fa fa-check"></i>
+                            </button>
+
+                            <!-- Cancel button -->
+                            <button type="button" class="btn btn-outline-warning btn-sm"
+                                (click)="openCancelModal(income)"
+                                *ngIf="income.status !== 'CANCELED' && (roleId === 1 || roleId === 2)" title="Cancel">
+                                <i class="fa fa-times-circle"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- No data message -->
+                <tr *ngIf="filteredIncomes.length === 0 && !isLoading">
+                    <td [attr.colspan]="visibleColumnsCount" class="text-center text-muted py-4">
+                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                        {{ searchTerm ? 'No incomes found matching your search' : 'No incomes found' }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Info and Controls -->
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <p class="text-muted mb-0">
+            Showing {{ paginator.from }} to {{ paginator.to }} of {{ paginator.totalElements }} entries
+        </p>
+
+        <div class="btn-group">
+            <!-- Previous -->
+            <button class="btn btn-outline-dark btn-sm" (click)="previousPage()"
+                [disabled]="!canGoPrevious || isLoading">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+
+            <!-- Page Numbers -->
+            <button *ngFor="let page of getPageNumbers()" class="btn btn-sm"
+                [class.btn-success]="page === paginator.currentPage"
+                [class.btn-outline-dark]="page !== paginator.currentPage" (click)="goToPage(page)"
+                [disabled]="isLoading">
+                {{ page + 1 }}
+            </button>
+
+            <!-- Next -->
+            <button class="btn btn-outline-dark btn-sm" (click)="nextPage()" [disabled]="!canGoNext || isLoading">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- View Income Modal -->
+<div class="modal fade" id="incomeModal" tabindex="-1" aria-labelledby="incomeViewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content shadow-lg border-0 custom-modal">
+            <div class="modal-header modal-header-bg">
+                <h5 class="modal-title" id="incomeViewModalLabel">Income Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body" *ngIf="selectedIncome">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="label-text">Income ID</label>
+                        <div class="value-text">{{ selectedIncome.incomeId }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="label-text">Income Category</label>
+                        <div class="value-text">{{ selectedIncome.categoryName }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="label-text">Date</label>
+                        <div>{{ selectedIncome.date | date:'dd/MM/yyyy' }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="label-text">Amount</label>
+                        <div class="value-strong">{{ selectedIncome.amount | number:'1.2-2' }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="label-text">Payment Method</label>
+                        <div>{{ selectedIncome.paymentMethodName || 'N/A' }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="label-text">Paid From</label>
+                        <div>{{ selectedIncome.paidFrom }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="label-text">Paid From Company</label>
+                        <div>{{ selectedIncome.paidFromCompany || 'N/A' }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="label-text">Status</label><br>
+                        <span class="badge status-badge" [class.bg-warning]="selectedIncome.status === 'PENDING'"
+                            [class.bg-success]="selectedIncome.status === 'APPROVED'"
+                            [class.bg-danger]="selectedIncome.status === 'CANCELED'">
+                            {{ selectedIncome.status }}
+                        </span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="label-text">Approved By</label>
+                        <div>{{ selectedIncome.approvedByName || '-' }}</div>
+                    </div>
+                    <div class="col-md-4" *ngIf="selectedIncome.approvalDate">
+                        <label class="label-text">Approval Date</label>
+                        <div>{{ selectedIncome.approvalDate }}</div>
+                    </div>
+                    <div class="col-md-4" *ngIf="selectedIncome.status === 'CANCELED'">
+                        <label class="label-text">Cancel Reason</label>
+                        <div class="text-wrap">{{ selectedIncome.cancelReason }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="label-text">Description</label>
+                        <div class="text-wrap">{{ selectedIncome.description || 'N/A' }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="label-text">Created By</label>
+                        <div class="text-wrap">{{ selectedIncome.createdByName }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer modal-header-bg">
+                <button type="button" class="btn btn-secondary close-btn" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Income Form Modal -->
+<div class="modal fade" id="incomeFormModal" tabindex="-1" aria-labelledby="incomeFormLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="incomeFormLabel">
+                    {{ isEditMode ? 'Edit Income' : 'Add New Income' }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" *ngIf="selectedIncome">
+                <form id="incomeForm">
+                    <div class="row g-3">
+                        <!-- Income Category -->
+                        <div class="col-md-4">
+                            <label for="addIncomeCategory" class="form-label">
+                                Income Category <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" [class.is-invalid]="validationErrors['incomeCategory']"
+                                id="addIncomeCategory" [(ngModel)]="selectedIncome.categoryId"
+                                name="addIncomeCategory">
+                                <option [ngValue]="0" disabled>Select Category</option>
+                                <option *ngFor="let category of incomeCategory" [ngValue]="category.id">
+                                    {{ category.name }}
+                                </option>
+                            </select>
+                            <div class="invalid-feedback" *ngIf="validationErrors['incomeCategory']"
+                                [style.display]="'block'">
+                                {{ validationErrors['incomeCategory'][0] }}
+                            </div>
+                        </div>
+
+                        <!-- Date -->
+                        <div class="col-md-4">
+                            <label for="addDate" class="form-label">
+                                Date <span class="text-danger">*</span>
+                            </label>
+                            <input type="date" class="form-control" [class.is-invalid]="validationErrors['incomeDate']"
+                                id="addDate" [(ngModel)]="selectedIncome.date" name="addDate" />
+                            <div class="invalid-feedback" *ngIf="validationErrors['incomeDate']"
+                                [style.display]="'block'">
+                                {{ validationErrors['incomeDate'][0] }}
+                            </div>
+                        </div>
+
+                        <!-- Amount -->
+                        <div class="col-md-4">
+                            <label for="addAmount" class="form-label">
+                                Amount <span class="text-danger">*</span>
+                            </label>
+                            <input type="number" step="0.01" class="form-control"
+                                [class.is-invalid]="validationErrors['amount']" id="addAmount"
+                                [(ngModel)]="selectedIncome.amount" name="addAmount" />
+                            <div class="invalid-feedback" *ngIf="validationErrors['amount']" [style.display]="'block'">
+                                {{ validationErrors['amount'][0] }}
+                            </div>
+                        </div>
+
+                        <!-- Payment Method -->
+                        <div class="col-md-4">
+                            <label for="addPaymentMethod" class="form-label">
+                                Payment Method <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" [class.is-invalid]="validationErrors['paymentMethodId']"
+                                id="addPaymentMethod" [(ngModel)]="selectedIncome.paymentMethodId"
+                                name="addPaymentMethod">
+                                <option [ngValue]="0" disabled>Select Payment Method</option>
+                                <option *ngFor="let method of paymentMethod" [ngValue]="method.id">
+                                    {{ method.name }}
+                                </option>
+                            </select>
+                            <div class="invalid-feedback" *ngIf="validationErrors['paymentMethodId']"
+                                [style.display]="'block'">
+                                {{ validationErrors['paymentMethodId'][0] }}
+                            </div>
+                        </div>
+
+                        <!-- Paid From -->
+                        <div class="col-md-4">
+                            <label for="addPaidFrom" class="form-label">
+                                Paid From <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" [class.is-invalid]="validationErrors['paidFrom']"
+                                id="addPaidFrom" [(ngModel)]="selectedIncome.paidFrom" name="addPaidFrom" />
+                            <div class="invalid-feedback" *ngIf="validationErrors['paidFrom']"
+                                [style.display]="'block'">
+                                {{ validationErrors['paidFrom'][0] }}
+                            </div>
+                        </div>
+
+                        <!-- Validation message for paidFrom -->
+                        <div class="col-12 text-danger mt-1" *ngIf="submitted && !paidFromValid">
+                            Please fill Paid From field.
+                        </div>
+
+                        <!-- Paid From Company -->
+                        <div class="col-md-4">
+                            <label for="addPaidFromCompany" class="form-label">Paid From Company</label>
+                            <input type="text" class="form-control"
+                                [class.is-invalid]="validationErrors['paidFromCompany']" id="addPaidFromCompany"
+                                [(ngModel)]="selectedIncome.paidFromCompany" name="addPaidFromCompany" />
+                            <div class="invalid-feedback" *ngIf="validationErrors['paidFromCompany']"
+                                [style.display]="'block'">
+                                {{ validationErrors['paidFromCompany'][0] }}
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-12">
+                            <label for="addDescription" class="form-label">Description</label>
+                            <textarea class="form-control" [class.is-invalid]="validationErrors['description']"
+                                id="addDescription" [(ngModel)]="selectedIncome.description" name="addDescription"
+                                rows="3"></textarea>
+                            <div class="invalid-feedback" *ngIf="validationErrors['description']"
+                                [style.display]="'block'">
+                                {{ validationErrors['description'][0] }}
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" (click)="saveIncomeForm()" [disabled]="isLoading">
+                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                    {{ isEditMode ? 'Update Income' : 'Add Income' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-body text-center p-4">
+                <h4 class="fw-bold">Delete Item?</h4>
+                <p class="text-muted mb-4">
+                    You are really want to delete <strong>{{ selectedIncome?.incomeId }}</strong>.
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <button class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-danger px-4" (click)="confirmDelete()" data-bs-dismiss="modal">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Reason Modal -->
+<div class="modal fade" id="cancelReasonModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Cancel Income</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body px-4" *ngIf="selectedIncome">
+                <p class="text-muted">
+                    Provide a reason for cancelling <strong>{{ selectedIncome.incomeId }}</strong>.
+                </p>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Cancel Reason</label>
+                    <textarea class="form-control rounded-3" rows="3" placeholder="Write reason here..."
+                        [(ngModel)]="selectedIncome.cancelReason" name="cancelReason"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer border-0 d-flex justify-content-end gap-2 px-4 pb-4">
+                <button class="btn btn-light px-4" data-bs-dismiss="modal">Close</button>
+                <button class="btn btn-danger px-4" (click)="submitCancelReason()"
+                    [disabled]="!selectedIncome?.cancelReason?.trim()" data-bs-dismiss="modal">
+                    Submit
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
