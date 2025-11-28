@@ -28,8 +28,10 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
   expenseCategory: TransectionCategory[] = [];
   employee: Employee[] = [];
   isEditMode = false;
+  validationErrors: { [key: string]: string[] } = {};
   roleId = 0;
-  userId = 0 ;
+  userId = 0;
+  submitted = false;
 
   columns: TableColumn<Expense>[] = [
     { key: 'expenseId', label: 'EXP ID', visible: true },
@@ -90,49 +92,82 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
       categoryName: '',
       paymentMethodId: 0,
       paymentMethodName: '',
+      transactionId: '',
       employeeId: 0,
       employeeName: '',
       amount: 0,
       paidTo: '',
+      paidToCompany: '',
       date: today,
       description: '',
       approvedByName: '',
       approvalDate: '',
       cancelReason: '',
       status: 'PENDING',
-      createdBy:0,
-      createdByName:''
+      createdBy: 0,
+      createdByName: ''
     };
-  }
-
-  isValid(expense: Expense | null): boolean {
-    if (!expense) return false;
-    return !!(
-      expense.categoryId &&
-      expense.date &&
-      expense.amount > 0 &&
-      expense.paymentMethodId
-    );
   }
 
   mapToDto(expense: Expense): ExpenseReqDto {
-    return {
-      expenseCategory: expense.categoryId,
-      expenseDate: expense.date,
-      amount: expense.amount,
-      paymentMethodId: expense.paymentMethodId,
-      employeeId: expense.employeeId || undefined,
-      paidTo: expense.paidTo,
-      status: expense.status,
-      approvalDate: expense.approvalDate,
-      description: expense.description,
+    const dto: any = {};
 
-    };
+    // Only add fields that have valid values
+    if (expense.categoryId && expense.categoryId !== 0) {
+      dto.expenseCategory = expense.categoryId;
+    }
+
+    if (expense.date) {
+      dto.expenseDate = expense.date;
+    }
+
+    if (expense.amount && expense.amount !== 0) {
+      dto.amount = expense.amount;
+    }
+
+    if (expense.paymentMethodId && expense.paymentMethodId !== 0) {
+      dto.paymentMethodId = expense.paymentMethodId;
+    }
+
+    if (expense.transactionId && expense.transactionId.trim() !== '') {
+      dto.addTransectionId = expense.transactionId.trim();
+    }
+
+    if (expense.employeeId && expense.employeeId !== 0) {
+      dto.employeeId = expense.employeeId;
+    }
+
+    if (expense.paidTo && expense.paidTo.trim() !== '') {
+      dto.paidTo = expense.paidTo.trim();
+    }
+
+    if (expense.paidToCompany && expense.paidToCompany.trim() !== '') {
+      dto.paidToCompany = expense.paidToCompany.trim();
+    }
+
+    if (expense.description && expense.description.trim() !== '') {
+      dto.description = expense.description.trim();
+    }
+
+    // Only add status and approvalDate if in edit mode
+    if (this.isEditMode) {
+      if (expense.status) {
+        dto.status = expense.status;
+      }
+      if (expense.approvalDate) {
+        dto.approvalDate = expense.approvalDate;
+      }
+    }
+
+    return dto;
   }
 
   openAddModal(): void {
     this.selectedExpense = this.createNew();
     this.isEditMode = false;
+    this.validationErrors = {};
+    this.errorMessage = ''; // Clear any previous error messages
+    console.log('Opening add modal, validation errors cleared:', this.validationErrors);
   }
 
   viewExpense(expense: Expense): void {
@@ -147,17 +182,18 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
       employeeId: expense.employeeId ? Number(expense.employeeId) : 0
     };
     this.isEditMode = true;
+    this.validationErrors = {};
+    this.errorMessage = ''; // Clear any previous error messages
+    console.log('Opening edit modal, validation errors cleared:', this.validationErrors);
   }
 
   addExpense(): void {
-    if (!this.isValid(this.selectedExpense)) {
-      this.errorMessage = 'Please fill in all required fields (Category, Date, Amount, Payment Method)';
-      return;
-    }
-
     const dto = this.mapToDto(this.selectedExpense!);
 
     this.isLoading = true;
+    this.validationErrors = {};
+    this.errorMessage = '';
+
     this.service.create(dto)
       .pipe(
         takeUntil(this.destroy$),
@@ -165,15 +201,42 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
       )
       .subscribe({
         next: (response: any) => {
-          if (response.success) {
+          console.log('Success response:', response);
+
+          // Check if response indicates validation failure
+          if (response.success === false && response.errors) {
+            this.validationErrors = response.errors;
+            this.errorMessage = response.message || 'Validation Failed';
+            console.log('Validation errors set:', this.validationErrors);
+            console.log('Error message set:', this.errorMessage);
+          } else if (response.success) {
             this.handleCrudSuccess('Expense added successfully', ModalType.FORM);
+            this.validationErrors = {};
           }
         },
-        error: (error: any) => this.handleError('Failed to add expense', error)
+        error: (error: any) => {
+          console.log('Error response:', error);
+          console.log('Error body:', error.error);
+
+          // Handle backend validation errors from error response
+          if (error.status === 400 && error.error && error.error.errors) {
+            this.validationErrors = error.error.errors;
+            this.errorMessage = error.error.message || 'Validation Failed';
+            console.log('Validation errors set:', this.validationErrors);
+            console.log('Error message set:', this.errorMessage);
+          } else {
+            this.handleError('Failed to add expense', error);
+          }
+        }
       });
   }
 
   saveExpenseForm(): void {
+    this.submitted = true;
+
+    if (!this.employeeOrPaidToValid) {
+    return;
+  }
     if (this.isEditMode) {
       this.saveExpense();
     } else {
@@ -182,14 +245,19 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
   }
 
   saveExpense(): void {
-    if (!this.isValid(this.selectedExpense) || !this.selectedExpense?.id) {
+    if (!this.selectedExpense?.id) {
       this.errorMessage = 'Invalid expense data';
+      setTimeout(() => this.clearError(), 3000);
       return;
     }
 
     const dto = this.mapToDto(this.selectedExpense);
+    console.log('Updating DTO:', dto);
 
     this.isLoading = true;
+    this.validationErrors = {};
+    this.errorMessage = '';
+
     this.service.update(this.selectedExpense.id, dto)
       .pipe(
         takeUntil(this.destroy$),
@@ -197,11 +265,33 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
       )
       .subscribe({
         next: (response: any) => {
-          if (response.success) {
+          console.log('Success response:', response);
+
+          // Check if response indicates validation failure
+          if (response.success === false && response.errors) {
+            this.validationErrors = response.errors;
+            this.errorMessage = response.message || 'Validation Failed';
+            console.log('Validation errors set:', this.validationErrors);
+            console.log('Error message set:', this.errorMessage);
+          } else if (response.success) {
             this.handleCrudSuccess('Expense updated successfully', ModalType.FORM);
+            this.validationErrors = {};
           }
         },
-        error: (error: any) => this.handleError('Failed to update expense', error)
+        error: (error: any) => {
+          console.log('Error response:', error);
+          console.log('Error body:', error.error);
+
+          // Handle backend validation errors from error response
+          if (error.status === 400 && error.error && error.error.errors) {
+            this.validationErrors = error.error.errors;
+            this.errorMessage = error.error.message || 'Validation Failed';
+            console.log('Validation errors set:', this.validationErrors);
+            console.log('Error message set:', this.errorMessage);
+          } else {
+            this.handleError('Failed to update expense', error);
+          }
+        }
       });
   }
 
@@ -219,9 +309,6 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
     }
   }
 
-  /**
-   * Approve expense using dedicated backend endpoint
-   */
   approveExpense(expense: Expense): void {
     if (expense.status === 'APPROVED') {
       this.errorMessage = 'Expense is already approved';
@@ -251,9 +338,6 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
     }
   }
 
-  /**
-   * Open cancel reason modal
-   */
   openCencelModal(expense: Expense): void {
     this.selectedExpense = { ...expense, cancelReason: '' };
     const modal = new (window as any).bootstrap.Modal(
@@ -262,9 +346,6 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
     modal.show();
   }
 
-  /**
-   * Submit cancel reason
-   */
   submitCancelReason(): void {
     if (!this.selectedExpense || !this.selectedExpense.cancelReason?.trim()) {
       this.errorMessage = 'Please provide a cancellation reason';
@@ -283,7 +364,6 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
           if (response.success) {
             this.loadItems();
             console.log('Expense cancelled successfully');
-            // Close the modal
             this.closeModal(ModalType.CANCEL);
           } else {
             this.errorMessage = response.message || 'Failed to cancel expense';
@@ -292,7 +372,6 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
         },
         error: (error: any) => {
           this.handleError('Failed to cancel expense', error);
-          // Keep modal open on error so user can retry
         }
       });
   }
@@ -342,4 +421,20 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
       }
     });
   }
+
+  // Helper method for template to check if validation errors exist
+  hasValidationErrors(): boolean {
+    return Object.keys(this.validationErrors).length > 0;
+  }
+
+  // Helper method to get validation error keys
+  getValidationErrorKeys(): string[] {
+    return Object.keys(this.validationErrors);
+  }
+
+  get employeeOrPaidToValid(): boolean {
+  if (!this.selectedExpense) return false;
+  return !!this.selectedExpense.employeeId || !!this.selectedExpense.paidTo?.trim();
+}
+
 }

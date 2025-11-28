@@ -210,7 +210,6 @@ export abstract class simpleCrudComponent<T extends BaseEntity, TDto> implements
   }
 
   abstract createNew(): T;
-  abstract isValid(item: T | null): boolean;
   abstract mapToDto(item: T): TDto;
 
   protected handleCrudSuccess(message: string, modalId?: string): void {
