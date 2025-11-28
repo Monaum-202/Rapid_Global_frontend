@@ -234,7 +234,10 @@
                         <label class="label-text">Payment Method</label>
                         <div>{{ selectedExpense.paymentMethodName || 'N/A' }}</div>
                     </div>
-
+                    <div class="col-md-4">
+                        <label class="label-text">Transaction Id</label>
+                        <div>{{ selectedExpense.transactionId || 'N/A' }}</div>
+                    </div>
                     <div class="col-md-4">
                         <label class="label-text">Paid To</label>
                         <div>{{ selectedExpense.paidTo || selectedExpense.employeeName }}</div>
@@ -301,10 +304,8 @@
                             <label for="addTransectionCategory" class="form-label">
                                 Transaction Category <span class="text-danger">*</span>
                             </label>
-                            <select class="form-select"
-                                [class.is-invalid]="validationErrors['expenseCategory']"
-                                id="addTransectionCategory"
-                                [(ngModel)]="selectedExpense.categoryId"
+                            <select class="form-select" [class.is-invalid]="validationErrors['expenseCategory']"
+                                id="addTransectionCategory" [(ngModel)]="selectedExpense.categoryId"
                                 name="addTransectionCategory">
                                 <option [ngValue]="0" disabled>Select Category</option>
                                 <option *ngFor="let category of expenseCategory" [ngValue]="category.id">
@@ -312,7 +313,7 @@
                                 </option>
                             </select>
                             <div class="invalid-feedback" *ngIf="validationErrors['expenseCategory']"
-                                 [style.display]="'block'">
+                                [style.display]="'block'">
                                 {{ validationErrors['expenseCategory'][0] }}
                             </div>
                         </div>
@@ -322,14 +323,10 @@
                             <label for="addDate" class="form-label">
                                 Date <span class="text-danger">*</span>
                             </label>
-                            <input type="date"
-                                class="form-control"
-                                [class.is-invalid]="validationErrors['expenseDate']"
-                                id="addDate"
-                                [(ngModel)]="selectedExpense.date"
-                                name="addDate" />
+                            <input type="date" class="form-control" [class.is-invalid]="validationErrors['expenseDate']"
+                                id="addDate" [(ngModel)]="selectedExpense.date" name="addDate" />
                             <div class="invalid-feedback" *ngIf="validationErrors['expenseDate']"
-                                 [style.display]="'block'">
+                                [style.display]="'block'">
                                 {{ validationErrors['expenseDate'][0] }}
                             </div>
                         </div>
@@ -339,15 +336,10 @@
                             <label for="addAmount" class="form-label">
                                 Amount <span class="text-danger">*</span>
                             </label>
-                            <input type="number"
-                                step="0.01"
-                                class="form-control"
-                                [class.is-invalid]="validationErrors['amount']"
-                                id="addAmount"
-                                [(ngModel)]="selectedExpense.amount"
-                                name="addAmount" />
-                            <div class="invalid-feedback" *ngIf="validationErrors['amount']"
-                                 [style.display]="'block'">
+                            <input type="number" step="0.01" class="form-control"
+                                [class.is-invalid]="validationErrors['amount']" id="addAmount"
+                                [(ngModel)]="selectedExpense.amount" name="addAmount" />
+                            <div class="invalid-feedback" *ngIf="validationErrors['amount']" [style.display]="'block'">
                                 {{ validationErrors['amount'][0] }}
                             </div>
                         </div>
@@ -357,10 +349,8 @@
                             <label for="addPaymentMethod" class="form-label">
                                 Payment Method <span class="text-danger">*</span>
                             </label>
-                            <select class="form-select"
-                                [class.is-invalid]="validationErrors['paymentMethodId']"
-                                id="addPaymentMethod"
-                                [(ngModel)]="selectedExpense.paymentMethodId"
+                            <select class="form-select" [class.is-invalid]="validationErrors['paymentMethodId']"
+                                id="addPaymentMethod" [(ngModel)]="selectedExpense.paymentMethodId"
                                 name="addPaymentMethod">
                                 <option [ngValue]="0" disabled>Select Payment Method</option>
                                 <option *ngFor="let method of paymentMethod" [ngValue]="method.id">
@@ -368,7 +358,7 @@
                                 </option>
                             </select>
                             <div class="invalid-feedback" *ngIf="validationErrors['paymentMethodId']"
-                                 [style.display]="'block'">
+                                [style.display]="'block'">
                                 {{ validationErrors['paymentMethodId'][0] }}
                             </div>
                         </div>
@@ -376,60 +366,49 @@
                         <!-- Transaction ID -->
                         <div class="col-md-4">
                             <label for="addTransactionId" class="form-label">Transaction Id</label>
-                            <input type="text"
-                                class="form-control"
-                                [class.is-invalid]="validationErrors['transactionId']"
-                                id="addTransactionId"
-                                [(ngModel)]="selectedExpense.transactionId"
-                                name="addTransactionId" />
+                            <input type="text" class="form-control"
+                                [class.is-invalid]="validationErrors['transactionId']" id="addTransactionId"
+                                [(ngModel)]="selectedExpense.transactionId" name="addTransactionId" />
                             <div class="invalid-feedback" *ngIf="validationErrors['transactionId']"
-                                 [style.display]="'block'">
+                                [style.display]="'block'">
                                 {{ validationErrors['transactionId'][0] }}
                             </div>
                         </div>
 
-<!-- Employee -->
-<div class="col-md-4">
-  <label for="addEmployee" class="form-label">Employee</label>
-  <select class="form-select"
-      id="addEmployee"
-      [(ngModel)]="selectedExpense.employeeId"
-      name="addEmployee">
-      <option [ngValue]="0" disabled>Select Employee</option>
-      <option *ngFor="let emp of employee" [ngValue]="emp.id">
-          {{ emp.name }}
-      </option>
-  </select>
-</div>
+                        <!-- Employee -->
+                        <div class="col-md-4">
+                            <label for="addEmployee" class="form-label">Employee</label>
+                            <select class="form-select" id="addEmployee" [(ngModel)]="selectedExpense.employeeId"
+                                name="addEmployee">
+                                <option [ngValue]="0" disabled>Select Employee</option>
+                                <option *ngFor="let emp of employee" [ngValue]="emp.id">
+                                    {{ emp.name }}
+                                </option>
+                            </select>
+                        </div>
 
-<!-- Paid To -->
-<div class="col-md-4">
-  <label for="addPaidTo" class="form-label">Paid To</label>
-  <input type="text"
-      class="form-control"
-      id="addPaidTo"
-      [(ngModel)]="selectedExpense.paidTo"
-      name="addPaidTo" />
-</div>
+                        <!-- Paid To -->
+                        <div class="col-md-4">
+                            <label for="addPaidTo" class="form-label">Paid To</label>
+                            <input type="text" class="form-control" id="addPaidTo" [(ngModel)]="selectedExpense.paidTo"
+                                name="addPaidTo" />
+                        </div>
 
-<!-- Validation message for both -->
-<div class="col-12 text-danger mt-1" *ngIf="submitted && !employeeOrPaidToValid">
-  Please fill either Employee or Paid To.
-</div>
+                        <!-- Validation message for both -->
+                        <div class="col-12 text-danger mt-1" *ngIf="submitted && !employeeOrPaidToValid">
+                            Please fill either Employee or Paid To.
+                        </div>
 
 
 
                         <!-- Paid To Company -->
                         <div class="col-md-4">
                             <label for="addPaidToCompany" class="form-label">Paid To Company</label>
-                            <input type="text"
-                                class="form-control"
-                                [class.is-invalid]="validationErrors['paidToCompany']"
-                                id="addPaidToCompany"
-                                [(ngModel)]="selectedExpense.paidToCompany"
-                                name="addPaidToCompany" />
+                            <input type="text" class="form-control"
+                                [class.is-invalid]="validationErrors['paidToCompany']" id="addPaidToCompany"
+                                [(ngModel)]="selectedExpense.paidToCompany" name="addPaidToCompany" />
                             <div class="invalid-feedback" *ngIf="validationErrors['paidToCompany']"
-                                 [style.display]="'block'">
+                                [style.display]="'block'">
                                 {{ validationErrors['paidToCompany'][0] }}
                             </div>
                         </div>
@@ -443,14 +422,11 @@
                         <!-- Description -->
                         <div class="col-12">
                             <label for="addDescription" class="form-label">Description</label>
-                            <textarea class="form-control"
-                                [class.is-invalid]="validationErrors['description']"
-                                id="addDescription"
-                                [(ngModel)]="selectedExpense.description"
-                                name="addDescription"
+                            <textarea class="form-control" [class.is-invalid]="validationErrors['description']"
+                                id="addDescription" [(ngModel)]="selectedExpense.description" name="addDescription"
                                 rows="3"></textarea>
                             <div class="invalid-feedback" *ngIf="validationErrors['description']"
-                                 [style.display]="'block'">
+                                [style.display]="'block'">
                                 {{ validationErrors['description'][0] }}
                             </div>
                         </div>
@@ -459,8 +435,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-success" (click)="saveExpenseForm()"
-                    [disabled]="isLoading">
+                <button type="button" class="btn btn-success" (click)="saveExpenseForm()" [disabled]="isLoading">
                     <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
                     {{ isEditMode ? 'Update Expense' : 'Add Expense' }}
                 </button>
