@@ -34,7 +34,7 @@ export class IncomeComponent extends simpleCrudComponent<Income, IncomeReqDto> i
   columns: TableColumn<Income>[] = [
     { key: 'incomeId', label: 'Income ID', visible: true },
     { key: 'categoryName', label: 'Income Type', visible: true },
-    { key: 'date', label: 'Date', visible: true },
+    { key: 'incomeDate', label: 'Date', visible: true },
     { key: 'amount', label: 'Amount', visible: true },
     { key: 'paymentMethodName', label: 'Payment Method', visible: false },
     { key: 'paidFrom', label: 'Paid From', visible: true },
@@ -91,7 +91,7 @@ export class IncomeComponent extends simpleCrudComponent<Income, IncomeReqDto> i
       amount: 0,
       paidFrom: '',
       paidFromCompany: '',
-      date: today,
+      incomeDate: today,
       description: '',
       approvedByName: '',
       approvalDate: '',
@@ -110,8 +110,8 @@ export class IncomeComponent extends simpleCrudComponent<Income, IncomeReqDto> i
       dto.incomeCategory = income.categoryId;
     }
 
-    if (income.date) {
-      dto.incomeDate = income.date;
+    if (income.incomeDate) {
+      dto.incomeDate = income.incomeDate;
     }
 
     if (income.amount && income.amount !== 0) {

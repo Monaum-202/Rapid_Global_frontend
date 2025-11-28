@@ -14,7 +14,7 @@ export interface Income {
   amount: number;
   paidFrom: string;
   paidFromCompany: string;
-  date: string;
+  incomeDate: string;
   description: string;
   approvedByName?: string;
   approvalDate?: string;

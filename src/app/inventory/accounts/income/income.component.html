@@ -94,7 +94,7 @@
                 <tr>
                     <th *ngIf="isColumnVisible('incomeId')">Income ID</th>
                     <th *ngIf="isColumnVisible('categoryName')">INCOME TYPE</th>
-                    <th *ngIf="isColumnVisible('date')">DATE</th>
+                    <th *ngIf="isColumnVisible('incomeDate')">DATE</th>
                     <th *ngIf="isColumnVisible('amount')">AMOUNT</th>
                     <th *ngIf="isColumnVisible('paidFrom')">PAID FROM</th>
                     <th *ngIf="isColumnVisible('paymentMethodName')">PAYMENT METHOD</th>
@@ -106,7 +106,7 @@
                 <tr *ngFor="let income of filteredIncomes">
                     <td *ngIf="isColumnVisible('incomeId')">#{{ income.incomeId }}</td>
                     <td *ngIf="isColumnVisible('categoryName')">{{ income.categoryName }}</td>
-                    <td *ngIf="isColumnVisible('date')">{{ income.date | date:'dd/MM/yyyy' }}</td>
+                    <td *ngIf="isColumnVisible('incomeDate')">{{ income.incomeDate | date:'dd/MM/yyyy' }}</td>
                     <td *ngIf="isColumnVisible('amount')">{{ income.amount | number:'1.2-2' }}</td>
                     <td *ngIf="isColumnVisible('paidFrom')">{{ income.paidFrom }}</td>
                     <td *ngIf="isColumnVisible('paymentMethodName')">{{ income.paymentMethodName }}</td>
@@ -140,12 +140,12 @@
                                 <i class="fa fa-trash"></i>
                             </button>
 
-                            <!-- Approve button -->
+                            <!-- Approve button
                             <button type="button" class="btn btn-outline-info btn-sm" (click)="approveIncome(income)"
-                                *ngIf="income.status !== 'APPROVED' && income.status !== 'CANCELED' && (roleId === 1 || roleId === 2)"
+                                *ngIf="income.status === 'CANCELED' && (roleId === 1 || roleId === 2)"
                                 title="Approve">
                                 <i class="fa fa-check"></i>
-                            </button>
+                            </button> -->
 
                             <!-- Cancel button -->
                             <button type="button" class="btn btn-outline-warning btn-sm"
@@ -218,7 +218,7 @@
                     </div>
                     <div class="col-md-4">
                         <label class="label-text">Date</label>
-                        <div>{{ selectedIncome.date | date:'dd/MM/yyyy' }}</div>
+                        <div>{{ selectedIncome.incomeDate | date:'dd/MM/yyyy' }}</div>
                     </div>
                     <div class="col-md-4">
                         <label class="label-text">Amount</label>
@@ -312,7 +312,7 @@
                                 Date <span class="text-danger">*</span>
                             </label>
                             <input type="date" class="form-control" [class.is-invalid]="validationErrors['incomeDate']"
-                                id="addDate" [(ngModel)]="selectedIncome.date" name="addDate" />
+                                id="addDate" [(ngModel)]="selectedIncome.incomeDate" name="addDate" />
                             <div class="invalid-feedback" *ngIf="validationErrors['incomeDate']"
                                 [style.display]="'block'">
                                 {{ validationErrors['incomeDate'][0] }}
