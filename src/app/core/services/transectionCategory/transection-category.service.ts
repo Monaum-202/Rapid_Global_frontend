@@ -47,15 +47,12 @@ export class TransectionCategoryService extends BaseService {
     return this.get<PaginatedData<TransectionCategory>>(this.ENDPOINT, params);
   }
 
-  /**
-   * Get transectionCategorys filtered by active with pagination
-   */
   getAllActive(
   status: boolean,
-  type?: 'INCOME' | 'EXPENSE', // optional filter
+  type?: 'INCOME' | 'EXPENSE',
   page = 0,
   size = 10
-): Observable<BaseApiResponse<PaginatedData<TransectionCategory>>> {
+): Observable<BaseApiResponse<TransectionCategory[]>> {
 
   let params = this.buildPaginationParams(page, size)
     .set('status', status.toString());
@@ -64,8 +61,10 @@ export class TransectionCategoryService extends BaseService {
     params = params.set('type', type);
   }
 
-  return this.get<PaginatedData<TransectionCategory>>(`${this.ENDPOINT}/all-active`, params);
+  // ⬇⬇ FIX HERE — return TransectionCategory[] instead of PaginatedData
+  return this.get<TransectionCategory[]>(`${this.ENDPOINT}/all-active`, params);
 }
+
 
   /**
    * Get a single transectionCategory by ID

@@ -411,7 +411,7 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
   loadTransectionCategory(): void {
     this.transectionCategoryService.getAllActive(true, "EXPENSE", 0, 100).subscribe({
       next: (res) => {
-        this.expenseCategory = res.data.data.map(cat => ({
+        this.expenseCategory = res.data.map(cat => ({
           ...cat,
           id: Number(cat.id)
         }));

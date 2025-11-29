@@ -378,7 +378,7 @@ export class IncomeComponent extends simpleCrudComponent<Income, IncomeReqDto> i
   loadTransectionCategory(): void {
     this.transectionCategoryService.getAllActive(true, "INCOME", 0, 100).subscribe({
       next: (res) => {
-        this.incomeCategory = res.data.data.map(cat => ({
+        this.incomeCategory = res.data.map(cat => ({
           ...cat,
           id: Number(cat.id)
         }));
