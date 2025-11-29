@@ -27,16 +27,6 @@
     <div class="row align-items-center justify-content-between gy-2 my-3">
         <!-- Left Section: Show Entries + Columns -->
         <div class="col-md-4 col-sm-12 d-flex align-items-center gap-3">
-            <!-- Show Entries -->
-            <div class="d-flex align-items-center">
-                <select class="form-select form-select-sm w-auto rounded-pill shadow-sm" [value]="paginator.pageSize"
-                    (change)="onPageSizeChange($event)">
-                    <option *ngFor="let size of PAGE_SIZE_OPTIONS" [value]="size">
-                        {{ size }}
-                    </option>
-                </select>
-            </div>
-
             <!-- Column Selector -->
             <div class="dropdown">
                 <button class="btn btn-outline-secondary btn-sm rounded-pill shadow-sm dropdown-toggle" type="button"
@@ -142,7 +132,7 @@
 
                             <!-- Delete button -->
                             <button type="button" class="btn btn-outline-danger btn-sm"
-                                (click)="deleteEmployee(employee)" title="Delete">
+                                (click)="openDeleteModal(employee)" title="Delete">
                                 <i class="fa fa-trash"></i>
                             </button>
 
@@ -168,35 +158,6 @@
                 </tr>
             </tbody>
         </table>
-    </div>
-
-    <!-- Pagination Info and Controls -->
-    <div class="d-flex justify-content-between align-items-center mt-3">
-        <p class="text-muted mb-0">
-            Showing {{ paginator.from }} to {{ paginator.to }} of
-            {{ paginator.totalElements }} entries
-        </p>
-
-        <div class="btn-group">
-            <!-- Previous -->
-            <button class="btn btn-outline-dark btn-sm" (click)="previousPage()"
-                [disabled]="!canGoPrevious || isLoading">
-                <i class="bi bi-chevron-left"></i>
-            </button>
-
-            <!-- Page Numbers -->
-            <button *ngFor="let page of getPageNumbers()" class="btn btn-sm"
-                [class.btn-success]="page === paginator.currentPage"
-                [class.btn-outline-dark]="page !== paginator.currentPage" (click)="goToPage(page)"
-                [disabled]="isLoading">
-                {{ page + 1 }}
-            </button>
-
-            <!-- Next -->
-            <button class="btn btn-outline-dark btn-sm" (click)="nextPage()" [disabled]="!canGoNext || isLoading">
-                <i class="bi bi-chevron-right"></i>
-            </button>
-        </div>
     </div>
 </div>
 
@@ -413,6 +374,30 @@
                     {{ isEditMode ? 'Save Changes' : 'Add Employee' }}
                 </button>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+
+            <div class="modal-body text-center p-4">
+
+                <h4 class="fw-bold">Delete Item?</h4>
+                <p class="text-muted mb-4">
+                    You are really want to delete <strong>{{ selectedEmployee?.name }}</strong>.
+                </p>
+
+                <div class="d-flex justify-content-center gap-3">
+                    <button class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-danger px-4" (click)="confirmDelete()" data-bs-dismiss="modal">
+                        Delete
+                    </button>
+                </div>
+
+            </div>
+
         </div>
     </div>
 </div>

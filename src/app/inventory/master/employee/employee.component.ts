@@ -15,6 +15,7 @@ enum ModalType {
   styleUrls: ['./employee.component.css']
 })
 export class EmployeeComponent extends BaseCrudComponent<Employee, EmployeeReqDto> implements OnInit {
+
   // Required abstract properties
   entityName = 'Employee';
   entityNameLower = 'employee';
@@ -176,5 +177,21 @@ export class EmployeeComponent extends BaseCrudComponent<Employee, EmployeeReqDt
         error: (error) => this.handleError('Failed to update employee', error)
       });
   }
+
+  openDeleteModal(employee: Employee) {
+      this.selectedEmployee = employee;
+
+      const modal = new (window as any).bootstrap.Modal(
+        document.getElementById('confirmDeleteModal')
+      );
+      modal.show();
+    }
+
+    confirmDelete() {
+    if (this.selectedEmployee) {
+      this.deleteItem(this.selectedEmployee, this.selectedEmployee.name);
+    }
+  }
+
 
 }

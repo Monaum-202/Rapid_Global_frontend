@@ -72,63 +72,64 @@
         <!-- Right Section: Add Button -->
         <div class="col-md-4 col-sm-12 d-flex justify-content-md-end justify-content-center">
             <button type="button" class="btn rounded-pill shadow-sm px-4" data-bs-toggle="modal"
-                data-bs-target="#paymentMethodAddModal" (click)="openAddModal()" [disabled]="isLoading"
-                style="background-color: #000000; color: #ffffff;">
-                <i class="bi bi-plus-lg me-1"></i> Add PaymentMethod
-            </button>
+            data-bs-target="#unitFormModal" (click)="openAddModal()" [disabled]="isLoading"
+            style="background-color: #000000; color: #ffffff;">
+            <i class="bi bi-plus-lg me-1"></i> Add Unit
+        </button>
         </div>
     </div>
 
-
-    <!-- PaymentMethod Table -->
+    <!-- Unit Table -->
     <div class="table-responsive">
         <table class="table table-hover mb-0 align-middle text-nowrap">
             <thead>
                 <tr>
                     <th *ngIf="isColumnVisible('id')">SL</th>
                     <th *ngIf="isColumnVisible('name')">NAME</th>
-                    <th *ngIf="isColumnVisible('description')">DESCRIPTION</th>
+                    <th *ngIf="isColumnVisible('fullName')">FULL NAME</th>
+                    <th *ngIf="isColumnVisible('sqn')">SEQUENCE NUMBER</th>
                     <th *ngIf="isColumnVisible('active')">STATUS</th>
                     <th class="text-center">ACTIONS</th>
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let paymentMethod of filteredPaymentMethods , let i = index">
+                <tr *ngFor="let unit of filteredUnits, let i = index">
                     <td *ngIf="isColumnVisible('id')">{{ i + 1 }}</td>
-                    <td *ngIf="isColumnVisible('name')">{{ paymentMethod.name }}</td>
-                    <td *ngIf="isColumnVisible('description')">{{ paymentMethod.description || 'N/A' }}</td>
+                    <td *ngIf="isColumnVisible('name')">{{ unit.name }}</td>
+                    <td *ngIf="isColumnVisible('fullName')">{{ unit.fullName }}</td>
+                    <td *ngIf="isColumnVisible('sqn')">{{ unit.sqn }}</td>
                     <td *ngIf="isColumnVisible('active')">
-                        <span class="badge" [class.bg-success]="paymentMethod.active"
-                            [class.bg-danger]="!paymentMethod.active">
-                            {{ paymentMethod.active ? 'Active' : 'Inactive' }}
+                        <span class="badge" [class.bg-success]="unit.active"
+                            [class.bg-danger]="!unit.active">
+                            {{ unit.active ? 'Active' : 'Inactive' }}
                         </span>
                     </td>
                     <td class="text-center">
                         <div class="d-flex justify-content-center align-items-center gap-1">
                             <!-- View button -->
                             <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
-                                data-bs-target="#paymentMethodModal" (click)="viewPaymentMethod(paymentMethod)"
-                                title="View Details">
+                                data-bs-target="#unitModal"
+                                (click)="viewUnit(unit)" title="View Details">
                                 <i class="fa fa-eye"></i>
                             </button>
 
                             <!-- Edit button -->
                             <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
-                                data-bs-target="#paymentMethodEditModal" (click)="editPaymentMethod(paymentMethod)"
-                                title="Edit">
+                                data-bs-target="#unitFormModal"
+                                (click)="editUnit(unit)" title="Edit">
                                 <i class="fa fa-pen"></i>
                             </button>
 
                             <!-- Delete button -->
                             <button type="button" class="btn btn-outline-danger btn-sm"
-                                (click)="openDeleteModal(paymentMethod)" title="Delete">
+                                (click)="openDeleteModal(unit)" title="Delete">
                                 <i class="fa fa-trash"></i>
                             </button>
 
                             <!-- Toggle switch -->
                             <label class="switch m-0" title="Toggle Active">
-                                <input type="checkbox" [checked]="paymentMethod.active"
-                                    (change)="toggleActive(paymentMethod)">
+                                <input type="checkbox" [checked]="unit.active"
+                                    (change)="toggleActive(unit)">
                                 <span class="slider round"></span>
                             </label>
                         </div>
@@ -136,10 +137,10 @@
                 </tr>
 
                 <!-- No data message -->
-                <tr *ngIf="filteredPaymentMethods.length === 0 && !isLoading">
+                <tr *ngIf="filteredUnits.length === 0 && !isLoading">
                     <td [attr.colspan]="visibleColumnsCount" class="text-center text-muted py-4">
                         <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                        {{ searchTerm ? 'No paymentMethods found matching your search' : 'No paymentMethods found' }}
+                        {{ searchTerm ? 'No units found matching your search' : 'No units found' }}
                     </td>
                 </tr>
             </tbody>
@@ -147,38 +148,33 @@
     </div>
 </div>
 
-<!-- View PaymentMethod Modal -->
-<div class="modal fade" id="paymentMethodModal" tabindex="-1" aria-labelledby="paymentMethodModalLabel"
-    aria-hidden="true">
+<!-- View Unit Modal -->
+<div class="modal fade" id="unitModal" tabindex="-1" aria-labelledby="unitModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="paymentMethodModalLabel">PaymentMethod Details</h5>
+                <h5 class="modal-title" id="unitModalLabel">Unit Details</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" *ngIf="selectedPaymentMethod">
+            <div class="modal-body" *ngIf="selectedUnit">
                 <div class="compact-view">
                     <div class="compact-item">
-                        <div class="compact-label">ID</div>
-                        <div class="compact-value">#{{ selectedPaymentMethod.id }}</div>
-                    </div>
-                    <div class="compact-item">
                         <div class="compact-label">Name</div>
-                        <div class="compact-value">{{ selectedPaymentMethod.name }}</div>
+                        <div class="compact-value">{{ selectedUnit.name }}</div>
                     </div>
                     <div class="compact-item">
-                        <div class="compact-label">DESCRIPTION</div>
-                        <div class="compact-value">{{ selectedPaymentMethod.description || 'N/A' }}</div>
+                        <div class="compact-label">Full Name</div>
+                        <div class="compact-value">{{ selectedUnit.fullName }}</div>
                     </div>
                     <div class="compact-item">
                         <div class="compact-label">Sequence Number</div>
-                        <div class="compact-value">{{ selectedPaymentMethod.sqn }}</div>
+                        <div class="compact-value">{{ selectedUnit.sqn }}</div>
                     </div>
                     <div class="compact-item">
-                        <div class="compact-label">Active</div>
-                        <span class="badge" [class.bg-success]="selectedPaymentMethod.active"
-                            [class.bg-danger]="!selectedPaymentMethod.active">
-                            {{ selectedPaymentMethod.active ? 'Active' : 'Inactive' }}
+                        <div class="compact-label">Status</div>
+                        <span class="badge" [class.bg-success]="selectedUnit.active"
+                            [class.bg-danger]="!selectedUnit.active">
+                            {{ selectedUnit.active ? 'Active' : 'Inactive' }}
                         </span>
                     </div>
                 </div>
@@ -190,100 +186,70 @@
     </div>
 </div>
 
-<!-- Edit PaymentMethod Modal -->
-<div class="modal fade" id="paymentMethodEditModal" tabindex="-1" aria-labelledby="paymentMethodEditLabel"
+<!-- Add/Edit Unit Modal -->
+<div class="modal fade" id="unitFormModal" tabindex="-1" aria-labelledby="unitFormLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="paymentMethodEditLabel">Edit PaymentMethod</h5>
+                <h5 class="modal-title" id="unitFormLabel">{{ modalTitle }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" *ngIf="selectedPaymentMethod">
-                <form id="paymentMethodForm">
+            <div class="modal-body" *ngIf="selectedUnit">
+                <form id="unitForm">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label for="paymentMethodId" class="form-label">PaymentMethod ID</label>
-                            <input type="text" class="form-control" id="paymentMethodId"
-                                [value]="'#' + selectedPaymentMethod.id" name="paymentMethodId" readonly />
+                            <label for="unitName" class="form-label">
+                                Name <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control"
+                                id="unitName"
+                                [(ngModel)]="selectedUnit.name"
+                                name="unitName"
+                                required />
                         </div>
+
                         <div class="col-md-6">
-                            <label for="paymentMethodName" class="form-label">Name <span
-                                    class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="paymentMethodName"
-                                [(ngModel)]="selectedPaymentMethod.name" name="paymentMethodName" required />
+                            <label for="unitFullName" class="form-label">
+                                Full Name <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control"
+                                id="unitFullName"
+                                [(ngModel)]="selectedUnit.fullName"
+                                name="unitFullName"
+                                required />
                         </div>
+
                         <div class="col-md-6">
-                            <label for="paymentMethodDescription" class="form-label">Description</label>
-                            <input type="description" class="form-control" id="paymentMethodDescription"
-                                [(ngModel)]="selectedPaymentMethod.description" name="paymentMethodDescription" />
-                        </div>
-                        <div class="col-md-6">
-                            <label for="paymentMethodSqn" class="form-label">Sequence Number <span
-                                    class="text-danger">*</span></label>
-                            <input type="number" class="form-control" id="paymentMethodSqn"
-                                [(ngModel)]="selectedPaymentMethod.sqn" name="paymentMethodSqn" required />
+                            <label for="unitSqn" class="form-label">
+                                Sequence Number <span class="text-danger">*</span>
+                            </label>
+                            <input type="number" class="form-control"
+                                id="unitSqn"
+                                [(ngModel)]="selectedUnit.sqn"
+                                name="unitSqn"
+                                required />
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" form="paymentMethodForm" class="btn btn-success" (click)="savePaymentMethod()"
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancel
+                </button>
+                <button type="submit" form="unitForm"
+                    class="btn btn-success"
+                    (click)="saveUnit()"
                     [disabled]="isLoading">
                     <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
-                    Save Changes
+                    {{ submitButtonText }}
                 </button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Add PaymentMethod Modal -->
-<div class="modal fade" id="paymentMethodAddModal" tabindex="-1" aria-labelledby="paymentMethodAddLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="paymentMethodAddLabel">Add New PaymentMethod</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" *ngIf="selectedPaymentMethod">
-                <form id="paymentMethodAddForm">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="addPaymentMethodName" class="form-label">Name <span
-                                    class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="addPaymentMethodName"
-                                [(ngModel)]="selectedPaymentMethod.name" name="addPaymentMethodName" required />
-                        </div>
-                        <div class="col-md-6">
-                            <label for="addPaymentMethodDescription" class="form-label">Description</label>
-                            <input type="description" class="form-control" id="addPaymentMethodDescription"
-                                [(ngModel)]="selectedPaymentMethod.description" name="addPaymentMethodDescription" />
-                        </div>
-                        <div class="col-md-6">
-                            <label for="addPaymentMethodSqn" class="form-label">Sequence Number <span
-                                    class="text-danger">*</span></label>
-                            <input type="number" class="form-control" id="addPaymentMethodSqn"
-                                [(ngModel)]="selectedPaymentMethod.sqn" name="addPaymentMethodSqn" required />
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" form="paymentMethodAddForm" class="btn btn-success" (click)="addPaymentMethod()"
-                    [disabled]="isLoading">
-                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
-                    Add Payment Method
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- delete modal -->
+<!-- Delete Confirmation Modal -->
 <div class="modal fade" id="confirmDeleteModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg rounded-4">
@@ -292,7 +258,7 @@
 
                 <h4 class="fw-bold">Delete Item?</h4>
                 <p class="text-muted mb-4">
-                    You are really want to delete <strong>{{ selectedPaymentMethod?.name }}</strong>.
+                    You are about to delete <strong>{{ selectedUnit?.name }}</strong>.
                 </p>
 
                 <div class="d-flex justify-content-center gap-3">

@@ -381,9 +381,9 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
   }
 
   loadPaymentMethods(): void {
-    this.paymentMethodService.getAllActive(true, 0, 100).subscribe({
+    this.paymentMethodService.getAllActive(true).subscribe({
       next: (res) => {
-        this.paymentMethod = res.data.data.map(method => ({
+        this.paymentMethod = res.data.map(method => ({
           ...method,
           id: Number(method.id)
         }));
@@ -395,9 +395,9 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
   }
 
   loadEmployees(): void {
-    this.employeeService.getAllActive(true, 0, 100).subscribe({
+    this.employeeService.getAllActive(true).subscribe({
       next: (res) => {
-        this.employee = res.data.data.map(emp => ({
+        this.employee = res.data.map(emp => ({
           ...emp,
           id: Number(emp.id)
         }));
@@ -409,7 +409,7 @@ export class ExpensesComponent extends simpleCrudComponent<Expense, ExpenseReqDt
   }
 
   loadTransectionCategory(): void {
-    this.transectionCategoryService.getAllActive(true, "EXPENSE", 0, 100).subscribe({
+    this.transectionCategoryService.getAllActive(true, "EXPENSE").subscribe({
       next: (res) => {
         this.expenseCategory = res.data.map(cat => ({
           ...cat,

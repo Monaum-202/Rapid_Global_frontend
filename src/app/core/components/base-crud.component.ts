@@ -15,7 +15,7 @@ export interface TableColumn<T> {
 }
 
 export interface CrudService<T extends BaseEntity, TDto> {
-  getAll(page: number, pageSize: number, search?: string): Observable<any>;
+  getAll(search?: string): Observable<any>;
   create(dto: TDto): Observable<any>;
   update(id: number, dto: TDto): Observable<any>;
   activeUpdate(id: number): Observable<any>;
@@ -62,8 +62,6 @@ export abstract class BaseCrudComponent<T extends BaseEntity, TDto> implements O
 
     const searchParam = this.searchTerm.trim() || undefined;
     const request$ = this.service.getAll(
-      this.paginator.currentPage,
-      this.paginator.pageSize,
       searchParam
     );
 
@@ -84,7 +82,7 @@ export abstract class BaseCrudComponent<T extends BaseEntity, TDto> implements O
       .subscribe({
         next: (response) => {
           if (response.success && response.data) {
-            this.items = response.data.data || [];
+            this.items = response.data || [];
             this.paginator.updateFromResponse(response.data);
           }
         },

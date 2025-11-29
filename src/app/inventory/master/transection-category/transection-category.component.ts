@@ -22,7 +22,7 @@ export class TransectionCategoryComponent extends BaseCrudComponent<TransectionC
   columns: TableColumn<TransectionCategory>[] = [
     { key: 'id', label: 'SL', visible: true },
     { key: 'name', label: 'Name', visible: true },
-    { key: 'description', label: 'Description', visible: true },
+    { key: 'description', label: 'Description', visible: false },
     { key: 'type', label: 'Type', visible: true},
     { key: 'active', label: 'Active', visible: true }
   ];

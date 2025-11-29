@@ -35,35 +35,26 @@ export class TransectionCategoryService extends BaseService {
   private readonly ENDPOINT = 'transection-category';
 
   /**
-   * Get all transectionCategorys with pagination and optional search
+   * Get all transectionCategories (no pagination)
    */
-  getAll(page = 0, size = 10, search?: string): Observable<BaseApiResponse<PaginatedData<TransectionCategory>>> {
-    let params = this.buildPaginationParams(page, size);
-
+  getAll(search?: string): Observable<BaseApiResponse<TransectionCategory[]>> {
+    let params = new HttpParams();
     if (search?.trim()) {
       params = params.set('search', search.trim());
     }
-
-    return this.get<PaginatedData<TransectionCategory>>(this.ENDPOINT, params);
+    return this.get<TransectionCategory[]>(this.ENDPOINT, params);
   }
 
   getAllActive(
-  status: boolean,
-  type?: 'INCOME' | 'EXPENSE',
-  page = 0,
-  size = 10
-): Observable<BaseApiResponse<TransectionCategory[]>> {
-
-  let params = this.buildPaginationParams(page, size)
-    .set('status', status.toString());
-
-  if (type) {
-    params = params.set('type', type);
+    status: boolean,
+    type?: 'INCOME' | 'EXPENSE'
+  ): Observable<BaseApiResponse<TransectionCategory[]>> {
+    let params = new HttpParams().set('status', status.toString());
+    if (type) {
+      params = params.set('type', type);
+    }
+    return this.get<TransectionCategory[]>(`${this.ENDPOINT}/all-active`, params);
   }
-
-  // ⬇⬇ FIX HERE — return TransectionCategory[] instead of PaginatedData
-  return this.get<TransectionCategory[]>(`${this.ENDPOINT}/all-active`, params);
-}
 
 
   /**

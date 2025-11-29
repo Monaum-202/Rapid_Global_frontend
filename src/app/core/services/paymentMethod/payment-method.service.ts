@@ -33,30 +33,21 @@ export class PaymentMethodService extends BaseService {
   private readonly ENDPOINT = 'payment-method';
 
   /**
-   * Get all paymentMethods with pagination and optional search
+   * Get all transectionCategories (no pagination)
    */
-  getAll(page = 0, size = 10, search?: string): Observable<BaseApiResponse<PaginatedData<PaymentMethod>>> {
-    let params = this.buildPaginationParams(page, size);
-
+  getAll(search?: string): Observable<BaseApiResponse<PaymentMethod[]>> {
+    let params = new HttpParams();
     if (search?.trim()) {
       params = params.set('search', search.trim());
     }
-
-    return this.get<PaginatedData<PaymentMethod>>(this.ENDPOINT, params);
+    return this.get<PaymentMethod[]>(this.ENDPOINT, params);
   }
 
-  /**
-   * Get paymentMethods filtered by active with pagination
-   */
   getAllActive(
-    status: boolean,
-    page = 0,
-    size = 10
-  ): Observable<BaseApiResponse<PaginatedData<PaymentMethod>>> {
-    const params = this.buildPaginationParams(page, size)
-      .set('status', status.toString());
-
-    return this.get<PaginatedData<PaymentMethod>>(`${this.ENDPOINT}/all-active`, params);
+    status: boolean
+  ): Observable<BaseApiResponse<PaymentMethod[]>> {
+    let params = new HttpParams().set('status', status.toString());
+    return this.get<PaymentMethod[]>(`${this.ENDPOINT}/all-active`, params);
   }
 
   /**

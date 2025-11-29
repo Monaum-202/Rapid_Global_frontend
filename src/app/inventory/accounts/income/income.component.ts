@@ -362,9 +362,9 @@ export class IncomeComponent extends simpleCrudComponent<Income, IncomeReqDto> i
   }
 
   loadPaymentMethods(): void {
-    this.paymentMethodService.getAllActive(true, 0, 100).subscribe({
+    this.paymentMethodService.getAllActive(true).subscribe({
       next: (res) => {
-        this.paymentMethod = res.data.data.map(method => ({
+        this.paymentMethod = res.data.map(method => ({
           ...method,
           id: Number(method.id)
         }));
@@ -376,7 +376,7 @@ export class IncomeComponent extends simpleCrudComponent<Income, IncomeReqDto> i
   }
 
   loadTransectionCategory(): void {
-    this.transectionCategoryService.getAllActive(true, "INCOME", 0, 100).subscribe({
+    this.transectionCategoryService.getAllActive(true, "INCOME").subscribe({
       next: (res) => {
         this.incomeCategory = res.data.map(cat => ({
           ...cat,

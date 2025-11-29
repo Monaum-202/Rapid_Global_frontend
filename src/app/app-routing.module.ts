@@ -31,6 +31,7 @@ import { TransectionCategoryComponent } from './inventory/master/transection-cat
 import { UserComponent } from './inventory/master/user/user/user.component';
 import { ProfileComponent } from './inventory/master/user/profile/profile.component';
 import { IncomeComponent } from './inventory/accounts/income/income.component';
+import { UnitComponent } from './inventory/master/unit/unit.component';
 
 const routes: Routes = [
   {
@@ -56,6 +57,7 @@ const routes: Routes = [
       { path: 'payment-method', component: PaymentMethodComponent },
       { path: 'transection-catregory', component: TransectionCategoryComponent},
       { path: 'user', component: UserComponent},
+      { path: 'unit', component: UnitComponent},
 
       // Sales
       { path: 'sales-list', component: SalesListComponent },

@@ -59,30 +59,21 @@ export class EmployeeService extends BaseService {
   private readonly ENDPOINT = 'employee';
 
   /**
-   * Get all employees with pagination and optional search
+   * Get all transectionCategories (no pagination)
    */
-  getAll(page = 0, size = 10, search?: string): Observable<BaseApiResponse<PaginatedData<Employee>>> {
-    let params = this.buildPaginationParams(page, size);
-
+  getAll(search?: string): Observable<BaseApiResponse<Employee[]>> {
+    let params = new HttpParams();
     if (search?.trim()) {
       params = params.set('search', search.trim());
     }
-
-    return this.get<PaginatedData<Employee>>(this.ENDPOINT, params);
+    return this.get<Employee[]>(this.ENDPOINT, params);
   }
 
-  /**
-   * Get employees filtered by active with pagination
-   */
   getAllActive(
-    active: boolean,
-    page = 0,
-    size = 10
-  ): Observable<BaseApiResponse<PaginatedData<Employee>>> {
-    const params = this.buildPaginationParams(page, size)
-      .set('active', active.toString());
-
-    return this.get<PaginatedData<Employee>>(`${this.ENDPOINT}/all-active`, params);
+    status: boolean
+  ): Observable<BaseApiResponse<Employee[]>> {
+    let params = new HttpParams().set('status', status.toString());
+    return this.get<Employee[]>(`${this.ENDPOINT}/all-active`, params);
   }
 
   /**

@@ -37,6 +37,7 @@ import { TransectionCategoryComponent } from './inventory/master/transection-cat
 import { UserComponent } from './inventory/master/user/user/user.component';
 import { ProfileComponent } from './inventory/master/user/profile/profile.component';
 import { IncomeComponent } from './inventory/accounts/income/income.component';
+import { UnitComponent } from './inventory/master/unit/unit.component';
 
 @NgModule({
   declarations: [
@@ -72,6 +73,7 @@ import { IncomeComponent } from './inventory/accounts/income/income.component';
     UserComponent,
     ProfileComponent,
     IncomeComponent,
+    UnitComponent,
   ],
   imports: [
     BrowserModule,

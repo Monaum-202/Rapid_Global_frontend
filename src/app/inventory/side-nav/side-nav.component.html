@@ -46,6 +46,11 @@
             Transection Category
           </a>
         </li>
+        <li>
+          <a routerLink="/inventory/unit" class="nav-link text-white" (click)="onLinkClick()">
+            Unit
+          </a>
+        </li>
         <li *ngIf="roleId === 1 || roleId === 2">
           <a routerLink="/inventory/user" class="nav-link text-white" (click)="onLinkClick()">
             User

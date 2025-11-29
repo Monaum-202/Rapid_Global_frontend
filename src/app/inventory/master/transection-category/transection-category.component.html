@@ -29,14 +29,6 @@
 
         <!-- Left Section: Show Entries + Columns -->
         <div class="col-md-4 col-sm-12 d-flex align-items-center gap-3">
-            <!-- Show Entries -->
-            <div class="d-flex align-items-center">
-                <select class="form-select form-select-sm w-auto rounded-pill shadow-sm" [value]="paginator.pageSize"
-                    (change)="onPageSizeChange($event)">
-                    <option *ngFor="let size of PAGE_SIZE_OPTIONS" [value]="size">{{ size }}</option>
-                </select>
-            </div>
-
             <!-- Column Selector -->
             <div class="dropdown">
                 <button class="btn btn-outline-secondary btn-sm rounded-pill shadow-sm dropdown-toggle" type="button"
@@ -156,34 +148,6 @@
                 </tr>
             </tbody>
         </table>
-    </div>
-
-    <!-- Pagination Info and Controls -->
-    <div class="d-flex justify-content-between align-items-center mt-3">
-        <p class="text-muted mb-0">
-            Showing {{ paginator.from }} to {{ paginator.to }} of {{ paginator.totalElements }} entries
-        </p>
-
-        <div class="btn-group">
-            <!-- Previous -->
-            <button class="btn btn-outline-dark btn-sm" (click)="previousPage()"
-                [disabled]="!canGoPrevious || isLoading">
-                <i class="bi bi-chevron-left"></i>
-            </button>
-
-            <!-- Page Numbers -->
-            <button *ngFor="let page of getPageNumbers()" class="btn btn-sm"
-                [class.btn-success]="page === paginator.currentPage"
-                [class.btn-outline-dark]="page !== paginator.currentPage" (click)="goToPage(page)"
-                [disabled]="isLoading">
-                {{ page + 1 }}
-            </button>
-
-            <!-- Next -->
-            <button class="btn btn-outline-dark btn-sm" (click)="nextPage()" [disabled]="!canGoNext || isLoading">
-                <i class="bi bi-chevron-right"></i>
-            </button>
-        </div>
     </div>
 </div>
 
