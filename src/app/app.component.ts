@@ -11,11 +11,11 @@ export class AppComponent {
 
   constructor(private idleService: IdleService) {}
 
-  ngOnInit() {
-  window.addEventListener('beforeunload', () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-  });
-}
+//   ngOnInit() {
+//   window.addEventListener('beforeunload', () => {
+//     localStorage.removeItem('access_token');
+//     localStorage.removeItem('refresh_token');
+//   });
+// }
 
 }
