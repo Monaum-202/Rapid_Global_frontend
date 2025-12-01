@@ -7,10 +7,8 @@ import { DashboardComponent } from './inventory/dashboard/dashboard.component';
 import { AllOrdersComponent } from './inventory/orders/all-orders/all-orders.component';
 import { SideNavComponent } from './inventory/side-nav/side-nav.component';
 import { SupplierComponent } from './inventory/supplier/supplier.component';
-import { SalesListComponent } from './inventory/sales/sales-list/sales-list.component';
 import { CustomerPaymentComponent } from './inventory/sales/customer-payment/customer-payment.component';
 import { SalesReturnComponent } from './inventory/sales/sales-return/sales-return.component';
-import { CustomersComponent } from './inventory/sales/customers/customers.component';
 import { PurchasesListComponent } from './inventory/purchases/purchases-list/purchases-list.component';
 import { SupplierPaymentComponent } from './inventory/purchases/supplier-payment/supplier-payment.component';
 import { PurchasesReturnsComponent } from './inventory/purchases/purchases-returns/purchases-returns.component';
@@ -22,7 +20,7 @@ import { PurchaseReportsComponent } from './inventory/report/purchase-reports/pu
 import { SalesReportsComponent } from './inventory/report/sales-reports/sales-reports.component';
 import { ProfitAndLossComponent } from './inventory/report/profit-and-loss/profit-and-loss.component';
 import { ExpensesComponent } from './inventory/accounts/expenses/expenses.component';
-import { EstimateComponent } from './inventory/sales/estimate/estimate.component';
+// import { EstimateComponent } from './inventory/sales/estimate/estimate.component';
 import { LoginComponent } from './auth/login/login.component';
 import { authGuard } from './core/guards/auth.guard';
 import { EmployeeComponent } from './inventory/master/employee/employee.component';
@@ -32,6 +30,7 @@ import { UserComponent } from './inventory/master/user/user/user.component';
 import { ProfileComponent } from './inventory/master/user/profile/profile.component';
 import { IncomeComponent } from './inventory/accounts/income/income.component';
 import { UnitComponent } from './inventory/master/unit/unit.component';
+import { CustomerComponent } from './inventory/sales/customer/customer.component';
 
 const routes: Routes = [
   {
@@ -60,11 +59,11 @@ const routes: Routes = [
       { path: 'unit', component: UnitComponent},
 
       // Sales
-      { path: 'sales-list', component: SalesListComponent },
-      { path: 'customer', component: CustomersComponent },
+      // { path: 'sales-list', component: SalesListComponent },
+      { path: 'customer', component: CustomerComponent },
       { path: 'customer-payment', component: CustomerPaymentComponent },
       { path: 'sales-return', component: SalesReturnComponent },
-      { path: 'estimate', component: EstimateComponent },
+      // { path: 'estimate', component: EstimateComponent },
 
       // Purchases
       { path: 'purchase-list', component: PurchasesListComponent },

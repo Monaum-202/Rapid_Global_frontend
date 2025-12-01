@@ -10,11 +10,11 @@ import { PendingOrdersComponent } from './inventory/orders/pending-orders/pendin
 import { CompleteOrdersComponent } from './inventory/orders/complete-orders/complete-orders.component';
 import { SideNavComponent } from './inventory/side-nav/side-nav.component';
 import { SupplierComponent } from './inventory/supplier/supplier.component';
-import { SalesListComponent } from './inventory/sales/sales-list/sales-list.component';
+// import { SalesListComponent } from './inventory/sales/sales-list/sales-list.component';
 import { CustomerPaymentComponent } from './inventory/sales/customer-payment/customer-payment.component';
 import { SalesReturnComponent } from './inventory/sales/sales-return/sales-return.component';
-import { CustomersComponent } from './inventory/sales/customers/customers.component';
-import { CustomerComponent } from './inventory/customer/customer.component';
+// import { CustomersComponent } from './inventory/sales/customers/customers.component';
+// import { CustomerComponent } from './inventory/customer/customer.component';
 import { PurchasesListComponent } from './inventory/purchases/purchases-list/purchases-list.component';
 import { PurchasesReturnsComponent } from './inventory/purchases/purchases-returns/purchases-returns.component';
 import { SupplierPaymentComponent } from './inventory/purchases/supplier-payment/supplier-payment.component';
@@ -26,7 +26,7 @@ import { StockDetailsComponent } from './inventory/inventoryMenu/stock-details/s
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ProfitAndLossComponent } from './inventory/report/profit-and-loss/profit-and-loss.component';
 import { ExpensesComponent } from './inventory/accounts/expenses/expenses.component';
-import { EstimateComponent } from './inventory/sales/estimate/estimate.component';
+// import { EstimateComponent } from './inventory/sales/estimate/estimate.component';
 import { SuppliersComponent } from './inventory/purchases/suppliers/suppliers.component';
 import { LoginComponent } from './auth/login/login.component';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
@@ -38,6 +38,8 @@ import { UserComponent } from './inventory/master/user/user/user.component';
 import { ProfileComponent } from './inventory/master/user/profile/profile.component';
 import { IncomeComponent } from './inventory/accounts/income/income.component';
 import { UnitComponent } from './inventory/master/unit/unit.component';
+import { CustomerComponent } from './inventory/sales/customer/customer.component';
+import { SalesListComponent } from './inventory/sales/sales-list/sales-list.component';
 
 @NgModule({
   declarations: [
@@ -48,12 +50,12 @@ import { UnitComponent } from './inventory/master/unit/unit.component';
     PendingOrdersComponent,
     CompleteOrdersComponent,
     SideNavComponent,
-    CustomerComponent,
+    // CustomerComponent,
     SupplierComponent,
-    SalesListComponent,
+    // SalesListComponent,
     CustomerPaymentComponent,
     SalesReturnComponent,
-    CustomersComponent,
+    // CustomersComponent,
     PurchasesListComponent,
     PurchasesReturnsComponent,
     SuppliersComponent,
@@ -65,7 +67,7 @@ import { UnitComponent } from './inventory/master/unit/unit.component';
     StockDetailsComponent,
     ProfitAndLossComponent,
     ExpensesComponent,
-    EstimateComponent,
+    // EstimateComponent,
     LoginComponent,
     EmployeeComponent,
     PaymentMethodComponent,
@@ -74,6 +76,8 @@ import { UnitComponent } from './inventory/master/unit/unit.component';
     ProfileComponent,
     IncomeComponent,
     UnitComponent,
+    CustomerComponent,
+    SalesListComponent,
   ],
   imports: [
     BrowserModule,

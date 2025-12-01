@@ -1,0 +1,346 @@
+<div class="loading-overlay-scoped" *ngIf="isLoading">
+    <div class="bouncing-dots-loader">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+</div>
+
+<div class="container my-1 position-relative">
+
+    <!-- Toast container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1200">
+        <div *ngIf="errorMessage" class="toast align-items-center text-bg-danger border-0 show" role="alert"
+            aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    {{ errorMessage }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="clearError()"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row align-items-center justify-content-between gy-2 m-3">
+
+        <!-- Left Section: Show Entries + Columns -->
+        <div class="col-md-4 col-sm-12 d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center">
+                <select class="form-select form-select-sm w-auto rounded-pill shadow-sm" [value]="paginator.pageSize"
+                    (change)="onPageSizeChange($event)">
+                    <option *ngFor="let size of PAGE_SIZE_OPTIONS" [value]="size">{{ size }}</option>
+                </select>
+            </div>
+
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm rounded-pill shadow-sm dropdown-toggle" type="button"
+                    (click)="toggleColumnDropdown()">
+                    <i class="bi bi-columns-gap me-1"></i> Columns
+                </button>
+                <div class="dropdown-menu p-3 shadow" [class.show]="showColumnDropdown" style="min-width: 200px;">
+                    <div class="form-check" *ngFor="let column of columns">
+                        <input class="form-check-input" type="checkbox" [id]="'column-' + column.key"
+                            [(ngModel)]="column.visible" />
+                        <label class="form-check-label" [for]="'column-' + column.key">
+                            {{ column.label }}
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle Section: Search -->
+        <div class="col-md-4 col-sm-12 d-flex justify-content-center">
+            <div class="w-100" style="max-width: 25rem;">
+                <div class="input-group input-group-sm shadow-sm rounded-pill bg-light border border-dark">
+                    <span class="input-group-text bg-transparent border-0 text-dark">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control border-0 bg-transparent"
+                        placeholder="Search... (Press Enter)" (input)="onSearchInput($event)"
+                        (keypress)="onSearchKeyPress($event)" [value]="currentSearchValue" />
+                    <button *ngIf="currentSearchValue" class="btn btn-sm bg-transparent border-0 text-muted"
+                        type="button" (click)="clearSearch()" title="Clear search">
+                        <i class="bi bi-x-circle"></i>
+                    </button>
+                    <button class="btn btn-sm bg-transparent border-0 text-dark" type="button"
+                        (click)="onSearchButtonClick()" title="Search">
+                        <i class="bi bi-arrow-right-circle"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Section: Add Button -->
+        <div class="col-md-4 col-sm-12 d-flex justify-content-md-end justify-content-center">
+            <button type="button" class="btn rounded-pill shadow-sm px-4" data-bs-toggle="modal"
+                data-bs-target="#customerFormModal" (click)="openAddModal()" [disabled]="isLoading"
+                style="background-color: #000000; color: #ffffff;">
+                <i class="bi bi-plus-lg me-1"></i> Add Customer
+            </button>
+        </div>
+    </div>
+
+    <!-- Customer Table -->
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle text-nowrap">
+            <thead>
+                <tr>
+                    <th *ngIf="isColumnVisible('id')">ID</th>
+                    <th *ngIf="isColumnVisible('name')">NAME</th>
+                    <th *ngIf="isColumnVisible('phone')">PHONE</th>
+                    <th *ngIf="isColumnVisible('altPhone')">ALT PHONE</th>
+                    <th *ngIf="isColumnVisible('email')">EMAIL</th>
+                    <th *ngIf="isColumnVisible('address')">ADDRESS</th>
+                    <th *ngIf="isColumnVisible('businessAddress')">BUSINESS ADDRESS</th>
+                    <th *ngIf="isColumnVisible('totalTransaction')">TOTAL TRANSACTION</th>
+                    <th class="text-center">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let customer of filteredCustomers">
+                    <td *ngIf="isColumnVisible('id')">#{{ customer.id }}</td>
+                    <td *ngIf="isColumnVisible('name')">{{ customer.name }}</td>
+                    <td *ngIf="isColumnVisible('phone')">{{ customer.phone }}</td>
+                    <td *ngIf="isColumnVisible('altPhone')">{{ customer.altPhone || '-' }}</td>
+                    <td *ngIf="isColumnVisible('email')">{{ customer.email }}</td>
+                    <td *ngIf="isColumnVisible('address')">{{ customer.address || '-' }}</td>
+                    <td *ngIf="isColumnVisible('businessAddress')">{{ customer.businessAddress || '-' }}</td>
+                    <td *ngIf="isColumnVisible('totalTransaction')">{{ customer.totalTransaction | number:'1.2-2' }}</td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center align-items-center gap-1">
+                            <!-- View button -->
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#customerModal" (click)="viewCustomer(customer)" title="View Details">
+                                <i class="fa fa-eye"></i>
+                            </button>
+
+                            <!-- Edit button -->
+                            <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#customerFormModal" (click)="editCustomer(customer)" title="Edit">
+                                <i class="fa fa-pen"></i>
+                            </button>
+
+                            <!-- Delete button -->
+                            <button type="button" class="btn btn-outline-danger btn-sm"
+                                (click)="openDeleteModal(customer)" title="Delete">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- No data message -->
+                <tr *ngIf="filteredCustomers.length === 0 && !isLoading">
+                    <td [attr.colspan]="visibleColumnsCount" class="text-center text-muted py-4">
+                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                        {{ searchTerm ? 'No customers found matching your search' : 'No customers found' }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <p class="text-muted mb-0">
+            Showing {{ paginator.from }} to {{ paginator.to }} of {{ paginator.totalElements }} entries
+        </p>
+
+        <div class="btn-group">
+            <button class="btn btn-outline-dark btn-sm" (click)="previousPage()"
+                [disabled]="!canGoPrevious || isLoading">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+
+            <button *ngFor="let page of getPageNumbers()" class="btn btn-sm"
+                [class.btn-success]="page === paginator.currentPage"
+                [class.btn-outline-dark]="page !== paginator.currentPage" (click)="goToPage(page)"
+                [disabled]="isLoading">
+                {{ page + 1 }}
+            </button>
+
+            <button class="btn btn-outline-dark btn-sm" (click)="nextPage()" [disabled]="!canGoNext || isLoading">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- View Customer Modal -->
+<div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="customerViewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content shadow-lg border-0 custom-modal">
+            <div class="modal-header modal-header-bg">
+                <h5 class="modal-title" id="customerViewModalLabel">Customer Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body" *ngIf="selectedCustomer">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="label-text">Customer ID</label>
+                        <div class="value-text">{{ selectedCustomer.id }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="label-text">Name</label>
+                        <div class="value-text">{{ selectedCustomer.name }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="label-text">Phone</label>
+                        <div>{{ selectedCustomer.phone }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="label-text">Alt Phone</label>
+                        <div>{{ selectedCustomer.altPhone || 'N/A' }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="label-text">Email</label>
+                        <div>{{ selectedCustomer.email }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="label-text">Total Transaction</label>
+                        <div class="value-strong">{{ selectedCustomer.totalTransaction | number:'1.2-2' }}</div>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="label-text">Address</label>
+                        <div class="text-wrap">{{ selectedCustomer.address || 'N/A' }}</div>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="label-text">Business Address</label>
+                        <div class="text-wrap">{{ selectedCustomer.businessAddress || 'N/A' }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer modal-header-bg">
+                <button type="button" class="btn btn-secondary close-btn" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Customer Modal -->
+<div class="modal fade" id="customerFormModal" tabindex="-1" aria-labelledby="customerFormLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="customerFormLabel">
+                    {{ isEditMode ? 'Edit Customer' : 'Add New Customer' }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" *ngIf="selectedCustomer">
+                <form id="customerForm">
+                    <div class="row g-3">
+                        <!-- Name -->
+                        <div class="col-md-6">
+                            <label for="customerName" class="form-label">
+                                Name <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" [class.is-invalid]="validationErrors['name']"
+                                id="customerName" [(ngModel)]="selectedCustomer.name" name="customerName"
+                                maxlength="50" />
+                            <div class="invalid-feedback" *ngIf="validationErrors['name']" [style.display]="'block'">
+                                {{ validationErrors['name'][0] }}
+                            </div>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="col-md-6">
+                            <label for="customerPhone" class="form-label">
+                                Phone <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" [class.is-invalid]="validationErrors['phone']"
+                                id="customerPhone" [(ngModel)]="selectedCustomer.phone" name="customerPhone"
+                                maxlength="20" />
+                            <div class="invalid-feedback" *ngIf="validationErrors['phone']" [style.display]="'block'">
+                                {{ validationErrors['phone'][0] }}
+                            </div>
+                        </div>
+
+                        <!-- Alt Phone -->
+                        <div class="col-md-6">
+                            <label for="customerAltPhone" class="form-label">Alternative Phone</label>
+                            <input type="number" class="form-control" [class.is-invalid]="validationErrors['altPhone']"
+                                id="customerAltPhone" [(ngModel)]="selectedCustomer.altPhone" name="customerAltPhone" />
+                            <div class="invalid-feedback" *ngIf="validationErrors['altPhone']"
+                                [style.display]="'block'">
+                                {{ validationErrors['altPhone'][0] }}
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="col-md-6">
+                            <label for="customerEmail" class="form-label">
+                                Email <span class="text-danger">*</span>
+                            </label>
+                            <input type="email" class="form-control" [class.is-invalid]="validationErrors['email']"
+                                id="customerEmail" [(ngModel)]="selectedCustomer.email" name="customerEmail"
+                                maxlength="50" />
+                            <div class="invalid-feedback" *ngIf="validationErrors['email']" [style.display]="'block'">
+                                {{ validationErrors['email'][0] }}
+                            </div>
+                        </div>
+
+                        <!-- Address -->
+                        <div class="col-12">
+                            <label for="customerAddress" class="form-label">Address</label>
+                            <textarea class="form-control" [class.is-invalid]="validationErrors['address']"
+                                id="customerAddress" [(ngModel)]="selectedCustomer.address" name="customerAddress"
+                                rows="2" maxlength="100"></textarea>
+                            <div class="invalid-feedback" *ngIf="validationErrors['address']"
+                                [style.display]="'block'">
+                                {{ validationErrors['address'][0] }}
+                            </div>
+                        </div>
+
+                        <!-- Business Address -->
+                        <div class="col-12">
+                            <label for="customerBusinessAddress" class="form-label">Business Address</label>
+                            <textarea class="form-control"
+                                [class.is-invalid]="validationErrors['businessAddress']"
+                                id="customerBusinessAddress" [(ngModel)]="selectedCustomer.businessAddress"
+                                name="customerBusinessAddress" rows="2" maxlength="100"></textarea>
+                            <div class="invalid-feedback" *ngIf="validationErrors['businessAddress']"
+                                [style.display]="'block'">
+                                {{ validationErrors['businessAddress'][0] }}
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" (click)="saveCustomerForm()" [disabled]="isLoading">
+                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                    {{ isEditMode ? 'Update Customer' : 'Add Customer' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-body text-center p-4">
+                <h4 class="fw-bold">Delete Customer?</h4>
+                <p class="text-muted mb-4">
+                    You really want to delete <strong>{{ selectedCustomer?.name }}</strong>?
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <button class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-danger px-4" (click)="confirmDelete()" data-bs-dismiss="modal">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
