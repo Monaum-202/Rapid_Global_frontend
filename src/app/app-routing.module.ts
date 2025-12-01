@@ -31,6 +31,7 @@ import { ProfileComponent } from './inventory/master/user/profile/profile.compon
 import { IncomeComponent } from './inventory/accounts/income/income.component';
 import { UnitComponent } from './inventory/master/unit/unit.component';
 import { CustomerComponent } from './inventory/sales/customer/customer.component';
+import { SalesListComponent } from './inventory/sales/sales-list/sales-list.component';
 
 const routes: Routes = [
   {
@@ -59,7 +60,7 @@ const routes: Routes = [
       { path: 'unit', component: UnitComponent},
 
       // Sales
-      // { path: 'sales-list', component: SalesListComponent },
+      { path: 'sales-list', component: SalesListComponent },
       { path: 'customer', component: CustomerComponent },
       { path: 'customer-payment', component: CustomerPaymentComponent },
       { path: 'sales-return', component: SalesReturnComponent },

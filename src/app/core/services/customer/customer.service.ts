@@ -32,7 +32,7 @@ export interface CustomerReqDto {
 export interface CustomerFilterParams {
   page?: number;
   size?: number;
-  active?: boolean;
+  // active?: boolean;
   search?: string;
 }
 
@@ -41,6 +41,13 @@ export interface CustomerFilterParams {
 })
 export class CustomerService extends BaseService {
   private readonly ENDPOINT = 'customer';
+
+  /**
+   * Get a single customer by ID
+   */
+  getByPhone(phone: string): Observable<BaseApiResponse<Customer>> {
+    return this.get<Customer>(`${this.ENDPOINT}/${phone}`);
+  }
 
   /**
    * Get all customers with pagination and optional search
@@ -75,6 +82,7 @@ export class CustomerService extends BaseService {
   getById(id: number): Observable<BaseApiResponse<Customer>> {
     return this.get<Customer>(`${this.ENDPOINT}/${id}`);
   }
+
 
   /**
    * Create a new customer
@@ -129,9 +137,9 @@ export class CustomerService extends BaseService {
       params = params.set('size', filters.size.toString());
     }
 
-    if (filters.active !== undefined) {
-      params = params.set('active', filters.active.toString());
-    }
+    // if (filters.active !== undefined) {
+    //   params = params.set('active', filters.active.toString());
+    // }
 
     if (filters.search?.trim()) {
       params = params.set('search', filters.search.trim());
