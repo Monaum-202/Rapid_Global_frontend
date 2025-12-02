@@ -6,10 +6,10 @@ import { BaseService } from '../base/base.service';
 
 export interface SalesItem {
   id?: number;
-  name: string;
+  itemName: string;
   quantity: number;
   unitPrice: number;
-  total: number;
+  totalPrice: number;
 }
 
 export interface Sales {
@@ -184,18 +184,18 @@ export class SalesService extends BaseService {
     subtotal: number;
     vatAmount: number;
     taxAmount: number;
-    total: number;
+    totalPrice: number;
   } {
-    const subtotal = items.reduce((sum, item) => sum + item.total, 0);
+    const subtotal = items.reduce((sum, item) => sum + item.totalPrice, 0);
     const vatAmount = (subtotal * vat) / 100;
     const taxAmount = (subtotal * tax) / 100;
-    const total = subtotal + vatAmount + taxAmount - discount;
+    const totalPrice = subtotal + vatAmount + taxAmount - discount;
 
     return {
       subtotal,
       vatAmount,
       taxAmount,
-      total
+      totalPrice
     };
   }
 }

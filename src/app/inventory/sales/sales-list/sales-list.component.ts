@@ -40,7 +40,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     vat: 0,
     tax: 0,
     discount: 0,
-    total: 0,
+    totalPrice: 0,
     paidAmount: 0,
     dueAmount: 0,
     status: 'PENDING'
@@ -48,10 +48,10 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
 
   // Current item being added
   currentItem: SalesItem = {
-    name: '',
+    itemName: '',
     quantity: 1,
     unitPrice: 0,
-    total: 0
+    totalPrice: 0
   };
 
   columns: TableColumn<Sales>[] = [
@@ -150,7 +150,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     this.isEditMode = true;
     this.validationErrors = {};
     this.errorMessage = '';
-    
+
     // Populate form data
     this.formData = {
       customerName: sale.customerName,
@@ -165,12 +165,12 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       vat: 0,
       tax: 0,
       discount: 0,
-      total: sale.totalAmount,
+      totalPrice: sale.totalAmount,
       paidAmount: sale.paidAmount,
       dueAmount: sale.dueAmount,
       status: sale.status
     };
-    
+
     this.selectedSale = sale;
     this.calculateTotals();
   }
@@ -197,7 +197,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       companyName: this.formData.companyName,
       sellDate: this.formData.sellDate,
       notes: this.formData.notes,
-      totalAmount: this.formData.total,
+      totalAmount: this.formData.totalPrice,
       paidAmount: this.formData.paidAmount,
       dueAmount: this.formData.dueAmount,
       status: this.formData.status,
@@ -328,11 +328,11 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
   // ==================== Item Management ====================
 
   calculateItemTotal(): void {
-    this.currentItem.total = this.currentItem.quantity * this.currentItem.unitPrice;
+    this.currentItem.totalPrice = this.currentItem.quantity * this.currentItem.unitPrice;
   }
 
   addItemToList(): void {
-    if (!this.currentItem.name.trim()) {
+    if (!this.currentItem.itemName.trim()) {
       this.errorMessage = 'Item name is required';
       setTimeout(() => this.clearError(), 3000);
       return;
@@ -356,26 +356,26 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
 
   resetCurrentItem(): void {
     this.currentItem = {
-      name: '',
+      itemName: '',
       quantity: 1,
       unitPrice: 0,
-      total: 0
+      totalPrice: 0
     };
   }
 
   calculateTotals(): void {
     // Calculate subtotal from items
-    this.formData.subtotal = this.formData.items.reduce((sum, item) => sum + item.total, 0);
+    this.formData.subtotal = this.formData.items.reduce((sum, item) => sum + item.totalPrice, 0);
 
     // Calculate VAT and Tax
     const vatAmount = (this.formData.subtotal * this.formData.vat) / 100;
     const taxAmount = (this.formData.subtotal * this.formData.tax) / 100;
 
-    // Calculate total
-    this.formData.total = this.formData.subtotal + vatAmount + taxAmount - this.formData.discount;
+    // Calculate totalPrice
+    this.formData.totalPrice = this.formData.subtotal + vatAmount + taxAmount - this.formData.discount;
 
     // Calculate due amount
-    this.formData.dueAmount = this.formData.total - this.formData.paidAmount;
+    this.formData.dueAmount = this.formData.totalPrice - this.formData.paidAmount;
 
     // Ensure non-negative values
     if (this.formData.dueAmount < 0) {
@@ -425,7 +425,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       vat: 0,
       tax: 0,
       discount: 0,
-      total: 0,
+      totalPrice: 0,
       paidAmount: 0,
       dueAmount: 0,
       status: 'PENDING'
