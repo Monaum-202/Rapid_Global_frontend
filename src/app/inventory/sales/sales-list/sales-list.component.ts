@@ -5,6 +5,7 @@ import { simpleCrudComponent } from 'src/app/core/components/simpleCrud.componen
 import { AuthService } from 'src/app/core/services/auth.service';
 import { Sales, SalesReqDto, SalesService, SalesItem } from 'src/app/core/services/sales/sales.service';
 import { PageHeaderService } from 'src/app/core/services/page-header/page-header.service';
+import { Customer, CustomerService } from 'src/app/core/services/customer/customer.service';
 
 enum ModalType {
   VIEW = 'sellModal',
@@ -26,6 +27,10 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
   userId = 0;
   submitted = false;
 
+  // Customer search
+  isSearchingCustomer = false;
+  customerFound = false;
+
   // Form data
   formData = {
     customerName: '',
@@ -34,6 +39,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     address: '',
     companyName: '',
     sellDate: new Date().toISOString().split('T')[0],
+    deliveryDate: new Date().toISOString().split('T')[0],
     notes: '',
     items: [] as SalesItem[],
     subtotal: 0,
@@ -84,7 +90,8 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
   constructor(
     public service: SalesService,
     public pageHeaderService: PageHeaderService,
-    public authService: AuthService
+    public authService: AuthService,
+    private customerService: CustomerService
   ) {
     super();
   }
@@ -109,6 +116,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       address: '',
       companyName: '',
       sellDate: today,
+      deliveryDate: today,
       notes: '',
       totalAmount: 0,
       paidAmount: 0,
@@ -126,6 +134,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       address: sale.address?.trim(),
       companyName: sale.companyName?.trim(),
       sellDate: sale.sellDate,
+      deliveryDate: sale.deliveryDate?.trim(),
       notes: sale.notes?.trim(),
       totalAmount: sale.totalAmount,
       paidAmount: sale.paidAmount,
@@ -140,6 +149,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     this.isEditMode = false;
     this.validationErrors = {};
     this.errorMessage = '';
+    this.customerFound = false;
   }
 
   viewSale(sale: Sales): void {
@@ -150,6 +160,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     this.isEditMode = true;
     this.validationErrors = {};
     this.errorMessage = '';
+    this.customerFound = false;
 
     // Populate form data
     this.formData = {
@@ -159,6 +170,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       address: sale.address || '',
       companyName: sale.companyName || '',
       sellDate: sale.sellDate,
+      deliveryDate: sale.deliveryDate || '',
       notes: sale.notes || '',
       items: [...sale.items],
       subtotal: 0,
@@ -174,6 +186,75 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     this.selectedSale = sale;
     this.calculateTotals();
   }
+
+  // ==================== Customer Search ====================
+
+  onPhoneInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const phone = input.value;
+    this.formData.phone = phone;
+    
+    // Reset customer found flag when phone changes
+    this.customerFound = false;
+  }
+
+  onPhoneKeyPress(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      const phone = this.formData.phone.trim();
+      
+      if (phone && phone.length >= 3) {
+        this.searchCustomerByPhone(phone);
+      } else {
+        this.errorMessage = 'Please enter at least 3 characters';
+        setTimeout(() => this.clearError(), 3000);
+      }
+    }
+  }
+
+  searchCustomerByPhone(phone: string): void {
+    this.isSearchingCustomer = true;
+    this.customerService.getByPhone(phone)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isSearchingCustomer = false)
+      )
+      .subscribe({
+        next: (response: any) => {
+          if (response.success && response.data) {
+            const customer: Customer = response.data;
+            this.populateCustomerData(customer);
+            this.customerFound = true;
+          } else {
+            // Customer not found - clear fields but keep phone
+            this.clearCustomerFields();
+            this.customerFound = false;
+          }
+        },
+        error: (error: any) => {
+          // Customer not found - clear fields but keep phone
+          this.clearCustomerFields();
+          this.customerFound = false;
+        }
+      });
+  }
+
+  populateCustomerData(customer: Customer): void {
+    this.formData.customerName = customer.name || '';
+    this.formData.email = customer.email || '';
+    this.formData.address = customer.address || '';
+    this.formData.companyName = customer.businessAddress || '';
+  }
+
+  clearCustomerFields(): void {
+    // Keep phone number, clear other fields
+    this.formData.customerName = '';
+    this.formData.email = '';
+    this.formData.address = '';
+    this.formData.companyName = '';
+  }
+
+  // ==================== Save Methods ====================
 
   saveSaleForm(): void {
     this.submitted = true;
@@ -196,6 +277,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       address: this.formData.address,
       companyName: this.formData.companyName,
       sellDate: this.formData.sellDate,
+      deliveryDate: this.formData.deliveryDate,
       notes: this.formData.notes,
       totalAmount: this.formData.totalPrice,
       paidAmount: this.formData.paidAmount,
@@ -419,6 +501,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       address: '',
       companyName: '',
       sellDate: new Date().toISOString().split('T')[0],
+      deliveryDate: new Date().toISOString().split('T')[0],
       notes: '',
       items: [],
       subtotal: 0,
@@ -431,6 +514,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       status: 'PENDING'
     };
     this.resetCurrentItem();
+    this.customerFound = false;
   }
 
   // ==================== Utility Methods ====================

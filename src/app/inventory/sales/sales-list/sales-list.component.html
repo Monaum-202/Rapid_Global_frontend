@@ -184,120 +184,210 @@
 </div>
 
 <!-- View Sale Modal -->
+<!-- View Sale Modal - Redesigned -->
 <div class="modal fade" id="sellModal" tabindex="-1" aria-labelledby="sellViewModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content shadow-lg border-0 custom-modal">
-            <div class="modal-header modal-header-bg">
-                <h5 class="modal-title" id="sellViewModalLabel">Sale Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content shadow-lg border-0">
+            <!-- Modal Header -->
+            <div class="modal-header bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-receipt-cutoff fs-4 text-white me-3"></i>
+                    <div>
+                        <h5 class="modal-title text-white mb-0" id="sellViewModalLabel">Sale Details</h5>
+                        <small class="text-white-50" *ngIf="selectedSale">Invoice: {{ selectedSale.invoiceNo }}</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
 
-            <div class="modal-body" *ngIf="selectedSale">
-                <div class="row g-3">
-                    <!-- Customer Information -->
-                    <div class="col-md-6">
-                        <h6 class="text-primary border-bottom pb-2 mb-3">
-                            <i class="bi bi-person-circle me-2"></i>Customer Information
-                        </h6>
-                        <div class="mb-2">
-                            <label class="label-text">Invoice No</label>
-                            <div class="value-text">{{ selectedSale.invoiceNo }}</div>
-                        </div>
-                        <div class="mb-2">
-                            <label class="label-text">Customer Name</label>
-                            <div class="value-text">{{ selectedSale.customerName }}</div>
-                        </div>
-                        <div class="mb-2">
-                            <label class="label-text">Phone</label>
-                            <div>{{ selectedSale.phone }}</div>
-                        </div>
-                        <div class="mb-2" *ngIf="selectedSale.email">
-                            <label class="label-text">Email</label>
-                            <div>{{ selectedSale.email }}</div>
-                        </div>
-                        <div class="mb-2" *ngIf="selectedSale.address">
-                            <label class="label-text">Address</label>
-                            <div>{{ selectedSale.address }}</div>
-                        </div>
-                        <div class="mb-2" *ngIf="selectedSale.companyName">
-                            <label class="label-text">Company Name</label>
-                            <div>{{ selectedSale.companyName }}</div>
-                        </div>
-                        <div class="mb-2">
-                            <label class="label-text">Sale Date</label>
-                            <div>{{ selectedSale.sellDate | date:'dd/MM/yyyy' }}</div>
-                        </div>
-                        <div class="mb-2">
-                            <label class="label-text">Status</label><br>
-                            <span class="badge status-badge" [class.bg-warning]="selectedSale.status === 'PENDING'"
+            <div class="modal-body p-4" *ngIf="selectedSale">
+                <!-- Customer Information Section -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-bottom">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0 text-primary">
+                                <i class="bi bi-person-circle me-2"></i>Customer Information
+                            </h6>
+                            <span class="badge fs-6" 
+                                [class.bg-warning]="selectedSale.status === 'PENDING'"
                                 [class.bg-success]="selectedSale.status === 'COMPLETED'"
                                 [class.bg-danger]="selectedSale.status === 'CANCELED'">
                                 {{ selectedSale.status }}
                             </span>
                         </div>
                     </div>
-
-                    <!-- Items and Financial Information -->
-                    <div class="col-md-6">
-                        <h6 class="text-primary border-bottom pb-2 mb-3">
-                            <i class="bi bi-cart me-2"></i>Items & Financial Details
-                        </h6>
-
-                        <!-- Items Table -->
-                        <div class="table-responsive mb-3" style="max-height: 200px; overflow-y: auto">
-                            <table class="table table-sm table-hover">
-                                <thead class="table-light sticky-top">
-                                    <tr>
-                                        <th>Item</th>
-                                        <th class="text-center">Qty</th>
-                                        <th class="text-end">Price</th>
-                                        <th class="text-end">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr *ngFor="let item of selectedSale.items">
-                                        <td>{{ item.itemName }}</td>
-                                        <td class="text-center">{{ item.quantity }}</td>
-                                        <td class="text-end">{{ item.unitPrice | number:'1.2-2' }}</td>
-                                        <td class="text-end">{{ item.totalPrice | number:'1.2-2' }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="info-item">
+                                    <label class="text-muted small mb-1">
+                                        <i class="bi bi-person me-1"></i>Customer Name
+                                    </label>
+                                    <div class="fw-semibold">{{ selectedSale.customerName }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-item">
+                                    <label class="text-muted small mb-1">
+                                        <i class="bi bi-telephone me-1"></i>Phone
+                                    </label>
+                                    <div class="fw-semibold">{{ selectedSale.phone }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-item">
+                                    <label class="text-muted small mb-1">
+                                        <i class="bi bi-calendar-event me-1"></i>Sale Date
+                                    </label>
+                                    <div class="fw-semibold">{{ selectedSale.sellDate | date:'dd MMM, yyyy' }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4" *ngIf="selectedSale.email">
+                                <div class="info-item">
+                                    <label class="text-muted small mb-1">
+                                        <i class="bi bi-envelope me-1"></i>Email
+                                    </label>
+                                    <div class="fw-semibold text-break">{{ selectedSale.email }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4" *ngIf="selectedSale.companyName">
+                                <div class="info-item">
+                                    <label class="text-muted small mb-1">
+                                        <i class="bi bi-building me-1"></i>Company Name
+                                    </label>
+                                    <div class="fw-semibold">{{ selectedSale.companyName }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4" *ngIf="selectedSale.address">
+                                <div class="info-item">
+                                    <label class="text-muted small mb-1">
+                                        <i class="bi bi-geo-alt me-1"></i>Address
+                                    </label>
+                                    <div class="fw-semibold">{{ selectedSale.address }}</div>
+                                </div>
+                            </div>
                         </div>
-
-                        <!-- Financial Summary -->
-                        <div class="bg-light p-3 rounded-3">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="fw-bold">Total Amount:</span>
-                                <span class="fw-bold">{{ selectedSale.totalAmount | number:'1.2-2' }}</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2 text-success">
-                                <span>Paid Amount:</span>
-                                <span>{{ selectedSale.paidAmount | number:'1.2-2' }}</span>
-                            </div>
-                            <div class="d-flex justify-content-between border-top pt-2">
-                                <span class="fw-bold text-danger">Due Amount:</span>
-                                <span class="fw-bold text-danger">{{ selectedSale.dueAmount | number:'1.2-2' }}</span>
+                        
+                        <!-- Notes Section -->
+                        <div class="mt-3" *ngIf="selectedSale.notes">
+                            <label class="text-muted small mb-1">
+                                <i class="bi bi-chat-left-text me-1"></i>Notes
+                            </label>
+                            <div class="alert alert-light mb-0 border">
+                                {{ selectedSale.notes }}
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Notes -->
-                    <div class="col-12" *ngIf="selectedSale.notes">
-                        <label class="label-text">Notes</label>
-                        <div class="text-wrap bg-light p-2 rounded">{{ selectedSale.notes }}</div>
+                <!-- Items and Financial Information Section -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom">
+                        <h6 class="mb-0 text-primary">
+                            <i class="bi bi-cart-check me-2"></i>Items & Financial Details
+                        </h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="row g-0">
+                            <!-- Items List -->
+                            <div class="col-lg-8 border-end">
+                                <div class="p-3">
+                                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                                        <table class="table table-hover mb-0">
+                                            <thead class="table-light sticky-top">
+                                                <tr>
+                                                    <th class="border-0">#</th>
+                                                    <th class="border-0">Item Name</th>
+                                                    <th class="text-center border-0">Quantity</th>
+                                                    <th class="text-end border-0">Unit Price</th>
+                                                    <th class="text-end border-0">Total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr *ngFor="let item of selectedSale.items; let i = index">
+                                                    <td class="text-muted">{{ i + 1 }}</td>
+                                                    <td class="fw-medium">{{ item.itemName }}</td>
+                                                    <td class="text-center">
+                                                        <span class="badge bg-light text-dark">{{ item.quantity }}</span>
+                                                    </td>
+                                                    <td class="text-end">৳{{ item.unitPrice | number:'1.2-2' }}</td>
+                                                    <td class="text-end fw-semibold">৳{{ item.totalPrice | number:'1.2-2' }}</td>
+                                                </tr>
+                                                <tr *ngIf="selectedSale.items.length === 0">
+                                                    <td colspan="5" class="text-center text-muted py-4">
+                                                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                                        No items found
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Financial Summary -->
+                            <div class="col-lg-4">
+                                <div class="p-4">
+                                    <h6 class="text-muted small mb-3">PAYMENT SUMMARY</h6>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                                        <span class="text-muted">Subtotal</span>
+                                        <span class="fs-5 fw-semibold">৳{{ selectedSale.totalAmount | number:'1.2-2' }}</span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-muted small">
+                                                <i class="bi bi-check-circle text-success me-1"></i>Paid Amount
+                                            </span>
+                                            <span class="text-success fw-semibold">৳{{ selectedSale.paidAmount | number:'1.2-2' }}</span>
+                                        </div>
+                                        <div class="progress" style="height: 6px;">
+                                            <div class="progress-bar bg-success" 
+                                                [style.width.%]="(selectedSale.paidAmount / selectedSale.totalAmount) * 100">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="alert mb-0" 
+                                        [class.alert-danger]="selectedSale.dueAmount > 0"
+                                        [class.alert-success]="selectedSale.dueAmount === 0">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <small class="d-block mb-1">Due Amount</small>
+                                                <h4 class="mb-0">৳{{ selectedSale.dueAmount | number:'1.2-2' }}</h4>
+                                            </div>
+                                            <i class="bi fs-1" 
+                                                [class.bi-exclamation-triangle]="selectedSale.dueAmount > 0"
+                                                [class.bi-check-circle]="selectedSale.dueAmount === 0">
+                                            </i>
+                                        </div>
+                                        <small class="text-muted" *ngIf="selectedSale.dueAmount > 0">
+                                            Payment pending
+                                        </small>
+                                        <small class="text-muted" *ngIf="selectedSale.dueAmount === 0">
+                                            Fully paid
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="modal-footer modal-header-bg">
-                <button type="button" class="btn btn-secondary close-btn" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-info" (click)="printSaleMemo()">
-                    <i class="fa fa-print me-1"></i> Print
+            <!-- Modal Footer -->
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i> Close
                 </button>
-                <button type="button" class="btn btn-success" (click)="approvePayment(selectedSale!)"
+                <button type="button" class="btn btn-info" (click)="printSaleMemo()">
+                    <i class="bi bi-printer me-1"></i> Print Invoice
+                </button>
+                <button type="button" class="btn btn-success" 
+                    (click)="approvePayment(selectedSale!)"
                     *ngIf="selectedSale && selectedSale.dueAmount > 0 && (roleId === 1 || roleId === 2)">
-                    <i class="fa fa-check me-1"></i> Approve Payment
+                    <i class="bi bi-check-circle me-1"></i> Approve Payment
                 </button>
             </div>
         </div>
@@ -318,100 +408,159 @@
                 <form id="saleForm" (ngSubmit)="saveSaleForm()">
                     <div class="row g-4">
                         <!-- LEFT SIDE - Sale Details -->
-                        <div class="col-md-5">
-                            <div class="card border-0 shadow-sm h-100">
-                                <div class="card-body">
-                                    <h6 class="card-title text-primary mb-3 pb-2 border-bottom">
-                                        <i class="bi bi-info-circle me-2"></i>Sale Information
-                                    </h6>
+<div class="col-md-5">
+    <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+            <h6 class="card-title text-primary mb-3 pb-2 border-bottom">
+                <i class="bi bi-info-circle me-2"></i>Sale Information
+            </h6>
 
-                                    <div class="mb-3">
-                                        <label for="customerName" class="form-label fw-semibold">Customer Name
-                                            <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="text" class="form-control"
-                                            [class.is-invalid]="validationErrors['customerName']" id="customerName"
-                                            [(ngModel)]="formData.customerName" name="customerName"
-                                            placeholder="Enter customer name" required />
-                                        <div class="invalid-feedback" *ngIf="validationErrors['customerName']"
-                                            [style.display]="'block'">
-                                            {{ validationErrors['customerName'][0] }}
-                                        </div>
-                                    </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="phone" class="form-label fw-semibold">
+                        Phone <span class="text-danger">*</span>
+                    </label>
+                    
+                            <span class="spinner-border spinner-border-sm" role="status" *ngIf="isSearchingCustomer"></span>
+                        <input 
+                            type="text" 
+                            class="form-control"
+                            [class.is-invalid]="validationErrors['phone']"
+                            [class.border-success]="customerFound && !validationErrors['phone']"
+                            id="phone"
+                            [(ngModel)]="formData.phone"
+                            name="phone"
+                            (input)="onPhoneInput($event)"
+                            (keypress)="onPhoneKeyPress($event)"
+                            placeholder="Enter phone & press Enter"
+                            required 
+                        />
+                    <small class="text-success d-block mt-1" *ngIf="customerFound && !isSearchingCustomer">
+                        <i class="bi bi-info-circle"></i> Customer found! Data auto-filled
+                    </small>
+                    <small class="text-muted d-block mt-1" *ngIf="!customerFound && !isSearchingCustomer && formData.phone.length >= 3">
+                        <i class="bi bi-info-circle"></i> Press Enter to search
+                    </small>
+                </div>
 
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label for="phone" class="form-label fw-semibold">Phone
-                                                <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="text" class="form-control"
-                                                [class.is-invalid]="validationErrors['phone']" id="phone"
-                                                [(ngModel)]="formData.phone" name="phone"
-                                                placeholder="Enter phone number" required />
-                                            <div class="invalid-feedback" *ngIf="validationErrors['phone']"
-                                                [style.display]="'block'">
-                                                {{ validationErrors['phone'][0] }}
-                                            </div>
-                                        </div>
+                <div class="col-md-6 mb-3">
+                    <label for="email" class="form-label fw-semibold">Email</label>
+                    <input 
+                        type="email" 
+                        class="form-control"
+                        [class.is-invalid]="validationErrors['email']" 
+                        id="email"
+                        [(ngModel)]="formData.email" 
+                        name="email"
+                        placeholder="Enter email address" 
+                    />
+                    <div class="invalid-feedback" *ngIf="validationErrors['email']" [style.display]="'block'">
+                        {{ validationErrors['email'][0] }}
+                    </div>
+                </div>
+            </div>
 
-                                        <div class="col-md-6 mb-3">
-                                            <label for="email" class="form-label fw-semibold">Email</label>
-                                            <input type="email" class="form-control"
-                                                [class.is-invalid]="validationErrors['email']" id="email"
-                                                [(ngModel)]="formData.email" name="email"
-                                                placeholder="Enter email address" />
-                                            <div class="invalid-feedback" *ngIf="validationErrors['email']"
-                                                [style.display]="'block'">
-                                                {{ validationErrors['email'][0] }}
-                                            </div>
-                                        </div>
-                                    </div>
+            <div class="mb-3">
+                <label for="customerName" class="form-label fw-semibold">
+                    Customer Name <span class="text-danger">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    class="form-control"
+                    [class.is-invalid]="validationErrors['customerName']" 
+                    id="customerName"
+                    [(ngModel)]="formData.customerName" 
+                    name="customerName"
+                    placeholder="Enter customer name" 
+                    required 
+                />
+                <div class="invalid-feedback" *ngIf="validationErrors['customerName']" [style.display]="'block'">
+                    {{ validationErrors['customerName'][0] }}
+                </div>
+            </div>
 
-                                    <div class="mb-3">
-                                        <label for="address" class="form-label fw-semibold">Address</label>
-                                        <input type="text" class="form-control"
-                                            [class.is-invalid]="validationErrors['address']" id="address"
-                                            [(ngModel)]="formData.address" name="address" placeholder="Enter address" />
-                                        <div class="invalid-feedback" *ngIf="validationErrors['address']"
-                                            [style.display]="'block'">
-                                            {{ validationErrors['address'][0] }}
-                                        </div>
-                                    </div>
+            <div class="mb-3">
+                <label for="address" class="form-label fw-semibold">Address</label>
+                <input 
+                    type="text" 
+                    class="form-control"
+                    [class.is-invalid]="validationErrors['address']" 
+                    id="address"
+                    [(ngModel)]="formData.address" 
+                    name="address" 
+                    placeholder="Enter address" 
+                />
+                <div class="invalid-feedback" *ngIf="validationErrors['address']" [style.display]="'block'">
+                    {{ validationErrors['address'][0] }}
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                    <label for="companyName" class="form-label fw-semibold">Company Name</label>
+                    <input 
+                        type="text" 
+                        class="form-control"
+                        [class.is-invalid]="validationErrors['companyName']" 
+                        id="companyName"
+                        [(ngModel)]="formData.companyName" 
+                        name="companyName"
+                        placeholder="Enter company name" 
+                    />
+                    <div class="invalid-feedback" *ngIf="validationErrors['companyName']" [style.display]="'block'">
+                        {{ validationErrors['companyName'][0] }}
+                    </div>
+                </div>
 
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label for="companyName" class="form-label fw-semibold">Company Name</label>
-                                            <input type="text" class="form-control"
-                                                [class.is-invalid]="validationErrors['companyName']" id="companyName"
-                                                [(ngModel)]="formData.companyName" name="companyName"
-                                                placeholder="Enter company name" />
-                                            <div class="invalid-feedback" *ngIf="validationErrors['companyName']"
-                                                [style.display]="'block'">
-                                                {{ validationErrors['companyName'][0] }}
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label for="sellDate" class="form-label fw-semibold">Sale Date
-                                                <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="date" class="form-control"
-                                                [class.is-invalid]="validationErrors['sellDate']" id="sellDate"
-                                                [(ngModel)]="formData.sellDate" name="sellDate" required />
-                                            <div class="invalid-feedback" *ngIf="validationErrors['sellDate']"
-                                                [style.display]="'block'">
-                                                {{ validationErrors['sellDate'][0] }}
-                                            </div>
-                                        </div>
-                                    </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="sellDate" class="form-label fw-semibold">
+                        Sale Date <span class="text-danger">*</span>
+                    </label>
+                    <input 
+                        type="date" 
+                        class="form-control"
+                        [class.is-invalid]="validationErrors['sellDate']" 
+                        id="sellDate"
+                        [(ngModel)]="formData.sellDate" 
+                        name="sellDate" 
+                        required 
+                    />
+                    <div class="invalid-feedback" *ngIf="validationErrors['sellDate']" [style.display]="'block'">
+                        {{ validationErrors['sellDate'][0] }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="deliveryDate" class="form-label fw-semibold">
+                        Delivery Date <span class="text-danger">*</span>
+                    </label>
+                    <input 
+                        type="date" 
+                        class="form-control"
+                        [class.is-invalid]="validationErrors['deliveryDate']" 
+                        id="deliveryDate"
+                        [(ngModel)]="formData.deliveryDate" 
+                        name="deliveryDate" 
+                        required 
+                    />
+                    <div class="invalid-feedback" *ngIf="validationErrors['deliveryDate']" [style.display]="'block'">
+                        {{ validationErrors['deliveryDate'][0] }}
+                    </div>
+                </div>
+            </div>
 
-                                    <div class="mb-3">
-                                        <label for="notes" class="form-label fw-semibold">Notes</label>
-                                        <textarea class="form-control" id="notes" rows="3" [(ngModel)]="formData.notes"
-                                            name="notes" placeholder="Additional notes..."></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <div class="mb-3">
+                <label for="notes" class="form-label fw-semibold">Notes</label>
+                <textarea 
+                    class="form-control" 
+                    id="notes" 
+                    rows="3" 
+                    [(ngModel)]="formData.notes"
+                    name="notes" 
+                    placeholder="Additional notes..."
+                ></textarea>
+            </div>
+        </div>
+    </div>
+</div>
 
                         <!-- RIGHT SIDE - Items & Pricing -->
                         <div class="col-md-7">
@@ -541,28 +690,14 @@
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div *ngIf="formData.notes" class="mt-3">
-                                        <strong>Notes:</strong>
-                                        <p class="bg-light p-2 rounded mt-1">{{ formData.notes }}</p>
-                                    </div>
                                 </div>
-
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
                                         Close
                                     </button>
                                     <button type="button" class="btn btn-success" (click)="saveSaleForm()">
-                     Save
-                </button>
-                <!-- <button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bs-toggle="modal"
-                    data-bs-target="#expadd" (click)="openEditModal(selectedSell!)">
-                    Edit Details
-                </button>
-                <button type="button" class="btn btn-success" (click)="approvePayment()"
-                    *ngIf="formData?.paymentStatus !== 'Paid'">
-                    Approve Payment
-                </button>-->
+                                        Save
+                                    </button>
                                 </div>
                             </div>
                         </div>

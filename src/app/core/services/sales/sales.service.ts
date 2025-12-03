@@ -21,6 +21,7 @@ export interface Sales {
   address?: string;
   companyName?: string;
   sellDate: string;
+  deliveryDate?: string;
   notes?: string;
   totalAmount: number;
   paidAmount: number;
@@ -39,6 +40,7 @@ export interface SalesReqDto {
   address?: string;
   companyName?: string;
   sellDate: string;
+  deliveryDate?: string;
   notes?: string;
   totalAmount: number;
   paidAmount: number;

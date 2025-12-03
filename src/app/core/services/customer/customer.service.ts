@@ -45,10 +45,10 @@ export class CustomerService extends BaseService {
   /**
    * Get a single customer by ID
    */
-  getByPhone(phone: string): Observable<BaseApiResponse<Customer>> {
-    return this.get<Customer>(`${this.ENDPOINT}/${phone}`);
-  }
 
+getByPhone(phone: string): Observable<BaseApiResponse<Customer>> {
+    return this.get<Customer>(`${this.ENDPOINT}/phone/${phone}`);
+  }
   /**
    * Get all customers with pagination and optional search
    */
