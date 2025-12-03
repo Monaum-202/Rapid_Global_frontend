@@ -23,6 +23,9 @@ export interface Sales {
   sellDate: string;
   deliveryDate?: string;
   notes?: string;
+  subTotal: number;
+  vat: number;
+  discount: number;
   totalAmount: number;
   paidAmount: number;
   dueAmount: number;
@@ -42,6 +45,9 @@ export interface SalesReqDto {
   sellDate: string;
   deliveryDate?: string;
   notes?: string;
+  subTotal: number;
+  vat: number;
+  discount: number;
   totalAmount: number;
   paidAmount: number;
   dueAmount: number;
@@ -182,21 +188,18 @@ export class SalesService extends BaseService {
   /**
    * Calculate totals for sales items
    */
-  calculateTotals(items: SalesItem[], vat = 0, tax = 0, discount = 0): {
-    subtotal: number;
+  calculateTotals(items: SalesItem[], vat = 0, discount = 0): {
+    subTotal: number;
     vatAmount: number;
-    taxAmount: number;
     totalPrice: number;
   } {
-    const subtotal = items.reduce((sum, item) => sum + item.totalPrice, 0);
-    const vatAmount = (subtotal * vat) / 100;
-    const taxAmount = (subtotal * tax) / 100;
-    const totalPrice = subtotal + vatAmount + taxAmount - discount;
+    const subTotal = items.reduce((sum, item) => sum + item.totalPrice, 0);
+    const vatAmount = (subTotal * vat) / 100;
+    const totalPrice = subTotal + vatAmount - discount;
 
     return {
-      subtotal,
+      subTotal,
       vatAmount,
-      taxAmount,
       totalPrice
     };
   }

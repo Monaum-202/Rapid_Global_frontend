@@ -70,7 +70,7 @@ body {
 
 .compact-label {
     font-weight: 600;
-    color: #6c757d;
+    color: #000000;
     font-size: 0.85rem;
 }
 
@@ -122,3 +122,56 @@ body {
     box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.15);
     border-radius: 50rem;
 }
+
+.sale-card {
+    border: 0;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 0.5rem;
+  }
+
+  .sale-card-body {
+    padding: 0.8rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .column {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 0.8rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid #e9ecef;
+    align-items: start;
+  }
+
+  .field-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .field-label {
+    font-size: 0.85rem;
+    color: #0c0c0c;
+    font-weight:bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .field-value {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #333;
+    word-break: break-word;
+  }
+
+  .notes-content {
+    font-size: auto;
+    overflow-y: auto;
+  }

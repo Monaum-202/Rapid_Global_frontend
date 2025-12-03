@@ -27,11 +27,9 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
   userId = 0;
   submitted = false;
 
-  // Customer search
   isSearchingCustomer = false;
   customerFound = false;
 
-  // Form data
   formData = {
     customerName: '',
     phone: '',
@@ -42,9 +40,8 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     deliveryDate: new Date().toISOString().split('T')[0],
     notes: '',
     items: [] as SalesItem[],
-    subtotal: 0,
+    subTotal: 0,
     vat: 0,
-    tax: 0,
     discount: 0,
     totalPrice: 0,
     paidAmount: 0,
@@ -118,6 +115,9 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       sellDate: today,
       deliveryDate: today,
       notes: '',
+      subTotal: 0,
+      vat: 0,
+      discount: 0,
       totalAmount: 0,
       paidAmount: 0,
       dueAmount: 0,
@@ -130,12 +130,15 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     return {
       customerName: sale.customerName.trim(),
       phone: sale.phone.trim(),
-      email: sale.email?.trim(),
-      address: sale.address?.trim(),
-      companyName: sale.companyName?.trim(),
+      email: sale.email?.trim() || '',
+      address: sale.address?.trim() || '',
+      companyName: sale.companyName?.trim() || '',
       sellDate: sale.sellDate,
-      deliveryDate: sale.deliveryDate?.trim(),
-      notes: sale.notes?.trim(),
+      deliveryDate: sale.deliveryDate?.trim() || '',
+      notes: sale.notes?.trim() || '',
+      subTotal: sale.subTotal,
+      vat: sale.vat,
+      discount: sale.discount,
       totalAmount: sale.totalAmount,
       paidAmount: sale.paidAmount,
       dueAmount: sale.dueAmount,
@@ -150,6 +153,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     this.validationErrors = {};
     this.errorMessage = '';
     this.customerFound = false;
+    this.submitted = false;
   }
 
   viewSale(sale: Sales): void {
@@ -161,6 +165,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     this.validationErrors = {};
     this.errorMessage = '';
     this.customerFound = false;
+    this.submitted = false;
 
     // Populate form data
     this.formData = {
@@ -173,9 +178,8 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       deliveryDate: sale.deliveryDate || '',
       notes: sale.notes || '',
       items: [...sale.items],
-      subtotal: 0,
+      subTotal: 0,
       vat: 0,
-      tax: 0,
       discount: 0,
       totalPrice: sale.totalAmount,
       paidAmount: sale.paidAmount,
@@ -193,7 +197,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     const input = event.target as HTMLInputElement;
     const phone = input.value;
     this.formData.phone = phone;
-    
+
     // Reset customer found flag when phone changes
     this.customerFound = false;
   }
@@ -202,7 +206,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     if (event.key === 'Enter') {
       event.preventDefault();
       const phone = this.formData.phone.trim();
-      
+
       if (phone && phone.length >= 3) {
         this.searchCustomerByPhone(phone);
       } else {
@@ -226,13 +230,11 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
             this.populateCustomerData(customer);
             this.customerFound = true;
           } else {
-            // Customer not found - clear fields but keep phone
             this.clearCustomerFields();
             this.customerFound = false;
           }
         },
         error: (error: any) => {
-          // Customer not found - clear fields but keep phone
           this.clearCustomerFields();
           this.customerFound = false;
         }
@@ -247,7 +249,6 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
   }
 
   clearCustomerFields(): void {
-    // Keep phone number, clear other fields
     this.formData.customerName = '';
     this.formData.email = '';
     this.formData.address = '';
@@ -259,15 +260,12 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
   saveSaleForm(): void {
     this.submitted = true;
 
-    // Validate required fields
     if (!this.validateForm()) {
       return;
     }
 
-    // Calculate final amounts
     this.calculateTotals();
 
-    // Prepare sale object
     const sale: Sales = {
       id: this.isEditMode ? this.selectedSale!.id : 0,
       invoiceNo: this.isEditMode ? this.selectedSale!.invoiceNo : '',
@@ -279,6 +277,9 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       sellDate: this.formData.sellDate,
       deliveryDate: this.formData.deliveryDate,
       notes: this.formData.notes,
+      subTotal: this.formData.subTotal,
+      vat: this.formData.vat,
+      discount: this.formData.discount,
       totalAmount: this.formData.totalPrice,
       paidAmount: this.formData.paidAmount,
       dueAmount: this.formData.dueAmount,
@@ -313,6 +314,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
             this.handleCrudSuccess('Sale created successfully', ModalType.FORM);
             this.validationErrors = {};
             this.resetFormData();
+            this.submitted = false;
           }
         },
         error: (error: any) => {
@@ -351,6 +353,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
           } else if (response.success) {
             this.handleCrudSuccess('Sale updated successfully', ModalType.FORM);
             this.validationErrors = {};
+            this.submitted = false;
           }
         },
         error: (error: any) => {
@@ -446,20 +449,14 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
   }
 
   calculateTotals(): void {
-    // Calculate subtotal from items
-    this.formData.subtotal = this.formData.items.reduce((sum, item) => sum + item.totalPrice, 0);
+    this.formData.subTotal = this.formData.items.reduce((sum, item) => sum + item.totalPrice, 0);
 
-    // Calculate VAT and Tax
-    const vatAmount = (this.formData.subtotal * this.formData.vat) / 100;
-    const taxAmount = (this.formData.subtotal * this.formData.tax) / 100;
+    const vatAmount = (this.formData.subTotal * this.formData.vat) / 100;
 
-    // Calculate totalPrice
-    this.formData.totalPrice = this.formData.subtotal + vatAmount + taxAmount - this.formData.discount;
+    this.formData.totalPrice = this.formData.subTotal + vatAmount - this.formData.discount;
 
-    // Calculate due amount
     this.formData.dueAmount = this.formData.totalPrice - this.formData.paidAmount;
 
-    // Ensure non-negative values
     if (this.formData.dueAmount < 0) {
       this.formData.dueAmount = 0;
     }
@@ -504,9 +501,8 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       deliveryDate: new Date().toISOString().split('T')[0],
       notes: '',
       items: [],
-      subtotal: 0,
+      subTotal: 0,
       vat: 0,
-      tax: 0,
       discount: 0,
       totalPrice: 0,
       paidAmount: 0,
@@ -521,7 +517,6 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
 
   printSaleMemo(): void {
     if (this.selectedSale) {
-      // Implement PDF generation logic here
       console.log('Printing sale memo for:', this.selectedSale.invoiceNo);
     }
   }
