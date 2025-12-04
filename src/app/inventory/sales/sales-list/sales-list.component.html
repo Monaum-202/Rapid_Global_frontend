@@ -184,20 +184,21 @@
 </div>
 
 
-<!-- View Sale Modal - Compact Version -->
+
 <!-- View Sale Modal - Compact Version -->
 <div class="modal fade" id="sellModal" tabindex="-1" aria-labelledby="sellViewModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content shadow-lg border-0">
             <!-- Modal Header -->
             <div class="modal-header"
-                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 0.8rem 1rem;">
+                style="background: linear-gradient(135deg, #000000 0%, #2b2b2b 100%); padding: 0.8rem 1rem;">
                 <div class="d-flex align-items-center gap-2">
                     <i class="bi bi-receipt-cutoff fs-5 text-white"></i>
                     <div>
                         <h5 class="modal-title text-white mb-0" id="sellViewModalLabel" style="font-size: 1rem;">Sale
                             Details</h5>
                         <small class="text-white-50" *ngIf="selectedSale">Invoice: {{ selectedSale.invoiceNo }}</small>
+                        &nbsp;&nbsp;
                         <span class="badge" *ngIf="selectedSale" [class.bg-warning]="selectedSale.status === 'PENDING'"
                             [class.bg-success]="selectedSale.status === 'COMPLETED'"
                             [class.bg-danger]="selectedSale.status === 'CANCELED'">
@@ -211,82 +212,83 @@
             <div class="modal-body" style="padding: 1rem;">
                 <!-- Customer Information Section -->
                 <div class="card sale-card" *ngIf="selectedSale">
-  <div class="card-body sale-card-body">
+                    <div class="card-body sale-card-body">
 
-    <!-- LEFT COLUMN (First 4) -->
-    <div class="column">
-      <!-- Name -->
-      <div class="field-row">
-        <label class="field-label">
-          <i class="bi bi-person"></i> Name
-        </label>
-        <div class="field-value">{{ selectedSale.customerName }}</div>
-      </div>
+                        <!-- LEFT COLUMN (First 4) -->
+                        <div class="column">
+                            <!-- Name -->
+                            <div class="field-row">
+                                <label class="field-label">
+                                    <i class="bi bi-person"></i> Name
+                                </label>
+                                <div class="field-value">{{ selectedSale.customerName }}</div>
+                            </div>
 
-      <!-- Phone -->
-      <div class="field-row">
-        <label class="field-label">
-          <i class="bi bi-telephone"></i> Phone
-        </label>
-        <div class="field-value">{{ selectedSale.phone }}</div>
-      </div>
+                            <!-- Phone -->
+                            <div class="field-row">
+                                <label class="field-label">
+                                    <i class="bi bi-telephone"></i> Phone
+                                </label>
+                                <div class="field-value">{{ selectedSale.phone }}</div>
+                            </div>
 
-      <!-- Email -->
-      <div class="field-row">
-        <label class="field-label">
-          <i class="bi bi-envelope"></i> Email
-        </label>
-        <div class="field-value">{{ selectedSale.email || 'N/A' }}</div>
-      </div>
+                            <!-- Email -->
+                            <div class="field-row">
+                                <label class="field-label">
+                                    <i class="bi bi-envelope"></i> Email
+                                </label>
+                                <div class="field-value">{{ selectedSale.email || 'N/A' }}</div>
+                            </div>
 
-      <!-- Company -->
-      <div class="field-row">
-        <label class="field-label">
-          <i class="bi bi-building"></i> Company
-        </label>
-        <div class="field-value">{{ selectedSale.companyName || 'N/A' }}</div>
-      </div>
-    </div>
+                            <!-- Company -->
+                            <div class="field-row">
+                                <label class="field-label">
+                                    <i class="bi bi-building"></i> Company
+                                </label>
+                                <div class="field-value">{{ selectedSale.companyName || 'N/A' }}</div>
+                            </div>
+                        </div>
 
-    <!-- RIGHT COLUMN (Last 4) -->
-    <div class="column">
-      <!-- Address -->
-      <div class="field-row">
-        <label class="field-label">
-          <i class="bi bi-geo-alt"></i> Address
-        </label>
-        <div class="field-value">{{ selectedSale.address || 'N/A' }}</div>
-      </div>
+                        <!-- RIGHT COLUMN (Last 4) -->
+                        <div class="column">
+                            <!-- Address -->
+                            <div class="field-row">
+                                <label class="field-label">
+                                    <i class="bi bi-geo-alt"></i> Address
+                                </label>
+                                <div class="field-value">{{ selectedSale.address || 'N/A' }}</div>
+                            </div>
 
-      <!-- Sale Date -->
-      <div class="field-row">
-        <label class="field-label">
-          <i class="bi bi-calendar-event"></i> Sale Date
-        </label>
-        <div class="field-value">{{ selectedSale.sellDate | date:'dd MMM, yyyy' }}</div>
-      </div>
+                            <!-- Sale Date -->
+                            <div class="field-row">
+                                <label class="field-label">
+                                    <i class="bi bi-calendar-event"></i> Sale Date
+                                </label>
+                                <div class="field-value">{{ selectedSale.sellDate | date:'dd MMM, yyyy' }}</div>
+                            </div>
 
-      <!-- Delivery Date -->
-      <div class="field-row">
-        <label class="field-label">
-          <i class="bi bi-truck"></i> Delivery Date
-        </label>
-        <div class="field-value">{{ (selectedSale.deliveryDate ? (selectedSale.deliveryDate | date:'dd MMM, yyyy') : 'N/A') }}</div>
-      </div>
+                            <!-- Delivery Date -->
+                            <div class="field-row">
+                                <label class="field-label">
+                                    <i class="bi bi-truck"></i> Delivery Date
+                                </label>
+                                <div class="field-value">{{ (selectedSale.deliveryDate ? (selectedSale.deliveryDate |
+                                    date:'dd MMM, yyyy') : 'N/A') }}</div>
+                            </div>
 
-      <!-- Notes -->
-      <div class="field-row">
-        <label class="field-label">
-          <i class="bi bi-chat-left-text"></i> Notes
-        </label>
-        <div class="notes-content">
-          {{ selectedSale.notes || 'N/A' }}
-        </div>
-      </div>
-    </div>
+                            <!-- Notes -->
+                            <div class="field-row">
+                                <label class="field-label">
+                                    <i class="bi bi-chat-left-text"></i> Notes
+                                </label>
+                                <div class="notes-content">
+                                    {{ selectedSale.notes || 'N/A' }}
+                                </div>
+                            </div>
+                        </div>
 
-  </div>
-</div>
+                    </div>
+                </div>
 
                 <!-- Items & Financial Section -->
                 <div class="card border-0 shadow-sm" *ngIf="selectedSale">
@@ -298,10 +300,11 @@
                                     <table class="table table-sm table-hover mb-0" style="font-size: 0.85rem;">
                                         <thead class="table-light sticky-top">
                                             <tr>
-                                                <th style="width: 15%; padding: 0.4rem;">#</th>
+                                                <th style="width: 15%; padding: 0.4rem;">Sl</th>
                                                 <th style="width: 40%; padding: 0.4rem;">Item</th>
                                                 <th style="width: 15%; padding: 0.4rem; text-align: center;">Qty</th>
-                                                <th style="width: 15%; padding: 0.4rem; text-align: right;">Price</th>
+                                                <th style="width: 15%; padding: 0.4rem; text-align: center;">Unit</th>
+                                                <th style="width: 15%; padding: 0.4rem; text-align: right;">Unit Price</th>
                                                 <th style="width: 15%; padding: 0.4rem; text-align: right;">Total</th>
                                             </tr>
                                         </thead>
@@ -312,10 +315,22 @@
                                                 <td style="padding: 0.4rem; text-align: center;">
                                                     {{ item.quantity }}
                                                 </td>
-                                                <td style="padding: 0.4rem; text-align: right;">৳{{ item.unitPrice |
+                                                <td style="padding: 0.4rem; text-align: center;">
+                                                    {{ item.quantity }}
+                                                </td>
+                                                <td style="padding: 0.4rem; text-align: right;"> {{ item.unitPrice |
                                                     number:'1.2-2' }}</td>
-                                                <td style="padding: 0.4rem; text-align: right; font-weight: 600;">৳{{
+                                                <td style="padding: 0.4rem; text-align: right; font-weight: 600;"> {{
                                                     item.totalPrice | number:'1.2-2' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 0.4rem; background-color: #eeeeee;" class="text-muted"></td>
+                                                <td style="padding: 0.4rem; font-weight: 500; background-color: #eeeeee;"></td>
+                                                <td style="padding: 0.4rem; text-align: center; background-color: #eeeeee;"></td>
+                                                <td style="padding: 0.4rem; text-align: center; background-color: #eeeeee;"></td>
+                                                <td style="padding: 0.4rem; text-align: right; background-color: #eeeeee; font-weight: bold;">Subtotal</td>
+                                                <td style="padding: 0.4rem; text-align: right; background-color: #eeeeee; font-weight: bold">{{
+                                                    selectedSale.subTotal | number:'1.2-2' }}</td>
                                             </tr>
                                             <tr *ngIf="selectedSale.items.length === 0">
                                                 <td colspan="5"
@@ -335,336 +350,342 @@
                                     style="background: #f8f9fa; border-radius: 0.5rem; padding: 0.8rem; font-size: 0.85rem;">
                                     <div
                                         style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #dee2e6;">
-                                        <span style="color: #000000;">Subtotal</span>
-                                        <span style="font-weight: 600;">৳{{ selectedSale.totalAmount | number:'1.2-2'
+                                        <span style="color: #000000; font-weight: bold;">Vat %</span>
+                                        <span style="font-weight: 600;">{{ selectedSale.vat | number:'1.2-2'}}</span>
+                                    </div>
+                                    <div
+                                        style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #dee2e6;">
+                                        <span style="color: #000000; font-weight: bold;">Discount </span>
+                                        <span style="font-weight: 600;">{{ selectedSale.discount |
+                                            number:'1.2-2'}}</span>
+                                    </div>
+                                    <div
+                                        style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #dee2e6;">
+                                        <span style="color: #000000; font-weight: bold;">Total </span>
+                                        <span style="font-weight: 600;">{{ selectedSale.totalAmount | number:'1.2-2'
                                             }}</span>
                                     </div>
                                     <div
                                         style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #dee2e6;">
-                                        <span style="color: #000000;"><i class="bi bi-check-circle text-success"></i>
-                                            Paid</span>
-                                        <span style="font-weight: 600; color: #198754;">৳{{ selectedSale.paidAmount |
+                                        <span style="color: #000000; font-weight: bold;"><i class="bi bi-check-circle text-success"></i>
+                                            Paid </span>
+                                        <span style="font-weight: 600; color: #198754;">{{ selectedSale.paidAmount |
                                             number:'1.2-2' }}</span>
                                     </div>
-                                    <div
-                                        style="height: 4px; background: #e9ecef; border-radius: 2px; margin-bottom: 0.5rem; overflow: hidden;">
-                                        <div style="height: 100%; background: #198754; width: 100%;">{{
-                                            (selectedSale.paidAmount / selectedSale.totalAmount) * 100 }}
-                                        </div>
-                                    </div>
                                     <div [ngClass]="selectedSale.dueAmount > 0 ? 'alert alert-danger' : 'alert alert-success'"
-                                        style="padding: 0.6rem; margin-top: 0.5rem; margin-bottom: 0;">
+                                        style="padding: 0.6rem;">
                                         <div
                                             style="display: flex; justify-content: space-between; align-items: center;">
                                             <div>
                                                 <small style="display: block; margin-bottom: 0.2rem;">Due Amount</small>
-                                                <div style="font-size: 1.1rem; font-weight: 700;">৳{{
-                                                    selectedSale.dueAmount | number:'1.2-2' }}</div>
+                                                <div style="font-size: 1.1rem; font-weight: 700;"> {{selectedSale.dueAmount | number:'1.2-2' }}</div>
                                             </div>
-                                            <i class="bi" [class.bi-exclamation-triangle]="selectedSale.dueAmount > 0"
-                                                [class.bi-check-circle]="selectedSale.dueAmount === 0"
-                                                style="font-size: 1.5rem;"></i>
                                         </div>
-                                        <small style="display: block; color: rgba(0,0,0,0.5); margin-top: 0.3rem;">
-                                            {{ selectedSale.dueAmount > 0 ? 'Payment pending' : 'Fully paid' }}
-                                        </small>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Modal Footer -->
-            <div class="modal-footer" style="padding: 0.6rem 1rem; gap: 0.5rem; background: #f8f9fa;">
-                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">
-                    <i class="bi bi-x-circle"></i> Close
-                </button>
-                <button type="button" class="btn btn-sm btn-info" (click)="printSaleMemo()">
-                    <i class="bi bi-printer"></i> Print Invoice
-                </button>
-                <button type="button" class="btn btn-sm btn-success" (click)="approvePayment(selectedSale!)"
-                    *ngIf="selectedSale && selectedSale.dueAmount > 0 && (roleId === 1 || roleId === 2)">
-                    <i class="bi bi-check-circle"></i> Approve Payment
-                </button>
+                <!-- Modal Footer -->
+                <div class="modal-footer" style="padding: 0.6rem 1rem; gap: 0.5rem; background: #f8f9fa;">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Close
+                    </button>
+                    <button type="button" class="btn btn-sm btn-info" (click)="printSaleMemo()">
+                        <i class="bi bi-printer"></i> Print Invoice
+                    </button>
+                    <button type="button" class="btn btn-sm btn-success" (click)="approvePayment(selectedSale!)"
+                        *ngIf="selectedSale && selectedSale.dueAmount > 0 && (roleId === 1 || roleId === 2)">
+                        <i class="bi bi-check-circle"></i> Approve Payment
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Add/Edit Sale Form Modal -->
-<div class="modal fade" id="expadd" tabindex="-1" aria-labelledby="saleFormLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="saleFormLabel">
-                    {{ isEditMode ? 'Edit Sale' : 'Add New Sale' }}
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-1">
-                <form id="saleForm" (ngSubmit)="saveSaleForm()">
-                    <div class="row g-4">
-                        <!-- LEFT SIDE - Sale Details -->
-                        <div class="col-md-5">
-                            <div class="card border-0 shadow-sm h-100">
-                                <div class="card-body">
-                                    <h6 class="card-title text-primary mb-3 pb-2 border-bottom">
-                                        <i class="bi bi-info-circle me-2"></i>Sale Information
-                                    </h6>
+    <!-- Add/Edit Sale Form Modal -->
+    <div class="modal fade" id="expadd" tabindex="-1" aria-labelledby="saleFormLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="saleFormLabel">
+                        {{ isEditMode ? 'Edit Sale' : 'Add New Sale' }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-1">
+                    <form id="saleForm" (ngSubmit)="saveSaleForm()">
+                        <div class="row g-4">
+                            <!-- LEFT SIDE - Sale Details -->
+                            <div class="col-md-5">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-primary mb-3 pb-2 border-bottom">
+                                            <i class="bi bi-info-circle me-2"></i>Sale Information
+                                        </h6>
 
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label for="phone" class="form-label fw-semibold">
-                                                Phone <span class="text-danger">*</span>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="phone" class="form-label fw-semibold">
+                                                    Phone <span class="text-danger">*</span>
+                                                </label>
+
+                                                <span class="spinner-border spinner-border-sm" role="status"
+                                                    *ngIf="isSearchingCustomer"></span>
+                                                <input type="text" class="form-control"
+                                                    [class.is-invalid]="validationErrors['phone']"
+                                                    [class.border-success]="customerFound && !validationErrors['phone']"
+                                                    id="phone" [(ngModel)]="formData.phone" name="phone"
+                                                    (input)="onPhoneInput($event)" (keypress)="onPhoneKeyPress($event)"
+                                                    placeholder="Enter phone & press Enter" required />
+                                                <small class="text-success d-block mt-1"
+                                                    *ngIf="customerFound && !isSearchingCustomer">
+                                                    <i class="bi bi-info-circle"></i> Customer found! Data auto-filled
+                                                </small>
+                                                <small class="text-muted d-block mt-1"
+                                                    *ngIf="!customerFound && !isSearchingCustomer && formData.phone.length >= 3">
+                                                    <i class="bi bi-info-circle"></i> Press Enter to search
+                                                </small>
+                                            </div>
+
+                                            <div class="col-md-6 mb-3">
+                                                <label for="email" class="form-label fw-semibold">Email</label>
+                                                <input type="email" class="form-control"
+                                                    [class.is-invalid]="validationErrors['email']" id="email"
+                                                    [(ngModel)]="formData.email" name="email"
+                                                    placeholder="Enter email address" />
+                                                <div class="invalid-feedback" *ngIf="validationErrors['email']"
+                                                    [style.display]="'block'">
+                                                    {{ validationErrors['email'][0] }}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="customerName" class="form-label fw-semibold">
+                                                Customer Name <span class="text-danger">*</span>
                                             </label>
-
-                                            <span class="spinner-border spinner-border-sm" role="status"
-                                                *ngIf="isSearchingCustomer"></span>
                                             <input type="text" class="form-control"
-                                                [class.is-invalid]="validationErrors['phone']"
-                                                [class.border-success]="customerFound && !validationErrors['phone']"
-                                                id="phone" [(ngModel)]="formData.phone" name="phone"
-                                                (input)="onPhoneInput($event)" (keypress)="onPhoneKeyPress($event)"
-                                                placeholder="Enter phone & press Enter" required />
-                                            <small class="text-success d-block mt-1"
-                                                *ngIf="customerFound && !isSearchingCustomer">
-                                                <i class="bi bi-info-circle"></i> Customer found! Data auto-filled
-                                            </small>
-                                            <small class="text-muted d-block mt-1"
-                                                *ngIf="!customerFound && !isSearchingCustomer && formData.phone.length >= 3">
-                                                <i class="bi bi-info-circle"></i> Press Enter to search
-                                            </small>
-                                        </div>
-
-                                        <div class="col-md-6 mb-3">
-                                            <label for="email" class="form-label fw-semibold">Email</label>
-                                            <input type="email" class="form-control"
-                                                [class.is-invalid]="validationErrors['email']" id="email"
-                                                [(ngModel)]="formData.email" name="email"
-                                                placeholder="Enter email address" />
-                                            <div class="invalid-feedback" *ngIf="validationErrors['email']"
+                                                [class.is-invalid]="validationErrors['customerName']" id="customerName"
+                                                [(ngModel)]="formData.customerName" name="customerName"
+                                                placeholder="Enter customer name" required />
+                                            <div class="invalid-feedback" *ngIf="validationErrors['customerName']"
                                                 [style.display]="'block'">
-                                                {{ validationErrors['email'][0] }}
+                                                {{ validationErrors['customerName'][0] }}
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <div class="mb-3">
-                                        <label for="customerName" class="form-label fw-semibold">
-                                            Customer Name <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="text" class="form-control"
-                                            [class.is-invalid]="validationErrors['customerName']" id="customerName"
-                                            [(ngModel)]="formData.customerName" name="customerName"
-                                            placeholder="Enter customer name" required />
-                                        <div class="invalid-feedback" *ngIf="validationErrors['customerName']"
-                                            [style.display]="'block'">
-                                            {{ validationErrors['customerName'][0] }}
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="address" class="form-label fw-semibold">Address</label>
-                                        <input type="text" class="form-control"
-                                            [class.is-invalid]="validationErrors['address']" id="address"
-                                            [(ngModel)]="formData.address" name="address" placeholder="Enter address" />
-                                        <div class="invalid-feedback" *ngIf="validationErrors['address']"
-                                            [style.display]="'block'">
-                                            {{ validationErrors['address'][0] }}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="companyName" class="form-label fw-semibold">Company Name</label>
-                                        <input type="text" class="form-control"
-                                            [class.is-invalid]="validationErrors['companyName']" id="companyName"
-                                            [(ngModel)]="formData.companyName" name="companyName"
-                                            placeholder="Enter company name" />
-                                        <div class="invalid-feedback" *ngIf="validationErrors['companyName']"
-                                            [style.display]="'block'">
-                                            {{ validationErrors['companyName'][0] }}
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label for="sellDate" class="form-label fw-semibold">
-                                                Sale Date <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="date" class="form-control"
-                                                [class.is-invalid]="validationErrors['sellDate']" id="sellDate"
-                                                [(ngModel)]="formData.sellDate" name="sellDate" required />
-                                            <div class="invalid-feedback" *ngIf="validationErrors['sellDate']"
+                                        <div class="mb-3">
+                                            <label for="address" class="form-label fw-semibold">Address</label>
+                                            <input type="text" class="form-control"
+                                                [class.is-invalid]="validationErrors['address']" id="address"
+                                                [(ngModel)]="formData.address" name="address"
+                                                placeholder="Enter address" />
+                                            <div class="invalid-feedback" *ngIf="validationErrors['address']"
                                                 [style.display]="'block'">
-                                                {{ validationErrors['sellDate'][0] }}
+                                                {{ validationErrors['address'][0] }}
                                             </div>
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label for="deliveryDate" class="form-label fw-semibold">
-                                                Delivery Date <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="date" class="form-control"
-                                                [class.is-invalid]="validationErrors['deliveryDate']" id="deliveryDate"
-                                                [(ngModel)]="formData.deliveryDate" name="deliveryDate" required />
-                                            <div class="invalid-feedback" *ngIf="validationErrors['deliveryDate']"
+                                            <label for="companyName" class="form-label fw-semibold">Company Name</label>
+                                            <input type="text" class="form-control"
+                                                [class.is-invalid]="validationErrors['companyName']" id="companyName"
+                                                [(ngModel)]="formData.companyName" name="companyName"
+                                                placeholder="Enter company name" />
+                                            <div class="invalid-feedback" *ngIf="validationErrors['companyName']"
                                                 [style.display]="'block'">
-                                                {{ validationErrors['deliveryDate'][0] }}
+                                                {{ validationErrors['companyName'][0] }}
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <div class="mb-3">
-                                        <label for="notes" class="form-label fw-semibold">Notes</label>
-                                        <textarea class="form-control" id="notes" rows="3" [(ngModel)]="formData.notes"
-                                            name="notes" placeholder="Additional notes..."></textarea>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="sellDate" class="form-label fw-semibold">
+                                                    Sale Date <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="date" class="form-control"
+                                                    [class.is-invalid]="validationErrors['sellDate']" id="sellDate"
+                                                    [(ngModel)]="formData.sellDate" name="sellDate" required />
+                                                <div class="invalid-feedback" *ngIf="validationErrors['sellDate']"
+                                                    [style.display]="'block'">
+                                                    {{ validationErrors['sellDate'][0] }}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="deliveryDate" class="form-label fw-semibold">
+                                                    Delivery Date <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="date" class="form-control"
+                                                    [class.is-invalid]="validationErrors['deliveryDate']"
+                                                    id="deliveryDate" [(ngModel)]="formData.deliveryDate"
+                                                    name="deliveryDate" required />
+                                                <div class="invalid-feedback" *ngIf="validationErrors['deliveryDate']"
+                                                    [style.display]="'block'">
+                                                    {{ validationErrors['deliveryDate'][0] }}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="notes" class="form-label fw-semibold">Notes</label>
+                                            <textarea class="form-control" id="notes" rows="3"
+                                                [(ngModel)]="formData.notes" name="notes"
+                                                placeholder="Additional notes..."></textarea>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- RIGHT SIDE - Items & Pricing -->
-                        <div class="col-md-7">
-                            <div class="card border-0 shadow-sm h-100">
-                                <div class="card-body">
-                                    <!-- Add Item Section -->
-                                    <div class="bg-light p-3 rounded-3 mb-3">
-                                        <div class="row g-2">
-                                            <div class="col-md-5">
-                                                <label class="form-label fw-semibold small">Item Name</label>
-                                                <input type="text" class="form-control form-control-sm"
-                                                    [(ngModel)]="currentItem.itemName" name="itemName"
-                                                    placeholder="Enter item name" />
+                            <!-- RIGHT SIDE - Items & Pricing -->
+                            <div class="col-md-7">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-body">
+                                        <!-- Add Item Section -->
+                                        <div class="bg-light p-3 rounded-3 mb-3">
+                                            <div class="row g-2">
+                                                <div class="col-md-5">
+                                                    <label class="form-label fw-semibold small">Item Name</label>
+                                                    <input type="text" class="form-control form-control-sm"
+                                                        [(ngModel)]="currentItem.itemName" name="itemName"
+                                                        placeholder="Enter item name" />
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label class="form-label fw-semibold small">Qty</label>
+                                                    <input type="number" class="form-control form-control-sm"
+                                                        [(ngModel)]="currentItem.quantity" name="itemQty"
+                                                        (ngModelChange)="calculateItemTotal()" min="1" />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label fw-semibold small">Unit Price</label>
+                                                    <input type="number" class="form-control form-control-sm"
+                                                        [(ngModel)]="currentItem.unitPrice" name="itemPrice"
+                                                        (ngModelChange)="calculateItemTotal()" min="0" step="0.01" />
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label class="form-label fw-semibold small">Total</label>
+                                                    <input type="text" class="form-control form-control-sm bg-white"
+                                                        [value]="currentItem.totalPrice.toFixed(2)" readonly />
+                                                </div>
                                             </div>
-                                            <div class="col-md-2">
-                                                <label class="form-label fw-semibold small">Qty</label>
-                                                <input type="number" class="form-control form-control-sm"
-                                                    [(ngModel)]="currentItem.quantity" name="itemQty"
-                                                    (ngModelChange)="calculateItemTotal()" min="1" />
+                                            <button type="button" class="btn btn-success btn-sm mt-2 w-100"
+                                                (click)="addItemToList()">
+                                                <i class="bi bi-plus-circle me-1"></i> Add Item
+                                            </button>
+                                        </div>
+
+                                        <!-- Items List -->
+                                        <div class="table-responsive mb-3" style="max-height: 200px; overflow-y: auto">
+                                            <table class="table table-sm table-hover">
+                                                <thead class="table-light sticky-top">
+                                                    <tr>
+                                                        <th>Item</th>
+                                                        <th class="text-center">Qty</th>
+                                                        <th class="text-end">Unit Price</th>
+                                                        <th class="text-end">Total</th>
+                                                        <th class="text-center">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr *ngFor="let item of formData.items; let i = index">
+                                                        <td>{{ item.itemName }}</td>
+                                                        <td class="text-center">{{ item.quantity }}</td>
+                                                        <td class="text-end">
+                                                            {{ item.unitPrice | number:'1.2-2' }}
+                                                        </td>
+                                                        <td class="text-end fw-semibold">
+                                                            {{ item.totalPrice | number:'1.2-2' }}
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <button type="button" class="btn btn-danger btn-sm"
+                                                                (click)="removeItem(i)">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    <tr >
+                                                        <td style="background-color: #ececec;"></td>
+                                                        <td style="background-color: #ececec;"></td>
+                                                        <td style="background-color: #ececec;" class="text-end"><span class="fw-bold">Subotal:</span></td>
+                                                        <td class="text-end" style="background-color: #ececec;">
+                                                            <span class="fw-bold">{{ formData.subTotal | number:'1.2-2'}}</span>
+                                                        </td>
+                                                        <td style="background-color: #ececec;"></td>
+                                                    </tr>
+                                                    <tr *ngIf="formData.items.length === 0">
+                                                        <td colspan="5" class="text-center text-muted">
+                                                            No items added yet
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <!-- Price Calculation -->
+                                        <div>
+                                            <div class="row g-2 mb-2">
+                                                <div class="col-6">
+                                                    <label class="form-label fw-semibold small">VAT (%)</label>
+                                                    <input type="number" class="form-control form-control-sm"
+                                                        [(ngModel)]="formData.vat" name="vat"
+                                                        (ngModelChange)="calculateTotals()" min="0" step="0.1" />
+                                                </div>
+                                                <div class="col-6">
+                                                    <label class="form-label fw-semibold small">Discount</label>
+                                                    <input type="number" class="form-control form-control-sm"
+                                                        [(ngModel)]="formData.discount" name="discount"
+                                                        (ngModelChange)="calculateTotals()" min="0" step="0.01" />
+                                                </div>
                                             </div>
-                                            <div class="col-md-3">
-                                                <label class="form-label fw-semibold small">Unit Price</label>
-                                                <input type="number" class="form-control form-control-sm"
-                                                    [(ngModel)]="currentItem.unitPrice" name="itemPrice"
-                                                    (ngModelChange)="calculateItemTotal()" min="0" step="0.01" />
+
+                                            <!-- Summary -->
+                                            <div class="text-dark p-3 rounded-3">
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <span>VAT ({{ formData.vat }}%):</span>
+                                                    <span>{{
+                                                        ((formData.subTotal * formData.vat) / 100) | number:'1.2-2'
+                                                        }}</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <span>Discount:</span>
+                                                    <span>-{{ formData.discount | number:'1.2-2' }}</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <span>Total:</span>
+                                                    <span>${{ formData.totalPrice.toFixed(2) }}</span>
+                                                </div>
                                             </div>
-                                            <div class="col-md-2">
-                                                <label class="form-label fw-semibold small">Total</label>
-                                                <input type="text" class="form-control form-control-sm bg-white"
-                                                    [value]="currentItem.totalPrice.toFixed(2)" readonly />
+                                            <div class="row g-2 mb-2">
+                                                <div class="col-6">
+                                                    <label class="form-label fw-semibold small">Paid</label>
+                                                    <input type="number" class="form-control form-control-sm"
+                                                        [(ngModel)]="formData.paidAmount" name="paidAmount"
+                                                        (ngModelChange)="calculateTotals()" min="0" step="0.1" />
+                                                </div>
+                                                <div class="col-6">
+                                                    <label class="form-label fw-semibold small">Due Amount</label>
+                                                    <input type="number" class="form-control form-control-sm"
+                                                        [(ngModel)]="formData.dueAmount" name="dueAmount"
+                                                        (ngModelChange)="calculateTotals()" min="0" step="0.01" />
+                                                </div>
                                             </div>
                                         </div>
-                                        <button type="button" class="btn btn-success btn-sm mt-2 w-100"
-                                            (click)="addItemToList()">
-                                            <i class="bi bi-plus-circle me-1"></i> Add Item
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                                            Close
+                                        </button>
+                                        <button type="button" class="btn btn-success" (click)="saveSaleForm()">
+                                            Save
                                         </button>
                                     </div>
-
-                                    <!-- Items List -->
-                                    <div class="table-responsive mb-3" style="max-height: 200px; overflow-y: auto">
-                                        <table class="table table-sm table-hover">
-                                            <thead class="table-light sticky-top">
-                                                <tr>
-                                                    <th>Item</th>
-                                                    <th class="text-center">Qty</th>
-                                                    <th class="text-end">Unit Price</th>
-                                                    <th class="text-end">Total</th>
-                                                    <th class="text-center">Action</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr *ngFor="let item of formData.items; let i = index">
-                                                    <td>{{ item.itemName }}</td>
-                                                    <td class="text-center">{{ item.quantity }}</td>
-                                                    <td class="text-end">
-                                                        {{ item.unitPrice | number:'1.2-2' }}
-                                                    </td>
-                                                    <td class="text-end fw-bold">
-                                                        {{ item.totalPrice | number:'1.2-2' }}
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <button type="button" class="btn btn-danger btn-sm"
-                                                            (click)="removeItem(i)">
-                                                            <i class="bi bi-trash"></i>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                                <tr *ngIf="formData.items.length === 0">
-                                                    <td colspan="5" class="text-center text-muted">
-                                                        No items added yet
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                    <!-- Price Calculation -->
-                                    <div class="border-top pt-3">
-                                        <div class="row g-2 mb-2">
-                                            <div class="col-6">
-                                                <label class="form-label fw-semibold small">VAT (%)</label>
-                                                <input type="number" class="form-control form-control-sm"
-                                                    [(ngModel)]="formData.vat" name="vat"
-                                                    (ngModelChange)="calculateTotals()" min="0" step="0.1" />
-                                            </div>
-                                            <div class="col-6">
-                                                <label class="form-label fw-semibold small">Discount</label>
-                                                <input type="number" class="form-control form-control-sm"
-                                                    [(ngModel)]="formData.discount" name="discount"
-                                                    (ngModelChange)="calculateTotals()" min="0" step="0.01" />
-                                            </div>
-                                        </div>
-
-                                        <!-- Summary -->
-                                        <div class="text-dark p-3 rounded-3">
-                                            <div class="d-flex justify-content-between mb-1">
-                                                <span>Subotal:</span>
-                                                <span class="fw-bold">{{ formData.subTotal | number:'1.2-2' }}</span>
-                                            </div>
-                                            <div class="d-flex justify-content-between mb-1">
-                                                <span>VAT ({{ formData.vat }}%):</span>
-                                                <span>{{
-                                                    ((formData.subTotal * formData.vat) / 100) | number:'1.2-2'
-                                                    }}</span>
-                                            </div>
-                                            <div class="d-flex justify-content-between mb-2">
-                                                <span>Discount:</span>
-                                                <span>-{{ formData.discount | number:'1.2-2' }}</span>
-                                            </div>
-                                            <div class="d-flex justify-content-between mb-2">
-                                                <span>Total:</span>
-                                                <span>${{ formData.totalPrice.toFixed(2) }}</span>
-                                            </div>
-                                        </div>
-                                        <div class="row g-2 mb-2">
-                                            <div class="col-6">
-                                                <label class="form-label fw-semibold small">Paid</label>
-                                                <input type="number" class="form-control form-control-sm"
-                                                    [(ngModel)]="formData.paidAmount" name="paidAmount"
-                                                    (ngModelChange)="calculateTotals()" min="0" step="0.1" />
-                                            </div>
-                                            <div class="col-6">
-                                                <label class="form-label fw-semibold small">Due Amount</label>
-                                                <input type="number" class="form-control form-control-sm"
-                                                    [(ngModel)]="formData.dueAmount" name="dueAmount"
-                                                    (ngModelChange)="calculateTotals()" min="0" step="0.01" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-                                        Close
-                                    </button>
-                                    <button type="button" class="btn btn-success" (click)="saveSaleForm()">
-                                        Save
-                                    </button>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
