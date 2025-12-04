@@ -28,6 +28,8 @@ export interface Sales {
   discount: number;
   totalAmount: number;
   paidAmount: number;
+  paymentMethodId: number;
+  trackingId?: string;
   dueAmount: number;
   status: string;
   items: SalesItem[];
@@ -50,6 +52,8 @@ export interface SalesReqDto {
   discount: number;
   totalAmount: number;
   paidAmount: number;
+  paymentMethodId: number;
+  trackingId?: string;
   dueAmount: number;
   status: string;
   items: SalesItem[];

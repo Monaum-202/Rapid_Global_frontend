@@ -6,6 +6,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { Sales, SalesReqDto, SalesService, SalesItem } from 'src/app/core/services/sales/sales.service';
 import { PageHeaderService } from 'src/app/core/services/page-header/page-header.service';
 import { Customer, CustomerService } from 'src/app/core/services/customer/customer.service';
+import { PaymentMethod, PaymentMethodService } from 'src/app/core/services/paymentMethod/payment-method.service';
 
 enum ModalType {
   VIEW = 'sellModal',
@@ -23,6 +24,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
   entityNameLower = 'sale';
   isEditMode = false;
   validationErrors: { [key: string]: string[] } = {};
+  paymentMethod: PaymentMethod[] = [];
   roleId = 0;
   userId = 0;
   submitted = false;
@@ -45,6 +47,8 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     discount: 0,
     totalPrice: 0,
     paidAmount: 0,
+    paymentMethodId: 0,
+    trackingId:'',
     dueAmount: 0,
     status: 'PENDING'
   };
@@ -88,7 +92,8 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     public service: SalesService,
     public pageHeaderService: PageHeaderService,
     public authService: AuthService,
-    private customerService: CustomerService
+    private customerService: CustomerService,
+    public paymentMethodService: PaymentMethodService,
   ) {
     super();
   }
@@ -96,6 +101,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
   ngOnInit(): void {
     this.pageHeaderService.setTitle('Sales List');
     this.loadItems();
+    this.loadPaymentMethods();
     const id = this.authService.getRoleId();
     this.roleId = id ?? 0;
     const id2 = this.authService.getUserId();
@@ -120,6 +126,8 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       discount: 0,
       totalAmount: 0,
       paidAmount: 0,
+      paymentMethodId: 0,
+      trackingId:'',
       dueAmount: 0,
       status: 'PENDING',
       items: []
@@ -141,6 +149,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       discount: sale.discount,
       totalAmount: sale.totalAmount,
       paidAmount: sale.paidAmount,
+      paymentMethodId: sale.paymentMethodId,
       dueAmount: sale.dueAmount,
       status: sale.status,
       items: sale.items
@@ -183,6 +192,8 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       discount: 0,
       totalPrice: sale.totalAmount,
       paidAmount: sale.paidAmount,
+      paymentMethodId: sale.paymentMethodId,
+      trackingId: '',
       dueAmount: sale.dueAmount,
       status: sale.status
     };
@@ -282,6 +293,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       discount: this.formData.discount,
       totalAmount: this.formData.totalPrice,
       paidAmount: this.formData.paidAmount,
+      paymentMethodId: this.formData.paymentMethodId,
       dueAmount: this.formData.dueAmount,
       status: this.formData.status,
       items: this.formData.items
@@ -506,11 +518,27 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       discount: 0,
       totalPrice: 0,
       paidAmount: 0,
+      paymentMethodId: 0,
+      trackingId:'',
       dueAmount: 0,
       status: 'PENDING'
     };
     this.resetCurrentItem();
     this.customerFound = false;
+  }
+
+  loadPaymentMethods(): void {
+    this.paymentMethodService.getAllActive(true).subscribe({
+      next: (res) => {
+        this.paymentMethod = res.data.map(method => ({
+          ...method,
+          id: Number(method.id)
+        }));
+      },
+      error: (err) => {
+        console.error('Failed to load payment methods', err);
+      }
+    });
   }
 
   // ==================== Utility Methods ====================
