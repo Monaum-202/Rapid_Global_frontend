@@ -11,20 +11,6 @@
 
 <div class="container my-1 position-relative">
 
-    <!-- Toast container (positioned at top-right) -->
-    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1200">
-        <div *ngIf="errorMessage" class="toast align-items-center text-bg-danger border-0 show" role="alert"
-            aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    {{ errorMessage }}
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="clearError()"></button>
-            </div>
-        </div>
-    </div>
-
     <div class="row align-items-center justify-content-between gy-2 m-3">
 
         <!-- Left Section: Show Entries + Columns -->
@@ -431,7 +417,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-1">
-                <form id="saleForm" (ngSubmit)="saveSaleForm()">
+                <form id="saleForm">
                     <div class="row g-4">
                         <!-- LEFT SIDE - Sale Details -->
                         <div class="col-md-5">
@@ -451,6 +437,10 @@
                                                 id="phone" [(ngModel)]="formData.phone" name="phone"
                                                 (input)="onPhoneInput($event)" (keypress)="onPhoneKeyPress($event)"
                                                 placeholder="Enter phone & press Enter" required />
+                                            <div class="invalid-feedback" *ngIf="validationErrors['phone']"
+                                                [style.display]="'block'">
+                                                {{ validationErrors['phone'][0] }}
+                                            </div>
                                             <small class="text-success d-block mt-1"
                                                 *ngIf="customerFound && !isSearchingCustomer">
                                                 <i class="bi bi-info-circle"></i> Customer found! Data auto-filled
@@ -498,7 +488,7 @@
                                             {{ validationErrors['address'][0] }}
                                         </div>
                                     </div>
-                                    <div class="col-md-6 mb-3">
+                                    <div class="mb-3">
                                         <label for="companyName" class="form-label fw-semibold">Company Name</label>
                                         <input type="text" class="form-control"
                                             [class.is-invalid]="validationErrors['companyName']" id="companyName"
@@ -525,11 +515,11 @@
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label for="deliveryDate" class="form-label fw-semibold">
-                                                Delivery Date <span class="text-danger">*</span>
+                                                Delivery Date
                                             </label>
                                             <input type="date" class="form-control"
                                                 [class.is-invalid]="validationErrors['deliveryDate']" id="deliveryDate"
-                                                [(ngModel)]="formData.deliveryDate" name="deliveryDate" required />
+                                                [(ngModel)]="formData.deliveryDate" name="deliveryDate" />
                                             <div class="invalid-feedback" *ngIf="validationErrors['deliveryDate']"
                                                 [style.display]="'block'">
                                                 {{ validationErrors['deliveryDate'][0] }}
@@ -585,7 +575,7 @@
 
                                     <!-- Items List -->
                                     <div class="table-responsive" style="max-height: 200px; overflow-y: auto">
-                                        <table class="table table-sm table-hover">
+                                        <table class="table table-sm table-hover" [class.is-invalid]="validationErrors['items']">
                                             <thead class="table-light sticky-top">
                                                 <tr>
                                                     <th>Item</th>
@@ -616,7 +606,7 @@
                                                     <td style="background-color: #ececec;"></td>
                                                     <td style="background-color: #ececec;"></td>
                                                     <td style="background-color: #ececec;" class="text-end"><span
-                                                            class="fw-bold">Subotal:</span></td>
+                                                            class="fw-bold">Subtotal:</span></td>
                                                     <td class="text-end" style="background-color: #ececec;">
                                                         <span class="fw-bold">{{ formData.subTotal |
                                                             number:'1.2-2'}}</span>
@@ -624,8 +614,14 @@
                                                     <td style="background-color: #ececec;"></td>
                                                 </tr>
                                                 <tr *ngIf="formData.items.length === 0">
-                                                    <td colspan="5" class="text-center text-muted">
-                                                        No items added yet
+                                                    <td colspan="5" class="text-center" [class.text-danger]="validationErrors['items']" [class.text-muted]="!validationErrors['items']">
+
+                                                        <span *ngIf="validationErrors['items']" class="fw-bold">
+                                                            {{ validationErrors['items'][0] }}
+                                                        </span>
+                                                        <span *ngIf="!validationErrors['items']">
+                                                            No items added yet
+                                                        </span>
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -695,16 +691,15 @@
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label fw-semibold small mb-1">Tracking Id</label>
-                                                <input type="trackingId" class="form-control form-control-sm"
-                                                    [(ngModel)]="formData.trackingId" name="trackingId"
-                                                    (ngModelChange)="calculateTotals()" min="0" step="0.01" />
+                                                <input type="text" class="form-control form-control-sm"
+                                                    [(ngModel)]="formData.trackingId" name="trackingId" />
                                             </div>
                                             <!-- Due Amount -->
                                             <div class="col-md-3">
                                                 <label class="form-label fw-semibold small mb-1">Due Amount</label>
                                                 <input type="number" class="form-control form-control-sm"
                                                     [(ngModel)]="formData.dueAmount" name="dueAmount"
-                                                    (ngModelChange)="calculateTotals()" min="0" step="0.01" />
+                                                    (ngModelChange)="calculateTotals()" min="0" step="0.01" readonly />
                                             </div>
                                         </div>
 
@@ -714,8 +709,9 @@
                                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
                                         Close
                                     </button>
-                                    <button type="button" class="btn btn-success" (click)="saveSaleForm()">
-                                        Save
+                                    <button type="button" class="btn btn-success" (click)="saveSaleForm()" [disabled]="isLoading">
+                                        <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                                        {{ isEditMode ? 'Update Sale' : 'Save Sale' }}
                                     </button>
                                 </div>
                             </div>

@@ -32,6 +32,8 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
   isSearchingCustomer = false;
   customerFound = false;
 
+  selectedSale: Sales | null = null;
+
   formData = {
     customerName: '',
     phone: '',
@@ -39,7 +41,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     address: '',
     companyName: '',
     sellDate: new Date().toISOString().split('T')[0],
-    deliveryDate: new Date().toISOString().split('T')[0],
+    deliveryDate: '',
     notes: '',
     items: [] as SalesItem[],
     subTotal: 0,
@@ -48,12 +50,11 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     totalPrice: 0,
     paidAmount: 0,
     paymentMethodId: 0,
-    trackingId:'',
+    trackingId: '',
     dueAmount: 0,
-    status: 'PENDING'
+    status: 'DELIVERED'
   };
 
-  // Current item being added
   currentItem: SalesItem = {
     itemName: '',
     quantity: 1,
@@ -74,14 +75,6 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
 
   get sales(): Sales[] {
     return this.items;
-  }
-
-  get selectedSale(): Sales | null {
-    return this.selectedItem;
-  }
-
-  set selectedSale(value: Sales | null) {
-    this.selectedItem = value;
   }
 
   get filteredSales(): Sales[] {
@@ -119,7 +112,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       address: '',
       companyName: '',
       sellDate: today,
-      deliveryDate: today,
+      deliveryDate: '',
       notes: '',
       subTotal: 0,
       vat: 0,
@@ -127,32 +120,32 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       totalAmount: 0,
       paidAmount: 0,
       paymentMethodId: 0,
-      trackingId:'',
+      trackingId: '',
       dueAmount: 0,
-      status: 'PENDING',
+      status: 'DELIVERED',
       items: []
     };
   }
 
   mapToDto(sale: Sales): SalesReqDto {
     return {
-      customerName: sale.customerName.trim(),
-      phone: sale.phone.trim(),
-      email: sale.email?.trim() || '',
-      address: sale.address?.trim() || '',
-      companyName: sale.companyName?.trim() || '',
-      sellDate: sale.sellDate,
-      deliveryDate: sale.deliveryDate?.trim() || '',
-      notes: sale.notes?.trim() || '',
-      subTotal: sale.subTotal,
-      vat: sale.vat,
-      discount: sale.discount,
-      totalAmount: sale.totalAmount,
-      paidAmount: sale.paidAmount,
-      paymentMethodId: sale.paymentMethodId,
-      dueAmount: sale.dueAmount,
-      status: sale.status,
-      items: sale.items
+      customerName: this.formData.customerName.trim(),
+      phone: this.formData.phone.trim(),
+      email: this.formData.email?.trim() || '',
+      address: this.formData.address?.trim() || '',
+      companyName: this.formData.companyName?.trim() || '',
+      sellDate: this.formData.sellDate,
+      deliveryDate: this.formData.deliveryDate?.trim() || '',
+      notes: this.formData.notes?.trim() || '',
+      subTotal: this.formData.subTotal,
+      vat: this.formData.vat,
+      discount: this.formData.discount,
+      totalAmount: this.formData.totalPrice,
+      paidAmount: this.formData.paidAmount,
+      paymentMethodId: this.formData.paymentMethodId,
+      dueAmount: this.formData.dueAmount,
+      status: this.formData.status,
+      items: this.formData.items
     };
   }
 
@@ -163,6 +156,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     this.errorMessage = '';
     this.customerFound = false;
     this.submitted = false;
+    console.log('Opening add modal, validation errors cleared:', this.validationErrors);
   }
 
   viewSale(sale: Sales): void {
@@ -170,13 +164,14 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
   }
 
   editSale(sale: Sales): void {
+    this.selectedSale = sale;
     this.isEditMode = true;
     this.validationErrors = {};
     this.errorMessage = '';
     this.customerFound = false;
     this.submitted = false;
 
-    // Populate form data
+    // Populate form data from selected sale
     this.formData = {
       customerName: sale.customerName,
       phone: sale.phone,
@@ -187,19 +182,18 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       deliveryDate: sale.deliveryDate || '',
       notes: sale.notes || '',
       items: [...sale.items],
-      subTotal: 0,
-      vat: 0,
-      discount: 0,
+      subTotal: sale.subTotal,
+      vat: sale.vat,
+      discount: sale.discount,
       totalPrice: sale.totalAmount,
       paidAmount: sale.paidAmount,
       paymentMethodId: sale.paymentMethodId,
-      trackingId: '',
+      trackingId: sale.trackingId || '',
       dueAmount: sale.dueAmount,
       status: sale.status
     };
 
-    this.selectedSale = sale;
-    this.calculateTotals();
+    console.log('Opening edit modal, validation errors cleared:', this.validationErrors);
   }
 
   // ==================== Customer Search ====================
@@ -208,8 +202,6 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     const input = event.target as HTMLInputElement;
     const phone = input.value;
     this.formData.phone = phone;
-
-    // Reset customer found flag when phone changes
     this.customerFound = false;
   }
 
@@ -270,16 +262,19 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
 
   saveSaleForm(): void {
     this.submitted = true;
-
-    if (!this.validateForm()) {
-      return;
-    }
-
     this.calculateTotals();
 
+    if (this.isEditMode) {
+      this.updateSale();
+    } else {
+      this.createSale();
+    }
+  }
+
+  createSale(): void {
     const sale: Sales = {
-      id: this.isEditMode ? this.selectedSale!.id : 0,
-      invoiceNo: this.isEditMode ? this.selectedSale!.invoiceNo : '',
+      id: 0,
+      invoiceNo: '',
       customerName: this.formData.customerName,
       phone: this.formData.phone,
       email: this.formData.email,
@@ -296,17 +291,10 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       paymentMethodId: this.formData.paymentMethodId,
       dueAmount: this.formData.dueAmount,
       status: this.formData.status,
-      items: this.formData.items
+      items: this.formData.items,
+      trackingId: this.formData.trackingId
     };
 
-    if (this.isEditMode) {
-      this.updateSale(sale);
-    } else {
-      this.createSale(sale);
-    }
-  }
-
-  createSale(sale: Sales): void {
     const dto = this.mapToDto(sale);
     this.isLoading = true;
     this.validationErrors = {};
@@ -319,9 +307,13 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       )
       .subscribe({
         next: (response: any) => {
+          console.log('Success response:', response);
+
           if (response.success === false && response.errors) {
             this.validationErrors = response.errors;
             this.errorMessage = response.message || 'Validation Failed';
+            console.log('Validation errors set:', this.validationErrors);
+            console.log('Error message set:', this.errorMessage);
           } else if (response.success) {
             this.handleCrudSuccess('Sale created successfully', ModalType.FORM);
             this.validationErrors = {};
@@ -330,9 +322,14 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
           }
         },
         error: (error: any) => {
+          console.log('Error response:', error);
+          console.log('Error body:', error.error);
+
           if (error.status === 400 && error.error && error.error.errors) {
             this.validationErrors = error.error.errors;
             this.errorMessage = error.error.message || 'Validation Failed';
+            console.log('Validation errors set:', this.validationErrors);
+            console.log('Error message set:', this.errorMessage);
           } else {
             this.handleError('Failed to create sale', error);
           }
@@ -340,28 +337,55 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       });
   }
 
-  updateSale(sale: Sales): void {
-    if (!sale.id) {
+  updateSale(): void {
+    if (!this.selectedSale?.id) {
       this.errorMessage = 'Invalid sale data';
       setTimeout(() => this.clearError(), 3000);
       return;
     }
+
+    const sale: Sales = {
+      id: this.selectedSale.id,
+      invoiceNo: this.selectedSale.invoiceNo,
+      customerName: this.formData.customerName,
+      phone: this.formData.phone,
+      email: this.formData.email,
+      address: this.formData.address,
+      companyName: this.formData.companyName,
+      sellDate: this.formData.sellDate,
+      deliveryDate: this.formData.deliveryDate,
+      notes: this.formData.notes,
+      subTotal: this.formData.subTotal,
+      vat: this.formData.vat,
+      discount: this.formData.discount,
+      totalAmount: this.formData.totalPrice,
+      paidAmount: this.formData.paidAmount,
+      paymentMethodId: this.formData.paymentMethodId,
+      dueAmount: this.formData.dueAmount,
+      status: this.formData.status,
+      items: this.formData.items,
+      trackingId: this.formData.trackingId
+    };
 
     const dto = this.mapToDto(sale);
     this.isLoading = true;
     this.validationErrors = {};
     this.errorMessage = '';
 
-    this.service.update(sale.id, dto)
+    this.service.update(this.selectedSale.id, dto)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => this.isLoading = false)
       )
       .subscribe({
         next: (response: any) => {
+          console.log('Success response:', response);
+
           if (response.success === false && response.errors) {
             this.validationErrors = response.errors;
             this.errorMessage = response.message || 'Validation Failed';
+            console.log('Validation errors set:', this.validationErrors);
+            console.log('Error message set:', this.errorMessage);
           } else if (response.success) {
             this.handleCrudSuccess('Sale updated successfully', ModalType.FORM);
             this.validationErrors = {};
@@ -369,9 +393,14 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
           }
         },
         error: (error: any) => {
+          console.log('Error response:', error);
+          console.log('Error body:', error.error);
+
           if (error.status === 400 && error.error && error.error.errors) {
             this.validationErrors = error.error.errors;
             this.errorMessage = error.error.message || 'Validation Failed';
+            console.log('Validation errors set:', this.validationErrors);
+            console.log('Error message set:', this.errorMessage);
           } else {
             this.handleError('Failed to update sale', error);
           }
@@ -462,11 +491,8 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
 
   calculateTotals(): void {
     this.formData.subTotal = this.formData.items.reduce((sum, item) => sum + item.totalPrice, 0);
-
     const vatAmount = (this.formData.subTotal * this.formData.vat) / 100;
-
     this.formData.totalPrice = this.formData.subTotal + vatAmount - this.formData.discount;
-
     this.formData.dueAmount = this.formData.totalPrice - this.formData.paidAmount;
 
     if (this.formData.dueAmount < 0) {
@@ -474,43 +500,16 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     }
   }
 
-  validateForm(): boolean {
-    if (!this.formData.customerName.trim()) {
-      this.errorMessage = 'Customer name is required';
-      setTimeout(() => this.clearError(), 3000);
-      return false;
-    }
-
-    if (!this.formData.phone.trim()) {
-      this.errorMessage = 'Phone number is required';
-      setTimeout(() => this.clearError(), 3000);
-      return false;
-    }
-
-    if (!this.formData.sellDate) {
-      this.errorMessage = 'Sale date is required';
-      setTimeout(() => this.clearError(), 3000);
-      return false;
-    }
-
-    if (this.formData.items.length === 0) {
-      this.errorMessage = 'At least one item is required';
-      setTimeout(() => this.clearError(), 3000);
-      return false;
-    }
-
-    return true;
-  }
-
   resetFormData(): void {
+    const today = new Date().toISOString().split('T')[0];
     this.formData = {
       customerName: '',
       phone: '',
       email: '',
       address: '',
       companyName: '',
-      sellDate: new Date().toISOString().split('T')[0],
-      deliveryDate: new Date().toISOString().split('T')[0],
+      sellDate: today,
+      deliveryDate: '',
       notes: '',
       items: [],
       subTotal: 0,
@@ -519,9 +518,9 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       totalPrice: 0,
       paidAmount: 0,
       paymentMethodId: 0,
-      trackingId:'',
+      trackingId: '',
       dueAmount: 0,
-      status: 'PENDING'
+      status: 'DELIVERED'
     };
     this.resetCurrentItem();
     this.customerFound = false;

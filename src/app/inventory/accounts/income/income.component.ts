@@ -267,8 +267,6 @@ export class IncomeComponent extends simpleCrudComponent<Income, IncomeReqDto> i
           if (error.status === 400 && error.error && error.error.errors) {
             this.validationErrors = error.error.errors;
             this.errorMessage = error.error.message || 'Validation Failed';
-            console.log('Validation errors set:', this.validationErrors);
-            console.log('Error message set:', this.errorMessage);
           } else {
             this.handleError('Failed to update income', error);
           }
