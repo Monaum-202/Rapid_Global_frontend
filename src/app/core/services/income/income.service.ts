@@ -3,6 +3,7 @@ import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { BaseApiResponse, PaginatedData } from '../../models/api-response.model';
 import { BaseService } from '../base/base.service';
+import { AddPaymentDto } from '../sales/sales.service';
 
 export interface Income {
   id: number;
@@ -125,6 +126,9 @@ export class IncomeService extends BaseService {
     return this.put<Income>(`${this.ENDPOINT}/${id}/cancel`, reason);
   }
 
+  addPayment(dto: AddPaymentDto): Observable<BaseApiResponse<Income>> {
+  return this.put<Income>(`${this.ENDPOINT}/${dto.saleId}/payments`, dto);
+}
   // ==================== Helper Methods ====================
 
   /**

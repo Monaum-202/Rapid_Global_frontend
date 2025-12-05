@@ -7,6 +7,7 @@ import { Sales, SalesReqDto, SalesService, SalesItem } from 'src/app/core/servic
 import { PageHeaderService } from 'src/app/core/services/page-header/page-header.service';
 import { Customer, CustomerService } from 'src/app/core/services/customer/customer.service';
 import { PaymentMethod, PaymentMethodService } from 'src/app/core/services/paymentMethod/payment-method.service';
+import { IncomeService } from 'src/app/core/services/income/income.service';
 
 enum ModalType {
   VIEW = 'sellModal',
@@ -68,7 +69,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     { key: 'phone', label: 'Phone', visible: true },
     { key: 'sellDate', label: 'Date', visible: true },
     { key: 'totalAmount', label: 'Total Amount', visible: true },
-    { key: 'paidAmount', label: 'Paid Amount', visible: true },
+    { key: 'paidAmount', label: 'Paid Amount', visible: false },
     { key: 'dueAmount', label: 'Due Amount', visible: true },
     { key: 'status', label: 'Status', visible: true }
   ];
@@ -83,6 +84,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
 
   constructor(
     public service: SalesService,
+    public incomeService: IncomeService,
     public pageHeaderService: PageHeaderService,
     public authService: AuthService,
     private customerService: CustomerService,
@@ -610,7 +612,7 @@ addPaymentToSale(): void {
   const paymentDto = {
     saleId: this.selectedSale.id,
     amount: this.updatePaymentData.amount,
-    paymentDate: this.updatePaymentData.date,
+    incomeDate: this.updatePaymentData.date,
     paymentMethodId: this.updatePaymentData.paymentMethodId,
     trackingId: this.updatePaymentData.trackingId || '',
     description: this.updatePaymentData.description || `Payment for Invoice ${this.selectedSale.invoiceNo}`
@@ -622,7 +624,7 @@ addPaymentToSale(): void {
 
   // Call your service method to add payment
   // Assuming you have a method like addPayment in your SalesService
-  this.service.addPayment(paymentDto)
+  this.incomeService.addPayment(paymentDto)
     .pipe(
       takeUntil(this.destroy$),
       finalize(() => this.isLoading = false)

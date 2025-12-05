@@ -97,7 +97,7 @@
                     <td *ngIf="isColumnVisible('sellDate')">{{ sale.sellDate | date:'dd/MM/yyyy' }}</td>
                     <td *ngIf="isColumnVisible('totalAmount')">{{ sale.totalAmount | number:'1.2-2' }}</td>
                     <td *ngIf="isColumnVisible('paidAmount')">{{ sale.paidAmount | number:'1.2-2' }}</td>
-                    <td *ngIf="isColumnVisible('dueAmount')">{{ sale.dueAmount | number:'1.2-2' }}</td>
+                    <td *ngIf="isColumnVisible('dueAmount')">{{ sale.dueAmount === 0 ? 'PAID' : (sale.dueAmount | number:'1.2-2') }}</td>
                     <td *ngIf="isColumnVisible('status')">
                         <span class="badge" [class.bg-warning]="sale.status === 'PENDING'"
                             [class.bg-success]="sale.status === 'COMPLETED'"
@@ -119,13 +119,12 @@
                                 [hidden]="sale.status === 'COMPLETED' || sale.status === 'CANCELED'" title="Edit">
                                 <i class="fa fa-pen"></i>
                             </button> -->
-                            <button type="button" class="btn btn-outline-success btn-sm"
-    data-bs-toggle="modal" data-bs-target="#updateSaleModal"
-    (click)="openUpdateModal(sale)"
-    [hidden]="sale.status === 'COMPLETED' || sale.status === 'CANCELED'"
-    title="Update Payment">
-    <i class="fa fa-pen"></i>
-</button>
+                            <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#updateSaleModal" (click)="openUpdateModal(sale)"
+                                [hidden]="sale.status === 'COMPLETED' || sale.status === 'CANCELED'"
+                                title="Update Payment">
+                                <i class="fa fa-pen"></i>
+                            </button>
 
                             <!-- Delete button -->
                             <button type="button" class="btn btn-outline-danger btn-sm" (click)="openDeleteModal(sale)"
@@ -356,35 +355,33 @@
                                     <div
                                         style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #dee2e6;">
                                         <span style="color: #000000; font-weight: bold;">Vat %</span>
-                                        <span style="font-weight: 600;">{{ selectedSale.vat | number:'1.2-2'}}</span>
+                                        <span style="font-weight: 600; font-weight: bold;">{{ selectedSale.vat | number:'1.2-2'}}</span>
                                     </div>
                                     <div
                                         style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #dee2e6;">
                                         <span style="color: #000000; font-weight: bold;">Discount </span>
-                                        <span style="font-weight: 600;">{{ selectedSale.discount |
+                                        <span style="font-weight: 600; font-weight: bold;">{{ selectedSale.discount |
                                             number:'1.2-2'}}</span>
                                     </div>
                                     <div
                                         style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #dee2e6;">
                                         <span style="color: #000000; font-weight: bold;">Total </span>
-                                        <span style="font-weight: 600;">{{ selectedSale.totalAmount | number:'1.2-2'
+                                        <span style="font-weight: 600; font-weight: bold;">{{ selectedSale.totalAmount | number:'1.2-2'
                                             }}</span>
                                     </div>
                                     <div
                                         style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #dee2e6;">
-                                        <span style="color: #000000; font-weight: bold;"><i
-                                                class="bi bi-check-circle text-success"></i>
-                                            Paid </span>
-                                        <span style="font-weight: 600; color: #198754;">{{ selectedSale.paidAmount |
+                                        <span style="color: #000000; font-weight: bold;"><i class="bi bi-check-circle text-success"></i>Paid </span>
+                                        <span style="font-weight: 600; font-weight: bold; color: #198754;">{{ selectedSale.paidAmount |
                                             number:'1.2-2' }}</span>
                                     </div>
                                     <div [ngClass]="selectedSale.dueAmount > 0 ? 'alert alert-danger' : 'alert alert-success'"
-                                        style="padding: 0.6rem;">
+                                        style="padding: 0.6rem;" *ngIf="selectedSale.dueAmount > 0">
                                         <div
                                             style="display: flex; justify-content: space-between; align-items: center;">
-                                            <div>
+                                            <div >
                                                 <small style="display: block; margin-bottom: 0.2rem;">Due Amount</small>
-                                                <div style="font-size: 1.1rem; font-weight: 700;">
+                                                <div style="font-size: 1.1rem; font-weight: bold; font-weight: 700;">
                                                     {{selectedSale.dueAmount | number:'1.2-2' }}</div>
                                             </div>
                                         </div>
@@ -741,7 +738,8 @@
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content shadow-lg border-0">
             <!-- Modal Header -->
-            <div class="modal-header" style="background: linear-gradient(135deg, #000000 0%, #2b2b2b 100%); padding: 0.8rem 1rem;">
+            <div class="modal-header"
+                style="background: linear-gradient(135deg, #000000 0%, #2b2b2b 100%); padding: 0.8rem 1rem;">
                 <div class="d-flex align-items-center gap-2">
                     <i class="bi bi-pencil-square fs-5 text-white"></i>
                     <div>
@@ -750,15 +748,15 @@
                         </h5>
                         <small class="text-white-50" *ngIf="selectedSale">Invoice: {{ selectedSale.invoiceNo }}</small>
                         &nbsp;&nbsp;
-                        <span class="badge" *ngIf="selectedSale"
-                            [class.bg-warning]="selectedSale.status === 'PENDING'"
+                        <span class="badge" *ngIf="selectedSale" [class.bg-warning]="selectedSale.status === 'PENDING'"
                             [class.bg-success]="selectedSale.status === 'COMPLETED'"
                             [class.bg-danger]="selectedSale.status === 'CANCELED'">
                             {{ selectedSale.status }}
                         </span>
                     </div>
                 </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
             </div>
 
             <div class="modal-body p-3">
@@ -773,82 +771,95 @@
 
                                 <div *ngIf="selectedSale" style="font-size: 0.9rem;">
                                     <!-- Customer Name -->
-                                    <div class="mb-3">
-                                        <label class="text-muted small d-block mb-1">Customer Name</label>
-                                        <p class="text-dark mb-0 fw-semibold">{{ selectedSale.customerName }}</p>
-                                    </div>
-
-                                    <!-- Phone -->
-                                    <div class="mb-3">
-                                        <label class="text-muted small d-block mb-1">Phone</label>
-                                        <p class="text-dark mb-0">{{ selectedSale.phone }}</p>
-                                    </div>
-
-                                    <!-- Email -->
-                                    <div class="mb-3">
-                                        <label class="text-muted small d-block mb-1">Email</label>
-                                        <p class="text-dark mb-0">{{ selectedSale.email || 'N/A' }}</p>
-                                    </div>
-
-                                    <!-- Company -->
-                                    <div class="mb-3">
-                                        <label class="text-muted small d-block mb-1">Company</label>
-                                        <p class="text-dark mb-0">{{ selectedSale.companyName || 'N/A' }}</p>
-                                    </div>
-
-                                    <!-- Address -->
-                                    <div class="mb-3">
-                                        <label class="text-muted small d-block mb-1">Address</label>
-                                        <p class="text-dark mb-0">{{ selectedSale.address || 'N/A' }}</p>
-                                    </div>
-
-                                    <!-- Sale Date -->
-                                    <div class="row mb-3">
-                                        <div class="col-6">
-                                            <label class="text-muted small d-block mb-1">Sale Date</label>
-                                            <p class="text-dark mb-0">{{ selectedSale.sellDate | date:'dd MMM, yyyy' }}</p>
+                                    <div class="row">
+                                        <div class="mb-3 col-6">
+                                            <label class="text-muted small d-block mb-1">Customer Name</label>
+                                            <p class="text-dark mb-0 fw-semibold">{{ selectedSale.customerName }}</p>
                                         </div>
-                                        <div class="col-6">
-                                            <label class="text-muted small d-block mb-1">Delivery Date</label>
-                                            <p class="text-dark mb-0">{{ (selectedSale.deliveryDate ? (selectedSale.deliveryDate | date:'dd MMM, yyyy') : 'N/A') }}</p>
+
+                                        <!-- Phone -->
+                                        <div class="mb-3 col-6">
+                                            <label class="text-muted small d-block mb-1">Phone</label>
+                                            <p class="text-dark mb-0">{{ selectedSale.phone }}</p>
+                                        </div>
+
+                                        <!-- Email -->
+                                        <div class="mb-3 col-6">
+                                            <label class="text-muted small d-block mb-1">Email</label>
+                                            <p class="text-dark mb-0">{{ selectedSale.email || 'N/A' }}</p>
+                                        </div>
+
+                                        <!-- Company -->
+                                        <div class="mb-3 col-6">
+                                            <label class="text-muted small d-block mb-1">Company</label>
+                                            <p class="text-dark mb-0">{{ selectedSale.companyName || 'N/A' }}</p>
+                                        </div>
+
+                                        <!-- Address -->
+                                        <div class="mb-3 col-6">
+                                            <label class="text-muted small d-block mb-1">Address</label>
+                                            <p class="text-dark mb-0">{{ selectedSale.address || 'N/A' }}</p>
+                                        </div>
+
+                                        <!-- Sale Date -->
+                                        <div class="row mb-3">
+                                            <div class="col-6">
+                                                <label class="text-muted small d-block mb-1">Sale Date</label>
+                                                <p class="text-dark mb-0">{{ selectedSale.sellDate | date:'dd MMM, yyyy'
+                                                    }}
+                                                </p>
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="text-muted small d-block mb-1">Delivery Date</label>
+                                                <p class="text-dark mb-0">{{ (selectedSale.deliveryDate ?
+                                                    (selectedSale.deliveryDate | date:'dd MMM, yyyy') : 'N/A') }}</p>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <!-- Notes -->
                                     <div class="mb-3">
                                         <label class="text-muted small d-block mb-1">Notes</label>
-                                        <p class="text-dark mb-0" style="font-size: 0.85rem;">{{ selectedSale.notes || 'N/A' }}</p>
+                                        <p class="text-dark mb-0" style="font-size: 0.85rem;">{{ selectedSale.notes ||
+                                            'N/A' }}</p>
                                     </div>
 
                                     <!-- Financial Summary -->
                                     <div class="bg-light rounded p-3 mt-3">
                                         <div class="d-flex justify-content-between mb-2">
                                             <span class="text-muted">Subtotal:</span>
-                                            <span class="fw-semibold">{{ selectedSale.subTotal | number:'1.2-2' }}</span>
+                                            <span class="fw-semibold">{{ selectedSale.subTotal | number:'1.2-2'
+                                                }}</span>
                                         </div>
                                         <div class="d-flex justify-content-between mb-2">
                                             <span class="text-muted">VAT ({{ selectedSale.vat }}%):</span>
-                                            <span class="fw-semibold">{{ ((selectedSale.subTotal * selectedSale.vat) / 100) | number:'1.2-2' }}</span>
+                                            <span class="fw-semibold">{{ ((selectedSale.subTotal * selectedSale.vat) /
+                                                100) | number:'1.2-2' }}</span>
                                         </div>
                                         <div class="d-flex justify-content-between mb-2">
                                             <span class="text-muted">Discount:</span>
-                                            <span class="fw-semibold">-{{ selectedSale.discount | number:'1.2-2' }}</span>
+                                            <span class="fw-semibold">-{{ selectedSale.discount | number:'1.2-2'
+                                                }}</span>
                                         </div>
                                         <div class="d-flex justify-content-between mb-2 border-top pt-2">
                                             <span class="text-dark fw-bold">Total Amount:</span>
-                                            <span class="fw-bold text-dark">{{ selectedSale.totalAmount | number:'1.2-2' }}</span>
+                                            <span class="fw-bold text-dark">{{ selectedSale.totalAmount | number:'1.2-2'
+                                                }}</span>
                                         </div>
                                         <div class="d-flex justify-content-between mb-2">
                                             <span class="text-success">Paid Amount:</span>
-                                            <span class="fw-semibold text-success">{{ selectedSale.paidAmount | number:'1.2-2' }}</span>
+                                            <span class="fw-semibold text-success">{{ selectedSale.paidAmount |
+                                                number:'1.2-2' }}</span>
                                         </div>
                                         <div class="d-flex justify-content-between"
                                             [class.alert]="selectedSale.dueAmount > 0"
                                             [class.alert-danger]="selectedSale.dueAmount > 0"
                                             [class.mb-0]="selectedSale.dueAmount > 0"
                                             [class.py-2]="selectedSale.dueAmount > 0">
-                                            <span class="fw-bold" [class.text-danger]="selectedSale.dueAmount > 0">Due Amount:</span>
-                                            <span class="fw-bold" [class.text-danger]="selectedSale.dueAmount > 0">{{ selectedSale.dueAmount | number:'1.2-2' }}</span>
+                                            <span class="fw-bold" [class.text-danger]="selectedSale.dueAmount > 0">Due
+                                                Amount:</span>
+                                            <span class="fw-bold" [class.text-danger]="selectedSale.dueAmount > 0">{{
+                                                selectedSale.dueAmount | number:'1.2-2' }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -878,13 +889,17 @@
                                         </thead>
                                         <tbody>
                                             <tr *ngFor="let payment of selectedSale?.payments">
-                                                <td style="padding: 0.5rem; font-weight: 500;">{{ payment.incomeId }}</td>
-                                                <td style="padding: 0.5rem;">{{ payment.date | date:'dd/MM/yy' }}</td>
+                                                <td style="padding: 0.5rem; font-weight: 500;">{{ payment.incomeId }}
+                                                </td>
+                                                <td style="padding: 0.5rem;">{{ payment.incomeDate | date:'dd/MM/yy' }}
+                                                </td>
                                                 <td style="padding: 0.5rem; text-align: right; font-weight: 600;">
                                                     {{ payment.amount | number:'1.2-2' }}
                                                 </td>
-                                                <td style="padding: 0.5rem;">{{ payment.paymentMethodName || 'N/A' }}</td>
-                                                <td style="padding: 0.5rem; font-size: 0.8rem;">{{ payment.createdBy }}</td>
+                                                <td style="padding: 0.5rem;">{{ payment.paymentMethodName || 'N/A' }}
+                                                </td>
+                                                <td style="padding: 0.5rem; font-size: 0.8rem;">{{ payment.createdBy }}
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -903,15 +918,10 @@
                                                 <label for="paymentAmount" class="form-label fw-semibold small">
                                                     Payment Amount <span class="text-danger">*</span>
                                                 </label>
-                                                <input type="number"
-                                                    class="form-control form-control-sm"
-                                                    [class.is-invalid]="validationErrors['amount']"
-                                                    id="paymentAmount"
-                                                    [(ngModel)]="updatePaymentData.amount"
-                                                    name="paymentAmount"
-                                                    [max]="selectedSale?.dueAmount || 0"
-                                                    min="0"
-                                                    step="0.01"
+                                                <input type="number" class="form-control form-control-sm"
+                                                    [class.is-invalid]="validationErrors['amount']" id="paymentAmount"
+                                                    [(ngModel)]="updatePaymentData.amount" name="paymentAmount"
+                                                    [max]="selectedSale?.dueAmount || 0" min="0" step="0.01"
                                                     placeholder="Enter amount" />
                                                 <div class="invalid-feedback" *ngIf="validationErrors['amount']">
                                                     {{ validationErrors['amount'][0] }}
@@ -923,12 +933,9 @@
                                                 <label for="paymentDate" class="form-label fw-semibold small">
                                                     Payment Date <span class="text-danger">*</span>
                                                 </label>
-                                                <input type="date"
-                                                    class="form-control form-control-sm"
-                                                    [class.is-invalid]="validationErrors['date']"
-                                                    id="paymentDate"
-                                                    [(ngModel)]="updatePaymentData.date"
-                                                    name="paymentDate" />
+                                                <input type="date" class="form-control form-control-sm"
+                                                    [class.is-invalid]="validationErrors['date']" id="paymentDate"
+                                                    [(ngModel)]="updatePaymentData.date" name="paymentDate" />
                                                 <div class="invalid-feedback" *ngIf="validationErrors['date']">
                                                     {{ validationErrors['date'][0] }}
                                                 </div>
@@ -949,7 +956,8 @@
                                                         {{ method.name }}
                                                     </option>
                                                 </select>
-                                                <div class="invalid-feedback" *ngIf="validationErrors['paymentMethodId']">
+                                                <div class="invalid-feedback"
+                                                    *ngIf="validationErrors['paymentMethodId']">
                                                     {{ validationErrors['paymentMethodId'][0] }}
                                                 </div>
                                             </div>
@@ -959,12 +967,9 @@
                                                 <label for="paymentTrackingId" class="form-label fw-semibold small">
                                                     Tracking ID
                                                 </label>
-                                                <input type="text"
-                                                    class="form-control form-control-sm"
-                                                    id="paymentTrackingId"
-                                                    [(ngModel)]="updatePaymentData.trackingId"
-                                                    name="paymentTrackingId"
-                                                    placeholder="Enter tracking ID" />
+                                                <input type="text" class="form-control form-control-sm"
+                                                    id="paymentTrackingId" [(ngModel)]="updatePaymentData.trackingId"
+                                                    name="paymentTrackingId" placeholder="Enter tracking ID" />
                                             </div>
 
                                             <!-- Description/Notes -->
@@ -972,11 +977,9 @@
                                                 <label for="paymentDescription" class="form-label fw-semibold small">
                                                     Description
                                                 </label>
-                                                <textarea class="form-control form-control-sm"
-                                                    id="paymentDescription"
+                                                <textarea class="form-control form-control-sm" id="paymentDescription"
                                                     [(ngModel)]="updatePaymentData.description"
-                                                    name="paymentDescription"
-                                                    rows="2"
+                                                    name="paymentDescription" rows="2"
                                                     placeholder="Enter payment description..."></textarea>
                                             </div>
                                         </div>
