@@ -12,6 +12,24 @@ export interface SalesItem {
   totalPrice: number;
 }
 
+export interface Payments {
+  incomeId?: string;
+  amount: number;
+  date: string;
+  paymentMethodName: string;
+  trackingId: string;
+  createdBy: string;
+}
+  export interface AddPaymentDto {
+  saleId: number;
+  amount: number;
+  paymentDate: string;
+  paymentMethodId: number;
+  trackingId?: string;
+  description?: string;
+}
+
+
 export interface Sales {
   id: number;
   invoiceNo: string;
@@ -33,6 +51,7 @@ export interface Sales {
   dueAmount: number;
   status: string;
   items: SalesItem[];
+  payments?: Payments[];
   createdBy?: number;
   createdByName?: string;
   createdDate?: string;
@@ -207,4 +226,22 @@ export class SalesService extends BaseService {
       totalPrice
     };
   }
+
+
+// Add this method to your SalesService class:
+
+/**
+ * Add a new payment to an existing sale
+ */
+addPayment(dto: AddPaymentDto): Observable<BaseApiResponse<Sales>> {
+  return this.post<Sales>(`${this.ENDPOINT}/${dto.saleId}/payments`, dto);
+}
+
+/**
+ * Alternative: If your backend expects the payment without saleId in the body
+ */
+addPaymentAlternative(saleId: number, dto: Omit<AddPaymentDto, 'saleId'>): Observable<BaseApiResponse<Sales>> {
+  return this.post<Sales>(`${this.ENDPOINT}/${saleId}/payments`, dto);
+}
+
 }

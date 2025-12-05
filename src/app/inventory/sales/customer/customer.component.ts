@@ -33,7 +33,7 @@ export class CustomerComponent extends simpleCrudComponent<Customer, CustomerReq
     { key: 'altPhone', label: 'Alt Phone', visible: false },
     { key: 'email', label: 'Email', visible: true },
     { key: 'address', label: 'Address', visible: false },
-    { key: 'businessAddress', label: 'Business Address', visible: false },
+    { key: 'companyName', label: 'Business Address', visible: false },
     { key: 'totalTransaction', label: 'Total Transaction', visible: true }
   ];
 
@@ -78,7 +78,7 @@ export class CustomerComponent extends simpleCrudComponent<Customer, CustomerReq
       altPhone: undefined,
       email: '',
       address: '',
-      businessAddress: '',
+      companyName: '',
       totalTransaction: 0,
       active: true
     };
@@ -107,8 +107,8 @@ export class CustomerComponent extends simpleCrudComponent<Customer, CustomerReq
       dto.address = customer.address.trim();
     }
 
-    if (customer.businessAddress && customer.businessAddress.trim() !== '') {
-      dto.businessAddress = customer.businessAddress.trim();
+    if (customer.companyName && customer.companyName.trim() !== '') {
+      dto.companyName = customer.companyName.trim();
     }
 
     return dto;

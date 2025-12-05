@@ -114,11 +114,18 @@
                             </button>
 
                             <!-- Edit button -->
-                            <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
+                            <!-- <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
                                 data-bs-target="#expadd" (click)="editSale(sale)"
                                 [hidden]="sale.status === 'COMPLETED' || sale.status === 'CANCELED'" title="Edit">
                                 <i class="fa fa-pen"></i>
-                            </button>
+                            </button> -->
+                            <button type="button" class="btn btn-outline-success btn-sm"
+    data-bs-toggle="modal" data-bs-target="#updateSaleModal"
+    (click)="openUpdateModal(sale)"
+    [hidden]="sale.status === 'COMPLETED' || sale.status === 'CANCELED'"
+    title="Update Payment">
+    <i class="fa fa-pen"></i>
+</button>
 
                             <!-- Delete button -->
                             <button type="button" class="btn btn-outline-danger btn-sm" (click)="openDeleteModal(sale)"
@@ -437,10 +444,12 @@
                                                 id="phone" [(ngModel)]="formData.phone" name="phone"
                                                 (input)="onPhoneInput($event)" (keypress)="onPhoneKeyPress($event)"
                                                 placeholder="Enter phone & press Enter" required />
-                                            <div class="invalid-feedback" *ngIf="validationErrors['phone']"
+                                            <div class="invalid-feedback"
+                                                *ngIf="validationErrors['phone'] && validationErrors['phone'].length"
                                                 [style.display]="'block'">
                                                 {{ validationErrors['phone'][0] }}
                                             </div>
+
                                             <small class="text-success d-block mt-1"
                                                 *ngIf="customerFound && !isSearchingCustomer">
                                                 <i class="bi bi-info-circle"></i> Customer found! Data auto-filled
@@ -575,7 +584,8 @@
 
                                     <!-- Items List -->
                                     <div class="table-responsive" style="max-height: 200px; overflow-y: auto">
-                                        <table class="table table-sm table-hover" [class.is-invalid]="validationErrors['items']">
+                                        <table class="table table-sm table-hover"
+                                            [class.is-invalid]="validationErrors['items']">
                                             <thead class="table-light sticky-top">
                                                 <tr>
                                                     <th>Item</th>
@@ -614,7 +624,9 @@
                                                     <td style="background-color: #ececec;"></td>
                                                 </tr>
                                                 <tr *ngIf="formData.items.length === 0">
-                                                    <td colspan="5" class="text-center" [class.text-danger]="validationErrors['items']" [class.text-muted]="!validationErrors['items']">
+                                                    <td colspan="5" class="text-center"
+                                                        [class.text-danger]="validationErrors['items']"
+                                                        [class.text-muted]="!validationErrors['items']">
 
                                                         <span *ngIf="validationErrors['items']" class="fw-bold">
                                                             {{ validationErrors['items'][0] }}
@@ -709,7 +721,8 @@
                                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
                                         Close
                                     </button>
-                                    <button type="button" class="btn btn-success" (click)="saveSaleForm()" [disabled]="isLoading">
+                                    <button type="button" class="btn btn-success" (click)="saveSaleForm()"
+                                        [disabled]="isLoading">
                                         <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
                                         {{ isEditMode ? 'Update Sale' : 'Save Sale' }}
                                     </button>
@@ -718,6 +731,283 @@
                         </div>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update Sale Modal - Read-only Customer Info with Payments -->
+<div class="modal fade" id="updateSaleModal" tabindex="-1" aria-labelledby="updateSaleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0">
+            <!-- Modal Header -->
+            <div class="modal-header" style="background: linear-gradient(135deg, #000000 0%, #2b2b2b 100%); padding: 0.8rem 1rem;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-pencil-square fs-5 text-white"></i>
+                    <div>
+                        <h5 class="modal-title text-white mb-0" id="updateSaleModalLabel" style="font-size: 1rem;">
+                            Update Sale Payment
+                        </h5>
+                        <small class="text-white-50" *ngIf="selectedSale">Invoice: {{ selectedSale.invoiceNo }}</small>
+                        &nbsp;&nbsp;
+                        <span class="badge" *ngIf="selectedSale"
+                            [class.bg-warning]="selectedSale.status === 'PENDING'"
+                            [class.bg-success]="selectedSale.status === 'COMPLETED'"
+                            [class.bg-danger]="selectedSale.status === 'CANCELED'">
+                            {{ selectedSale.status }}
+                        </span>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-3">
+                <div class="row g-3">
+                    <!-- LEFT SIDE - Customer Info (Read-only) -->
+                    <div class="col-md-5">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body p-3">
+                                <h6 class="card-title mb-3 fw-bold text-dark border-bottom pb-2">
+                                    <i class="bi bi-person-circle me-2"></i>Customer Information
+                                </h6>
+
+                                <div *ngIf="selectedSale" style="font-size: 0.9rem;">
+                                    <!-- Customer Name -->
+                                    <div class="mb-3">
+                                        <label class="text-muted small d-block mb-1">Customer Name</label>
+                                        <p class="text-dark mb-0 fw-semibold">{{ selectedSale.customerName }}</p>
+                                    </div>
+
+                                    <!-- Phone -->
+                                    <div class="mb-3">
+                                        <label class="text-muted small d-block mb-1">Phone</label>
+                                        <p class="text-dark mb-0">{{ selectedSale.phone }}</p>
+                                    </div>
+
+                                    <!-- Email -->
+                                    <div class="mb-3">
+                                        <label class="text-muted small d-block mb-1">Email</label>
+                                        <p class="text-dark mb-0">{{ selectedSale.email || 'N/A' }}</p>
+                                    </div>
+
+                                    <!-- Company -->
+                                    <div class="mb-3">
+                                        <label class="text-muted small d-block mb-1">Company</label>
+                                        <p class="text-dark mb-0">{{ selectedSale.companyName || 'N/A' }}</p>
+                                    </div>
+
+                                    <!-- Address -->
+                                    <div class="mb-3">
+                                        <label class="text-muted small d-block mb-1">Address</label>
+                                        <p class="text-dark mb-0">{{ selectedSale.address || 'N/A' }}</p>
+                                    </div>
+
+                                    <!-- Sale Date -->
+                                    <div class="row mb-3">
+                                        <div class="col-6">
+                                            <label class="text-muted small d-block mb-1">Sale Date</label>
+                                            <p class="text-dark mb-0">{{ selectedSale.sellDate | date:'dd MMM, yyyy' }}</p>
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="text-muted small d-block mb-1">Delivery Date</label>
+                                            <p class="text-dark mb-0">{{ (selectedSale.deliveryDate ? (selectedSale.deliveryDate | date:'dd MMM, yyyy') : 'N/A') }}</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Notes -->
+                                    <div class="mb-3">
+                                        <label class="text-muted small d-block mb-1">Notes</label>
+                                        <p class="text-dark mb-0" style="font-size: 0.85rem;">{{ selectedSale.notes || 'N/A' }}</p>
+                                    </div>
+
+                                    <!-- Financial Summary -->
+                                    <div class="bg-light rounded p-3 mt-3">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="text-muted">Subtotal:</span>
+                                            <span class="fw-semibold">{{ selectedSale.subTotal | number:'1.2-2' }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="text-muted">VAT ({{ selectedSale.vat }}%):</span>
+                                            <span class="fw-semibold">{{ ((selectedSale.subTotal * selectedSale.vat) / 100) | number:'1.2-2' }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="text-muted">Discount:</span>
+                                            <span class="fw-semibold">-{{ selectedSale.discount | number:'1.2-2' }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2 border-top pt-2">
+                                            <span class="text-dark fw-bold">Total Amount:</span>
+                                            <span class="fw-bold text-dark">{{ selectedSale.totalAmount | number:'1.2-2' }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="text-success">Paid Amount:</span>
+                                            <span class="fw-semibold text-success">{{ selectedSale.paidAmount | number:'1.2-2' }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between"
+                                            [class.alert]="selectedSale.dueAmount > 0"
+                                            [class.alert-danger]="selectedSale.dueAmount > 0"
+                                            [class.mb-0]="selectedSale.dueAmount > 0"
+                                            [class.py-2]="selectedSale.dueAmount > 0">
+                                            <span class="fw-bold" [class.text-danger]="selectedSale.dueAmount > 0">Due Amount:</span>
+                                            <span class="fw-bold" [class.text-danger]="selectedSale.dueAmount > 0">{{ selectedSale.dueAmount | number:'1.2-2' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT SIDE - Payments History & Add Payment -->
+                    <div class="col-md-7">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body p-3">
+                                <!-- Payment History -->
+                                <h6 class="card-title mb-3 fw-bold text-dark border-bottom pb-2">
+                                    <i class="bi bi-cash-stack me-2"></i>Payment History
+                                </h6>
+
+                                <div class="table-responsive mb-4" style="max-height: 280px; overflow-y: auto;">
+                                    <table class="table table-sm table-hover mb-0" style="font-size: 0.85rem;">
+                                        <thead class="table-light sticky-top">
+                                            <tr>
+                                                <th style="padding: 0.5rem; width: 20%;">Income ID</th>
+                                                <th style="padding: 0.5rem; width: 15%;">Date</th>
+                                                <th style="padding: 0.5rem; width: 15%; text-align: right;">Amount</th>
+                                                <th style="padding: 0.5rem; width: 15%;">Method</th>
+                                                <th style="padding: 0.5rem; width: 20%;">Created By</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let payment of selectedSale?.payments">
+                                                <td style="padding: 0.5rem; font-weight: 500;">{{ payment.incomeId }}</td>
+                                                <td style="padding: 0.5rem;">{{ payment.date | date:'dd/MM/yy' }}</td>
+                                                <td style="padding: 0.5rem; text-align: right; font-weight: 600;">
+                                                    {{ payment.amount | number:'1.2-2' }}
+                                                </td>
+                                                <td style="padding: 0.5rem;">{{ payment.paymentMethodName || 'N/A' }}</td>
+                                                <td style="padding: 0.5rem; font-size: 0.8rem;">{{ payment.createdBy }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Add New Payment Form -->
+                                <div class="bg-light rounded p-3">
+                                    <h6 class="mb-3 fw-bold text-dark">
+                                        <i class="bi bi-plus-circle me-2"></i>Add New Payment
+                                    </h6>
+
+                                    <form>
+                                        <div class="row g-3">
+                                            <!-- Payment Amount -->
+                                            <div class="col-md-6">
+                                                <label for="paymentAmount" class="form-label fw-semibold small">
+                                                    Payment Amount <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="number"
+                                                    class="form-control form-control-sm"
+                                                    [class.is-invalid]="validationErrors['amount']"
+                                                    id="paymentAmount"
+                                                    [(ngModel)]="updatePaymentData.amount"
+                                                    name="paymentAmount"
+                                                    [max]="selectedSale?.dueAmount || 0"
+                                                    min="0"
+                                                    step="0.01"
+                                                    placeholder="Enter amount" />
+                                                <div class="invalid-feedback" *ngIf="validationErrors['amount']">
+                                                    {{ validationErrors['amount'][0] }}
+                                                </div>
+                                            </div>
+
+                                            <!-- Payment Date -->
+                                            <div class="col-md-6">
+                                                <label for="paymentDate" class="form-label fw-semibold small">
+                                                    Payment Date <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="date"
+                                                    class="form-control form-control-sm"
+                                                    [class.is-invalid]="validationErrors['date']"
+                                                    id="paymentDate"
+                                                    [(ngModel)]="updatePaymentData.date"
+                                                    name="paymentDate" />
+                                                <div class="invalid-feedback" *ngIf="validationErrors['date']">
+                                                    {{ validationErrors['date'][0] }}
+                                                </div>
+                                            </div>
+
+                                            <!-- Payment Method -->
+                                            <div class="col-md-6">
+                                                <label for="updatePaymentMethod" class="form-label fw-semibold small">
+                                                    Payment Method <span class="text-danger">*</span>
+                                                </label>
+                                                <select class="form-select form-select-sm"
+                                                    [class.is-invalid]="validationErrors['paymentMethodId']"
+                                                    id="updatePaymentMethod"
+                                                    [(ngModel)]="updatePaymentData.paymentMethodId"
+                                                    name="updatePaymentMethod">
+                                                    <option [ngValue]="0" disabled>Select Payment Method</option>
+                                                    <option *ngFor="let method of paymentMethod" [ngValue]="method.id">
+                                                        {{ method.name }}
+                                                    </option>
+                                                </select>
+                                                <div class="invalid-feedback" *ngIf="validationErrors['paymentMethodId']">
+                                                    {{ validationErrors['paymentMethodId'][0] }}
+                                                </div>
+                                            </div>
+
+                                            <!-- Tracking ID -->
+                                            <div class="col-md-6">
+                                                <label for="paymentTrackingId" class="form-label fw-semibold small">
+                                                    Tracking ID
+                                                </label>
+                                                <input type="text"
+                                                    class="form-control form-control-sm"
+                                                    id="paymentTrackingId"
+                                                    [(ngModel)]="updatePaymentData.trackingId"
+                                                    name="paymentTrackingId"
+                                                    placeholder="Enter tracking ID" />
+                                            </div>
+
+                                            <!-- Description/Notes -->
+                                            <div class="col-12">
+                                                <label for="paymentDescription" class="form-label fw-semibold small">
+                                                    Description
+                                                </label>
+                                                <textarea class="form-control form-control-sm"
+                                                    id="paymentDescription"
+                                                    [(ngModel)]="updatePaymentData.description"
+                                                    name="paymentDescription"
+                                                    rows="2"
+                                                    placeholder="Enter payment description..."></textarea>
+                                            </div>
+                                        </div>
+
+                                        <!-- Remaining Due Amount Display -->
+                                        <div class="alert alert-info mt-3 mb-0 py-2" *ngIf="selectedSale">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="small">Remaining Due After Payment:</span>
+                                                <span class="fw-bold">
+                                                    {{ calculateRemainingDue() | number:'1.2-2' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i> Close
+                </button>
+                <button type="button" class="btn btn-success" (click)="addPaymentToSale()" [disabled]="isLoading">
+                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                    <i class="bi bi-check-circle me-1" *ngIf="!isLoading"></i>
+                    Add Payment
+                </button>
             </div>
         </div>
     </div>

@@ -52,7 +52,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     paymentMethodId: 0,
     trackingId: '',
     dueAmount: 0,
-    status: 'DELIVERED'
+    status: 'PENDING'
   };
 
   currentItem: SalesItem = {
@@ -122,8 +122,9 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       paymentMethodId: 0,
       trackingId: '',
       dueAmount: 0,
-      status: 'DELIVERED',
-      items: []
+      status: 'PENDING',
+      items: [],
+      payments: []
     };
   }
 
@@ -156,7 +157,6 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     this.errorMessage = '';
     this.customerFound = false;
     this.submitted = false;
-    console.log('Opening add modal, validation errors cleared:', this.validationErrors);
   }
 
   viewSale(sale: Sales): void {
@@ -192,8 +192,6 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       dueAmount: sale.dueAmount,
       status: sale.status
     };
-
-    console.log('Opening edit modal, validation errors cleared:', this.validationErrors);
   }
 
   // ==================== Customer Search ====================
@@ -221,6 +219,8 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
 
   searchCustomerByPhone(phone: string): void {
     this.isSearchingCustomer = true;
+    this.validationErrors['phone'] = [];
+
     this.customerService.getByPhone(phone)
       .pipe(
         takeUntil(this.destroy$),
@@ -229,17 +229,21 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       .subscribe({
         next: (response: any) => {
           if (response.success && response.data) {
-            const customer: Customer = response.data;
-            this.populateCustomerData(customer);
+            // Customer found
+            this.populateCustomerData(response.data);
             this.customerFound = true;
+            this.validationErrors['phone'] = [];
           } else {
+            // Customer not found (success=false)
             this.clearCustomerFields();
             this.customerFound = false;
+            this.validationErrors['phone'] = [response.message || 'Customer not found'];
           }
         },
-        error: (error: any) => {
+        error: (err: any) => {
           this.clearCustomerFields();
           this.customerFound = false;
+          this.validationErrors['phone'] = [err?.error?.message || 'Customer not found'];
         }
       });
   }
@@ -248,7 +252,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     this.formData.customerName = customer.name || '';
     this.formData.email = customer.email || '';
     this.formData.address = customer.address || '';
-    this.formData.companyName = customer.businessAddress || '';
+    this.formData.companyName = customer.companyName || '';
   }
 
   clearCustomerFields(): void {
@@ -540,6 +544,110 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     });
   }
 
+  updatePaymentData = {
+  amount: 0,
+  date: new Date().toISOString().split('T')[0],
+  paymentMethodId: 0,
+  trackingId: '',
+  description: ''
+};
+
+// Method to open the update modal
+openUpdateModal(sale: Sales): void {
+  this.selectedSale = sale;
+  this.validationErrors = {};
+  this.errorMessage = '';
+
+  // Reset payment form
+  this.updatePaymentData = {
+    amount: sale.dueAmount > 0 ? sale.dueAmount : 0,
+    date: new Date().toISOString().split('T')[0],
+    paymentMethodId: 0,
+    trackingId: '',
+    description: ''
+  };
+
+  // Open modal
+  const modal = new (window as any).bootstrap.Modal(
+    document.getElementById('updateSaleModal')
+  );
+  modal.show();
+}
+
+// Calculate remaining due after adding new payment
+calculateRemainingDue(): number {
+  if (!this.selectedSale) return 0;
+  const remainingDue = this.selectedSale.dueAmount - (this.updatePaymentData.amount || 0);
+  return remainingDue < 0 ? 0 : remainingDue;
+}
+
+// Add payment to sale
+addPaymentToSale(): void {
+  if (!this.selectedSale) return;
+
+  // Validation
+  if (!this.updatePaymentData.amount || this.updatePaymentData.amount <= 0) {
+    this.validationErrors['amount'] = ['Payment amount is required and must be greater than 0'];
+    return;
+  }
+
+  if (this.updatePaymentData.amount > this.selectedSale.dueAmount) {
+    this.validationErrors['amount'] = ['Payment amount cannot exceed due amount'];
+    return;
+  }
+
+  if (!this.updatePaymentData.date) {
+    this.validationErrors['date'] = ['Payment date is required'];
+    return;
+  }
+
+  if (!this.updatePaymentData.paymentMethodId || this.updatePaymentData.paymentMethodId === 0) {
+    this.validationErrors['paymentMethodId'] = ['Payment method is required'];
+    return;
+  }
+
+  // Create payment DTO
+  const paymentDto = {
+    saleId: this.selectedSale.id,
+    amount: this.updatePaymentData.amount,
+    paymentDate: this.updatePaymentData.date,
+    paymentMethodId: this.updatePaymentData.paymentMethodId,
+    trackingId: this.updatePaymentData.trackingId || '',
+    description: this.updatePaymentData.description || `Payment for Invoice ${this.selectedSale.invoiceNo}`
+  };
+
+  this.isLoading = true;
+  this.validationErrors = {};
+  this.errorMessage = '';
+
+  // Call your service method to add payment
+  // Assuming you have a method like addPayment in your SalesService
+  this.service.addPayment(paymentDto)
+    .pipe(
+      takeUntil(this.destroy$),
+      finalize(() => this.isLoading = false)
+    )
+    .subscribe({
+      next: (response: any) => {
+        if (response.success === false && response.errors) {
+          this.validationErrors = response.errors;
+          this.errorMessage = response.message || 'Validation Failed';
+        } else if (response.success) {
+          this.handleCrudSuccess('Payment added successfully', 'updateSaleModal');
+          this.loadItems(); // Reload the sales list
+          this.validationErrors = {};
+        }
+      },
+      error: (error: any) => {
+        if (error.status === 400 && error.error && error.error.errors) {
+          this.validationErrors = error.error.errors;
+          this.errorMessage = error.error.message || 'Validation Failed';
+        } else {
+          this.handleError('Failed to add payment', error);
+        }
+      }
+    });
+}
   // ==================== Utility Methods ====================
 
   printSaleMemo(): void {

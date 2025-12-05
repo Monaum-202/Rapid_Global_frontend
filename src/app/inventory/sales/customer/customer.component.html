@@ -109,7 +109,7 @@
                     <td *ngIf="isColumnVisible('altPhone')">{{ customer.altPhone || '-' }}</td>
                     <td *ngIf="isColumnVisible('email')">{{ customer.email }}</td>
                     <td *ngIf="isColumnVisible('address')">{{ customer.address || '-' }}</td>
-                    <td *ngIf="isColumnVisible('businessAddress')">{{ customer.businessAddress || '-' }}</td>
+                    <td *ngIf="isColumnVisible('businessAddress')">{{ customer.companyName || '-' }}</td>
                     <td *ngIf="isColumnVisible('totalTransaction')">{{ customer.totalTransaction | number:'1.2-2' }}</td>
                     <td class="text-center">
                         <div class="d-flex justify-content-center align-items-center gap-1">
@@ -212,7 +212,7 @@
                     </div>
                     <div class="col-md-12">
                         <label class="label-text">Business Address</label>
-                        <div class="text-wrap">{{ selectedCustomer.businessAddress || 'N/A' }}</div>
+                        <div class="text-wrap">{{ selectedCustomer.companyName || 'N/A' }}</div>
                     </div>
                 </div>
             </div>
@@ -304,7 +304,7 @@
                             <label for="customerBusinessAddress" class="form-label">Business Address</label>
                             <textarea class="form-control"
                                 [class.is-invalid]="validationErrors['businessAddress']"
-                                id="customerBusinessAddress" [(ngModel)]="selectedCustomer.businessAddress"
+                                id="customerBusinessAddress" [(ngModel)]="selectedCustomer.companyName"
                                 name="customerBusinessAddress" rows="2" maxlength="100"></textarea>
                             <div class="invalid-feedback" *ngIf="validationErrors['businessAddress']"
                                 [style.display]="'block'">

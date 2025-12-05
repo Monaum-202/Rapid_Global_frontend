@@ -11,7 +11,7 @@ export interface Customer {
   altPhone?: number;
   email: string;
   address?: string;
-  businessAddress?: string;
+  companyName?: string;
   totalTransaction?: number;
   active?: boolean;
   createdBy?: number;
