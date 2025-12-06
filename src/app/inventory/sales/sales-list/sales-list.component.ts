@@ -659,11 +659,74 @@ addPaymentToSale(): void {
 
   // ==================== Utility Methods ====================
 
-  printSaleMemo(): void {
-    if (this.selectedSale) {
-      console.log('Printing sale memo for:', this.selectedSale.invoiceNo);
-    }
+//   printSaleMemo(): void {
+//   if (!this.selectedSale) {
+//     this.errorMessage = 'No sale selected';
+//     setTimeout(() => this.clearError(), 3000);
+//     return;
+//   }
+
+//   this.isLoading = true;
+
+//   this.service.downloadInvoice(this.selectedSale.id)
+//     .pipe(
+//       takeUntil(this.destroy$),
+//       finalize(() => this.isLoading = false)
+//     )
+//     .subscribe({
+//       next: (blob: Blob) => {
+//         // Create a blob URL and trigger download
+//         const url = window.URL.createObjectURL(blob);
+//         const link = document.createElement('a');
+//         link.href = url;
+//         link.download = `invoice_${this.selectedSale!.invoiceNo}.pdf`;
+//         link.click();
+
+//         // Clean up
+//         window.URL.revokeObjectURL(url);
+
+//         // Optional: Show success message
+//         this.successMessage = 'Invoice downloaded successfully';
+//         setTimeout(() => this.clearSuccess(), 3000);
+//       },
+//       error: (error: any) => {
+//         console.error('Failed to download invoice:', error);
+//         this.errorMessage = 'Failed to download invoice';
+//         setTimeout(() => this.clearError(), 3000);
+//       }
+//     });
+// }
+
+printSaleMemo(): void {
+  if (!this.selectedSale) {
+    this.errorMessage = 'No sale selected';
+    setTimeout(() => this.clearError(), 3000);
+    return;
   }
+
+  this.isLoading = true;
+
+  this.service.downloadInvoice(this.selectedSale.id)
+    .pipe(
+      takeUntil(this.destroy$),
+      finalize(() => this.isLoading = false)
+    )
+    .subscribe({
+      next: (blob: Blob) => {
+        // Create blob URL and open in new tab
+        const url = window.URL.createObjectURL(blob);
+        window.open(url, '_blank');
+
+        // Clean up after a delay
+        setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+      },
+      error: (error: any) => {
+        console.error('Failed to open invoice:', error);
+        this.errorMessage = 'Failed to open invoice';
+        setTimeout(() => this.clearError(), 3000);
+      }
+    });
+}
 
   hasValidationErrors(): boolean {
     return Object.keys(this.validationErrors).length > 0;

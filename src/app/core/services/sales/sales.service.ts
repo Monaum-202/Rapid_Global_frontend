@@ -168,6 +168,16 @@ export class SalesService extends BaseService {
     return this.put<Sales>(`${this.ENDPOINT}/${id}/approve-payment`, {});
   }
 
+  /**
+ * Download invoice PDF for a sale
+ */
+/**
+ * Download invoice PDF for a sale
+ */
+downloadInvoice(id: number): Observable<Blob> {
+  return this.downloadFile(`sales/${id}/invoice`, `invoice_${id}.pdf`);
+}
+
   // ==================== Helper Methods ====================
 
   /**
