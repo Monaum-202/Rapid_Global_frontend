@@ -114,16 +114,16 @@
                             </button>
 
                             <!-- Edit button -->
-                            <!-- <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
+                            <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
                                 data-bs-target="#expadd" (click)="editSale(sale)"
                                 [hidden]="sale.status === 'COMPLETED' || sale.status === 'CANCELED'" title="Edit">
                                 <i class="fa fa-pen"></i>
-                            </button> -->
+                            </button>
                             <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
                                 data-bs-target="#updateSaleModal" (click)="openUpdateModal(sale)"
                                 [hidden]="sale.status === 'COMPLETED' || sale.status === 'CANCELED'"
                                 title="Update Payment">
-                                <i class="fa fa-pen"></i>
+                                <i class="fa fa-credit-card"></i>
                             </button>
 
                             <!-- Delete button -->
@@ -288,7 +288,7 @@
                         <div class="row g-0">
                             <!-- Items List -->
                             <div class="col-lg-7 border-end p-2">
-                                <div class="table-responsive" style="max-height: 180px; overflow-y: auto;">
+                                <div class="table-responsive" style=" overflow-y: auto;">
                                     <table class="table table-sm table-hover mb-0" style="font-size: 0.85rem;">
                                         <thead class="table-light sticky-top">
                                             <tr>
@@ -296,8 +296,7 @@
                                                 <th style="width: 40%; padding: 0.4rem;">Item</th>
                                                 <th style="width: 15%; padding: 0.4rem; text-align: center;">Qty</th>
                                                 <th style="width: 15%; padding: 0.4rem; text-align: center;">Unit</th>
-                                                <th style="width: 15%; padding: 0.4rem; text-align: right;">Unit Price
-                                                </th>
+                                                <th style="width: 15%; padding: 0.4rem; text-align: right;">Unit Price</th>
                                                 <th style="width: 15%; padding: 0.4rem; text-align: right;">Total</th>
                                             </tr>
                                         </thead>
@@ -603,11 +602,17 @@
                                                         {{ item.totalPrice | number:'1.2-2' }}
                                                     </td>
                                                     <td class="text-center">
-                                                        <button type="button" class="btn btn-danger btn-sm"
-                                                            (click)="removeItem(i)">
-                                                            <i class="bi bi-trash"></i>
-                                                        </button>
-                                                    </td>
+    <!-- Edit button -->
+    <button type="button" class="btn btn-primary btn-sm me-1" (click)="editSalesItem(i)">
+        <i class="fa fa-pencil-alt"></i>
+    </button>
+
+    <!-- Delete button -->
+    <button type="button" class="btn btn-danger btn-sm" (click)="removeItem(i)">
+        <i class="fa fa-trash"></i>
+    </button>
+</td>
+
                                                 </tr>
                                                 <tr>
                                                     <td style="background-color: #ececec;"></td>
@@ -638,7 +643,7 @@
                                     </div>
 
                                     <!-- Price Calculation -->
-                                    <div>
+                                    <div *ngIf="!isEditMode">
                                         <div class="row mb-2">
                                             <div class="col-6">
                                                 <label class="form-label fw-semibold small">VAT (%)</label>
@@ -668,47 +673,51 @@
                                             </div>
                                             <div class="d-flex justify-content-between mb-2">
                                                 <span>Total:</span>
-                                                <span>${{ formData.totalPrice.toFixed(2) }}</span>
+                                                <span>{{ formData.totalPrice.toFixed(2) }}</span>
                                             </div>
                                         </div>
-                                        <div class="row g-3">
-                                            <!-- Paid Amount -->
-                                            <div class="col-md-3">
-                                                <label class="form-label fw-semibold small mb-1">Paid</label>
-                                                <input type="number" class="form-control form-control-sm"
-                                                    [(ngModel)]="formData.paidAmount" name="paidAmount"
-                                                    (ngModelChange)="calculateTotals()" min="0" step="0.1" />
-                                            </div>
 
-                                            <!-- Payment Method -->
-                                            <div class="col-md-3">
-                                                <label class="form-label fw-semibold small mb-1">Payment Method</label>
-                                                <select class="form-select form-select-sm"
-                                                    [class.is-invalid]="validationErrors['paymentMethodId']"
-                                                    id="addPaymentMethod" [(ngModel)]="formData.paymentMethodId"
-                                                    name="addPaymentMethod">
-                                                    <option [ngValue]="0" disabled>Select Payment Method</option>
-                                                    <option *ngFor="let method of paymentMethod" [ngValue]="method.id">
-                                                        {{ method.name }}
-                                                    </option>
-                                                </select>
-
-                                                <div class="invalid-feedback d-block"
-                                                    *ngIf="validationErrors['paymentMethodId']">
-                                                    {{ validationErrors['paymentMethodId'][0] }}
+                                        <!-- Payment Section - Only show in Add mode -->
+                                        <div>
+                                            <div class="row g-3">
+                                                <!-- Paid Amount -->
+                                                <div class="col-md-3">
+                                                    <label class="form-label fw-semibold small mb-1">Paid</label>
+                                                    <input type="number" class="form-control form-control-sm"
+                                                        [(ngModel)]="formData.paidAmount" name="paidAmount"
+                                                        (ngModelChange)="calculateTotals()" min="0" step="0.1" />
                                                 </div>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label class="form-label fw-semibold small mb-1">Tracking Id</label>
-                                                <input type="text" class="form-control form-control-sm"
-                                                    [(ngModel)]="formData.trackingId" name="trackingId" />
-                                            </div>
-                                            <!-- Due Amount -->
-                                            <div class="col-md-3">
-                                                <label class="form-label fw-semibold small mb-1">Due Amount</label>
-                                                <input type="number" class="form-control form-control-sm"
-                                                    [(ngModel)]="formData.dueAmount" name="dueAmount"
-                                                    (ngModelChange)="calculateTotals()" min="0" step="0.01" readonly />
+
+                                                <!-- Payment Method -->
+                                                <div class="col-md-3">
+                                                    <label class="form-label fw-semibold small mb-1">Payment Method</label>
+                                                    <select class="form-select form-select-sm"
+                                                        [class.is-invalid]="validationErrors['paymentMethodId']"
+                                                        id="addPaymentMethod" [(ngModel)]="formData.paymentMethodId"
+                                                        name="addPaymentMethod">
+                                                        <option [ngValue]="0" disabled>Select Payment Method</option>
+                                                        <option *ngFor="let method of paymentMethod" [ngValue]="method.id">
+                                                            {{ method.name }}
+                                                        </option>
+                                                    </select>
+
+                                                    <div class="invalid-feedback d-block"
+                                                        *ngIf="validationErrors['paymentMethodId']">
+                                                        {{ validationErrors['paymentMethodId'][0] }}
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label fw-semibold small mb-1">Tracking Id</label>
+                                                    <input type="text" class="form-control form-control-sm"
+                                                        [(ngModel)]="formData.trackingId" name="trackingId" />
+                                                </div>
+                                                <!-- Due Amount -->
+                                                <div class="col-md-3">
+                                                    <label class="form-label fw-semibold small mb-1">Due Amount</label>
+                                                    <input type="number" class="form-control form-control-sm"
+                                                        [(ngModel)]="formData.dueAmount" name="dueAmount"
+                                                        (ngModelChange)="calculateTotals()" min="0" step="0.01" readonly />
+                                                </div>
                                             </div>
                                         </div>
 
@@ -1011,6 +1020,26 @@
                     <i class="bi bi-check-circle me-1" *ngIf="!isLoading"></i>
                     Add Payment
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-body text-center p-4">
+                <h4 class="fw-bold">Delete Customer?</h4>
+                <p class="text-muted mb-4">
+                    You really want to delete <strong>{{ selectedSale?.invoiceNo }}</strong>?
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <button class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-danger px-4" (click)="confirmDelete()" data-bs-dismiss="modal">
+                        Delete
+                    </button>
+                </div>
             </div>
         </div>
     </div>

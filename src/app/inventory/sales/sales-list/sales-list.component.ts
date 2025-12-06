@@ -29,7 +29,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
   roleId = 0;
   userId = 0;
   submitted = false;
-
+  editIndex: number | null = null;
   isSearchingCustomer = false;
   customerFound = false;
 
@@ -459,41 +459,44 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
 
   // ==================== Item Management ====================
 
-  calculateItemTotal(): void {
-    this.currentItem.totalPrice = this.currentItem.quantity * this.currentItem.unitPrice;
-  }
+  calculateItemTotal() {
+    this.currentItem.totalPrice = (this.currentItem.quantity || 0) * (this.currentItem.unitPrice || 0);
+}
 
-  addItemToList(): void {
-    if (!this.currentItem.itemName.trim()) {
-      this.errorMessage = 'Item name is required';
-      setTimeout(() => this.clearError(), 3000);
-      return;
+addItemToList() {
+    if (!this.currentItem.itemName || this.currentItem.quantity <= 0 || this.currentItem.unitPrice < 0) return;
+
+    if (this.editIndex !== null) {
+        // Update existing item
+        this.formData.items[this.editIndex] = { ...this.currentItem };
+        this.editIndex = null;
+    } else {
+        // Add new item
+        this.formData.items.push({ ...this.currentItem });
     }
 
-    if (this.currentItem.quantity <= 0 || this.currentItem.unitPrice <= 0) {
-      this.errorMessage = 'Quantity and unit price must be greater than 0';
-      setTimeout(() => this.clearError(), 3000);
-      return;
-    }
-
-    this.formData.items.push({ ...this.currentItem });
     this.resetCurrentItem();
-    this.calculateTotals();
-  }
+    this.updateSubTotal();
+}
 
-  removeItem(index: number): void {
+editSalesItem(index: number) {
+    this.editIndex = index;
+    this.currentItem = { ...this.formData.items[index] };
+}
+
+removeItem(index: number) {
     this.formData.items.splice(index, 1);
-    this.calculateTotals();
-  }
+    this.updateSubTotal();
+}
 
-  resetCurrentItem(): void {
-    this.currentItem = {
-      itemName: '',
-      quantity: 1,
-      unitPrice: 0,
-      totalPrice: 0
-    };
-  }
+resetCurrentItem() {
+    this.currentItem = { itemName: '', quantity: 1, unitPrice: 0, totalPrice: 0 };
+}
+
+updateSubTotal() {
+    this.formData.subTotal = this.formData.items.reduce((acc, item) => acc + (item.totalPrice || 0), 0);
+}
+
 
   calculateTotals(): void {
     this.formData.subTotal = this.formData.items.reduce((sum, item) => sum + item.totalPrice, 0);
@@ -526,7 +529,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       paymentMethodId: 0,
       trackingId: '',
       dueAmount: 0,
-      status: 'DELIVERED'
+      status: 'PENDING'
     };
     this.resetCurrentItem();
     this.customerFound = false;
@@ -650,6 +653,10 @@ addPaymentToSale(): void {
       }
     });
 }
+
+
+
+
   // ==================== Utility Methods ====================
 
   printSaleMemo(): void {
