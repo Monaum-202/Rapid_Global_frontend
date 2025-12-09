@@ -51,6 +51,11 @@
             Unit
           </a>
         </li>
+        <li>
+          <a routerLink="/inventory/product" class="nav-link text-white" (click)="onLinkClick()">
+            Product
+          </a>
+        </li>
         <li *ngIf="roleId === 1 || roleId === 2">
           <a routerLink="/inventory/user" class="nav-link text-white" (click)="onLinkClick()">
             User

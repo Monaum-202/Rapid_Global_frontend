@@ -1,0 +1,372 @@
+<div class="loading-overlay-scoped" *ngIf="isLoading">
+    <div class="bouncing-dots-loader">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+</div>
+
+<div class="container my-1 position-relative">
+
+    <!-- Toast container (positioned at top-right) -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1200">
+        <div *ngIf="errorMessage" class="toast align-items-center text-bg-danger border-0 show" role="alert"
+            aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    {{ errorMessage }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="clearError()"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row align-items-center justify-content-between gy-2 m-3">
+
+        <!-- Left Section: Columns -->
+        <div class="col-md-4 col-sm-12 d-flex align-items-center gap-3">
+            <!-- Column Selector -->
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm rounded-pill shadow-sm dropdown-toggle" type="button"
+                    (click)="toggleColumnDropdown()">
+                    <i class="bi bi-columns-gap me-1"></i> Columns
+                </button>
+                <div class="dropdown-menu p-3 shadow" [class.show]="showColumnDropdown" style="min-width: 200px;">
+                    <div class="form-check" *ngFor="let column of columns">
+                        <input class="form-check-input" type="checkbox" [id]="'column-' + column.key"
+                            [(ngModel)]="column.visible" />
+                        <label class="form-check-label" [for]="'column-' + column.key">
+                            {{ column.label }}
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle Section: Search -->
+        <div class="col-md-4 col-sm-12 d-flex justify-content-center">
+            <div class="w-100" style="max-width: 25rem;">
+                <div class="input-group input-group-sm shadow-sm rounded-pill bg-light border border-dark">
+                    <span class="input-group-text bg-transparent border-0 text-dark">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control border-0 bg-transparent"
+                        placeholder="Search... (Press Enter)" (input)="onSearchInput($event)"
+                        (keypress)="onSearchKeyPress($event)" [value]="currentSearchValue" />
+                    <button *ngIf="currentSearchValue" class="btn btn-sm bg-transparent border-0 text-muted"
+                        type="button" (click)="clearSearch()" title="Clear search">
+                        <i class="bi bi-x-circle"></i>
+                    </button>
+                    <button class="btn btn-sm bg-transparent border-0 text-dark" type="button"
+                        (click)="onSearchButtonClick()" title="Search">
+                        <i class="bi bi-arrow-right-circle"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Section: Add Button -->
+        <div class="col-md-4 col-sm-12 d-flex justify-content-md-end justify-content-center">
+            <button type="button" class="btn rounded-pill shadow-sm px-4" data-bs-toggle="modal"
+                data-bs-target="#productFormModal" (click)="openAddModal()" [disabled]="isLoading"
+                style="background-color: #000000; color: #ffffff;">
+                <i class="bi bi-plus-lg me-1"></i> Add Product
+            </button>
+        </div>
+    </div>
+
+    <!-- Product Table -->
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle text-nowrap">
+            <thead>
+                <tr>
+                    <th *ngIf="isColumnVisible('id')">SL</th>
+                    <th *ngIf="isColumnVisible('name')">NAME</th>
+                    <th *ngIf="isColumnVisible('productType')">TYPE</th>
+                    <th *ngIf="isColumnVisible('description')">DESCRIPTION</th>
+                    <th *ngIf="isColumnVisible('unitName')">UNIT</th>
+                    <th *ngIf="isColumnVisible('pricePerUnit')">PRICE</th>
+                    <th *ngIf="isColumnVisible('sortingOrder')">SORT ORDER</th>
+                    <th *ngIf="isColumnVisible('active')">STATUS</th>
+                    <th class="text-center">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let product of filteredProducts; let i = index">
+                    <td *ngIf="isColumnVisible('id')">{{ i + 1 }}</td>
+                    <td *ngIf="isColumnVisible('name')">{{ product.name }}</td>
+                    <td *ngIf="isColumnVisible('productType')">
+                        <span class="badge bg-info text-dark">{{ getProductTypeDisplay(product.productType) }}</span>
+                    </td>
+                    <td *ngIf="isColumnVisible('description')">
+                        <span class="text-truncate d-inline-block" style="max-width: 200px;"
+                              [title]="product.description">
+                            {{ product.description || 'N/A' }}
+                        </span>
+                    </td>
+                    <td *ngIf="isColumnVisible('unitName')">{{ product.unitName || getUnitName(product.unitId) }}</td>
+                    <td *ngIf="isColumnVisible('pricePerUnit')">
+                        <span class="fw-semibold text-success">{{ product.pricePerUnit | currency:'BDT ' }}</span>
+                    </td>
+                    <td *ngIf="isColumnVisible('sortingOrder')">
+                        <span class="badge bg-secondary">{{ product.sortingOrder || 0 }}</span>
+                    </td>
+                    <td *ngIf="isColumnVisible('active')">
+                        <span class="badge" [class.bg-success]="product.active" [class.bg-danger]="!product.active">
+                            {{ product.active ? 'Active' : 'Inactive' }}
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center align-items-center gap-1">
+                            <!-- View button -->
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#productModal" (click)="viewProduct(product)" title="View Details">
+                                <i class="fa fa-eye"></i>
+                            </button>
+
+                            <!-- Edit button -->
+                            <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#productFormModal" (click)="editProduct(product)" title="Edit">
+                                <i class="fa fa-pen"></i>
+                            </button>
+
+                            <!-- Delete button -->
+                            <button type="button" class="btn btn-outline-danger btn-sm"
+                                (click)="openDeleteModal(product)" title="Delete">
+                                <i class="fa fa-trash"></i>
+                            </button>
+
+                            <!-- Toggle switch -->
+                            <label class="switch m-0" title="Toggle Active">
+                                <input type="checkbox" [checked]="product.active" (change)="toggleActive(product)">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- No data message -->
+                <tr *ngIf="filteredProducts.length === 0 && !isLoading">
+                    <td [attr.colspan]="visibleColumnsCount + 1" class="text-center text-muted py-4">
+                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                        {{ searchTerm ? 'No products found matching your search' : 'No products found' }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- View Product Modal -->
+<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productModalLabel">Product Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" *ngIf="selectedProduct">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="detail-card">
+                            <div class="detail-label">
+                                <i class="bi bi-box-seam me-2"></i>Product Name
+                            </div>
+                            <div class="detail-value">{{ selectedProduct.name }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="detail-card">
+                            <div class="detail-label">
+                                <i class="bi bi-tag me-2"></i>Product Type
+                            </div>
+                            <div class="detail-value">
+                                <span class="badge bg-info text-dark fs-6">
+                                    {{ getProductTypeDisplay(selectedProduct.productType) }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="detail-card">
+                            <div class="detail-label">
+                                <i class="bi bi-card-text me-2"></i>Description
+                            </div>
+                            <div class="detail-value">{{ selectedProduct.description || 'No description provided' }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="detail-card">
+                            <div class="detail-label">
+                                <i class="bi bi-rulers me-2"></i>Unit
+                            </div>
+                            <div class="detail-value">{{ selectedProduct.unitName || getUnitName(selectedProduct.unitId) }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="detail-card">
+                            <div class="detail-label">
+                                <i class="bi bi-currency-dollar me-2"></i>Price Per Unit
+                            </div>
+                            <div class="detail-value text-success fw-bold">
+                                {{ selectedProduct.pricePerUnit | currency:'BDT ' }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="detail-card">
+                            <div class="detail-label">
+                                <i class="bi bi-sort-numeric-down me-2"></i>Sorting Order
+                            </div>
+                            <div class="detail-value">
+                                <span class="badge bg-secondary fs-6">{{ selectedProduct.sortingOrder || 0 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="detail-card">
+                            <div class="detail-label">
+                                <i class="bi bi-toggle-on me-2"></i>Status
+                            </div>
+                            <div class="detail-value">
+                                <span class="badge fs-6" [class.bg-success]="selectedProduct.active"
+                                    [class.bg-danger]="!selectedProduct.active">
+                                    {{ selectedProduct.active ? 'Active' : 'Inactive' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Product Modal -->
+<div class="modal fade" id="productFormModal" tabindex="-1" aria-labelledby="productFormLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productFormLabel">{{ modalTitle }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" *ngIf="selectedProduct">
+                <form id="productForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="productName" class="form-label">
+                                <i class="bi bi-box-seam me-1"></i>Product Name <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="productName"
+                                [(ngModel)]="selectedProduct.name" name="productName" required maxlength="50"
+                                placeholder="Enter product name" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="productType" class="form-label">
+                                <i class="bi bi-tag me-1"></i>Product Type <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" id="productType" [(ngModel)]="selectedProduct.productType"
+                                name="productType" required>
+                                <option [ngValue]="null" disabled>Select Product Type</option>
+                                <option *ngFor="let type of productTypes" [ngValue]="type.value">
+                                    {{ type.label }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label for="productDescription" class="form-label">
+                                <i class="bi bi-card-text me-1"></i>Description
+                            </label>
+                            <textarea class="form-control" id="productDescription"
+                                [(ngModel)]="selectedProduct.description" name="productDescription" rows="3"
+                                maxlength="255" placeholder="Enter product description (optional)"></textarea>
+                            <small class="text-muted">Maximum 255 characters</small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="productUnit" class="form-label">
+                                <i class="bi bi-rulers me-1"></i>Unit <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" id="productUnit" [(ngModel)]="selectedProduct.unitId"
+                                name="productUnit" required>
+                                <option [ngValue]="0" disabled>Select Unit</option>
+                                <option *ngFor="let unit of units" [ngValue]="unit.id">
+                                    {{ unit.name }} - {{ unit.fullName }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="pricePerUnit" class="form-label">
+                                <i class="bi bi-currency-dollar me-1"></i>Price Per Unit
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">BDT</span>
+                                <input type="number" class="form-control" id="pricePerUnit"
+                                    [(ngModel)]="selectedProduct.pricePerUnit" name="pricePerUnit" min="0" step="0.01"
+                                    placeholder="0.00" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="sortingOrder" class="form-label">
+                                <i class="bi bi-sort-numeric-down me-1"></i>Sorting Order
+                            </label>
+                            <input type="number" class="form-control" id="sortingOrder"
+                                [(ngModel)]="selectedProduct.sortingOrder" name="sortingOrder" min="0"
+                                placeholder="0" />
+                            <small class="text-muted">Used for display ordering</small>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i> Cancel
+                </button>
+                <button type="submit" form="productForm" class="btn btn-success" (click)="saveProduct()"
+                    [disabled]="isLoading">
+                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                    <i class="bi bi-check-circle me-1" *ngIf="!isLoading"></i>
+                    {{ submitButtonText }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-body text-center p-4">
+                <div class="mb-3">
+                    <i class="bi bi-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
+                </div>
+                <h4 class="fw-bold mb-3">Delete Product?</h4>
+                <p class="text-muted mb-4">
+                    You are about to delete <strong class="text-danger">{{ selectedProduct?.name }}</strong>.
+                    <br>This action cannot be undone.
+                </p>
+
+                <div class="d-flex justify-content-center gap-3">
+                    <button class="btn btn-light px-4" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Cancel
+                    </button>
+                    <button class="btn btn-danger px-4" (click)="confirmDelete()" data-bs-dismiss="modal">
+                        <i class="bi bi-trash me-1"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

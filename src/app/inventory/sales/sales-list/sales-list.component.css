@@ -159,3 +159,11 @@ body {
     font-size: auto;
     overflow-y: auto;
   }
+
+
+  .product-dropdown {
+    max-height: 250px;
+    overflow-y: auto;
+    position: absolute;
+    z-index: 1100; /* higher than sticky table headers */
+}

@@ -168,9 +168,6 @@ export class SalesService extends BaseService {
     return this.put<Sales>(`${this.ENDPOINT}/${id}/approve-payment`, {});
   }
 
-  /**
- * Download invoice PDF for a sale
- */
 /**
  * Download invoice PDF for a sale
  */

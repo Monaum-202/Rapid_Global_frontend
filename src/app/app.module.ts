@@ -40,6 +40,7 @@ import { IncomeComponent } from './inventory/accounts/income/income.component';
 import { UnitComponent } from './inventory/master/unit/unit.component';
 import { CustomerComponent } from './inventory/sales/customer/customer.component';
 import { SalesListComponent } from './inventory/sales/sales-list/sales-list.component';
+import { ProductComponent } from './inventory/master/product/product.component';
 
 @NgModule({
   declarations: [
@@ -78,6 +79,7 @@ import { SalesListComponent } from './inventory/sales/sales-list/sales-list.comp
     UnitComponent,
     CustomerComponent,
     SalesListComponent,
+    ProductComponent,
   ],
   imports: [
     BrowserModule,

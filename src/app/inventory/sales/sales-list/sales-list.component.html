@@ -551,36 +551,76 @@
                         <div class="col-md-7">
                             <div class="card border-0 shadow-sm h-100">
                                 <div class="card-body">
-                                    <!-- Add Item Section -->
+
+                                    <!-- Add Item Section with Searchable Product Dropdown -->
                                     <div class="bg-light p-3 rounded-3 mb-3">
                                         <div class="row g-2">
+                                            <!-- Item Name with Searchable Dropdown -->
                                             <div class="col-md-5">
                                                 <label class="form-label fw-semibold small">Item Name</label>
-                                                <input type="text" class="form-control form-control-sm"
-                                                    [(ngModel)]="currentItem.itemName" name="itemName"
-                                                    placeholder="Enter item name" />
+                                                <div class="position-relative">
+                                                    <input type="text" class="form-control form-control-sm"
+                                                        [(ngModel)]="currentItem.itemName" name="itemName"
+                                                        (input)="onProductSearchInput($event)"
+                                                        (focus)="showProductDropdown = true"
+                                                        (blur)="hideProductDropdown()" placeholder="Search product..."
+                                                        autocomplete="off" />
+
+                                                    <!-- Dropdown for Product Results -->
+                                                    <div *ngIf="showProductDropdown && filteredProducts.length > 0"
+                                                        class="dropdown-menu show w-100 shadow-lg product-dropdown">
+                                                        <button type="button"
+                                                            class="dropdown-item d-flex justify-content-between align-items-center"
+                                                            *ngFor="let product of filteredProducts"
+                                                            (mousedown)="selectProduct(product)">
+                                                            <div>
+                                                                <strong>{{ product.name }}</strong>
+                                                                <small class="text-muted d-block"
+                                                                    *ngIf="product.unitName">
+                                                                    {{ product.unitName }}
+                                                                </small>
+                                                            </div>
+                                                        </button>
+                                                    </div>
+
+                                                    <!-- Loading Indicator -->
+                                                    <span class="spinner-border spinner-border-sm position-absolute"
+                                                        style="right: 10px; top: 50%; transform: translateY(-50%);"
+                                                        *ngIf="isSearchingProduct">
+                                                    </span>
+                                                </div>
                                             </div>
+
+                                            <!-- Quantity -->
                                             <div class="col-md-2">
                                                 <label class="form-label fw-semibold small">Qty</label>
                                                 <input type="number" class="form-control form-control-sm"
                                                     [(ngModel)]="currentItem.quantity" name="itemQty"
                                                     (ngModelChange)="calculateItemTotal()" min="1" />
                                             </div>
+
+                                            <!-- Unit Price -->
                                             <div class="col-md-3">
                                                 <label class="form-label fw-semibold small">Unit Price</label>
                                                 <input type="number" class="form-control form-control-sm"
                                                     [(ngModel)]="currentItem.unitPrice" name="itemPrice"
-                                                    (ngModelChange)="calculateItemTotal()" min="0" step="0.01" />
+                                                    (ngModelChange)="calculateItemTotal()" min="0" step="0.01"
+                                                    placeholder="Auto-filled" />
                                             </div>
+
+                                            <!-- Total -->
                                             <div class="col-md-2">
                                                 <label class="form-label fw-semibold small">Total</label>
                                                 <input type="text" class="form-control form-control-sm bg-white"
                                                     [value]="currentItem.totalPrice.toFixed(2)" readonly />
                                             </div>
                                         </div>
+
+                                        <!-- Add Item Button -->
                                         <button type="button" class="btn btn-success btn-sm mt-2 w-100"
                                             (click)="addItemToList()">
-                                            <i class="bi bi-plus-circle me-1"></i> Add Item
+                                            <i class="bi bi-plus-circle me-1"></i>
+                                            {{ editIndex !== null ? 'Update Item' : 'Add Item' }}
                                         </button>
                                     </div>
 

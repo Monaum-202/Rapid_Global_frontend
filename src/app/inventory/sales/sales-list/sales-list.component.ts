@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { finalize, takeUntil } from 'rxjs';
+import { finalize, takeUntil, debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { TableColumn } from 'src/app/core/components/base-crud.component';
 import { simpleCrudComponent } from 'src/app/core/components/simpleCrud.component';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -8,6 +8,7 @@ import { PageHeaderService } from 'src/app/core/services/page-header/page-header
 import { Customer, CustomerService } from 'src/app/core/services/customer/customer.service';
 import { PaymentMethod, PaymentMethodService } from 'src/app/core/services/paymentMethod/payment-method.service';
 import { IncomeService } from 'src/app/core/services/income/income.service';
+import { Product, ProductService } from 'src/app/core/services/product/product.service';
 
 enum ModalType {
   VIEW = 'sellModal',
@@ -32,6 +33,13 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
   editIndex: number | null = null;
   isSearchingCustomer = false;
   customerFound = false;
+
+  // Product search related
+  products: Product[] = [];
+  filteredProducts: Product[] = [];
+  isSearchingProduct = false;
+  showProductDropdown = false;
+  productSearchSubject = new Subject<string>();
 
   selectedSale: Sales | null = null;
 
@@ -89,6 +97,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     public authService: AuthService,
     private customerService: CustomerService,
     public paymentMethodService: PaymentMethodService,
+    private productService: ProductService,
   ) {
     super();
   }
@@ -97,6 +106,9 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     this.pageHeaderService.setTitle('Sales List');
     this.loadItems();
     this.loadPaymentMethods();
+    this.loadProducts();
+    this.setupProductSearch();
+
     const id = this.authService.getRoleId();
     this.roleId = id ?? 0;
     const id2 = this.authService.getUserId();
@@ -152,6 +164,10 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     };
   }
 
+
+
+  // ==================== Rest of the methods remain the same ====================
+
   openAddModal(): void {
     this.resetFormData();
     this.isEditMode = false;
@@ -173,7 +189,6 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     this.customerFound = false;
     this.submitted = false;
 
-    // Populate form data from selected sale
     this.formData = {
       customerName: sale.customerName,
       phone: sale.phone,
@@ -195,8 +210,6 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       status: sale.status
     };
   }
-
-  // ==================== Customer Search ====================
 
   onPhoneInput(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -231,12 +244,10 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       .subscribe({
         next: (response: any) => {
           if (response.success && response.data) {
-            // Customer found
             this.populateCustomerData(response.data);
             this.customerFound = true;
             this.validationErrors['phone'] = [];
           } else {
-            // Customer not found (success=false)
             this.clearCustomerFields();
             this.customerFound = false;
             this.validationErrors['phone'] = [response.message || 'Customer not found'];
@@ -263,8 +274,6 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     this.formData.address = '';
     this.formData.companyName = '';
   }
-
-  // ==================== Save Methods ====================
 
   saveSaleForm(): void {
     this.submitted = true;
@@ -313,13 +322,9 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       )
       .subscribe({
         next: (response: any) => {
-          console.log('Success response:', response);
-
           if (response.success === false && response.errors) {
             this.validationErrors = response.errors;
             this.errorMessage = response.message || 'Validation Failed';
-            console.log('Validation errors set:', this.validationErrors);
-            console.log('Error message set:', this.errorMessage);
           } else if (response.success) {
             this.handleCrudSuccess('Sale created successfully', ModalType.FORM);
             this.validationErrors = {};
@@ -328,14 +333,9 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
           }
         },
         error: (error: any) => {
-          console.log('Error response:', error);
-          console.log('Error body:', error.error);
-
           if (error.status === 400 && error.error && error.error.errors) {
             this.validationErrors = error.error.errors;
             this.errorMessage = error.error.message || 'Validation Failed';
-            console.log('Validation errors set:', this.validationErrors);
-            console.log('Error message set:', this.errorMessage);
           } else {
             this.handleError('Failed to create sale', error);
           }
@@ -385,13 +385,9 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       )
       .subscribe({
         next: (response: any) => {
-          console.log('Success response:', response);
-
           if (response.success === false && response.errors) {
             this.validationErrors = response.errors;
             this.errorMessage = response.message || 'Validation Failed';
-            console.log('Validation errors set:', this.validationErrors);
-            console.log('Error message set:', this.errorMessage);
           } else if (response.success) {
             this.handleCrudSuccess('Sale updated successfully', ModalType.FORM);
             this.validationErrors = {};
@@ -399,14 +395,9 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
           }
         },
         error: (error: any) => {
-          console.log('Error response:', error);
-          console.log('Error body:', error.error);
-
           if (error.status === 400 && error.error && error.error.errors) {
             this.validationErrors = error.error.errors;
             this.errorMessage = error.error.message || 'Validation Failed';
-            console.log('Validation errors set:', this.validationErrors);
-            console.log('Error message set:', this.errorMessage);
           } else {
             this.handleError('Failed to update sale', error);
           }
@@ -457,46 +448,41 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     }
   }
 
-  // ==================== Item Management ====================
-
   calculateItemTotal() {
     this.currentItem.totalPrice = (this.currentItem.quantity || 0) * (this.currentItem.unitPrice || 0);
-}
+  }
 
-addItemToList() {
+  addItemToList() {
     if (!this.currentItem.itemName || this.currentItem.quantity <= 0 || this.currentItem.unitPrice < 0) return;
 
     if (this.editIndex !== null) {
-        // Update existing item
-        this.formData.items[this.editIndex] = { ...this.currentItem };
-        this.editIndex = null;
+      this.formData.items[this.editIndex] = { ...this.currentItem };
+      this.editIndex = null;
     } else {
-        // Add new item
-        this.formData.items.push({ ...this.currentItem });
+      this.formData.items.push({ ...this.currentItem });
     }
 
     this.resetCurrentItem();
     this.updateSubTotal();
-}
+  }
 
-editSalesItem(index: number) {
+  editSalesItem(index: number) {
     this.editIndex = index;
     this.currentItem = { ...this.formData.items[index] };
-}
+  }
 
-removeItem(index: number) {
+  removeItem(index: number) {
     this.formData.items.splice(index, 1);
     this.updateSubTotal();
-}
+  }
 
-resetCurrentItem() {
+  resetCurrentItem() {
     this.currentItem = { itemName: '', quantity: 1, unitPrice: 0, totalPrice: 0 };
-}
+  }
 
-updateSubTotal() {
+  updateSubTotal() {
     this.formData.subTotal = this.formData.items.reduce((acc, item) => acc + (item.totalPrice || 0), 0);
-}
-
+  }
 
   calculateTotals(): void {
     this.formData.subTotal = this.formData.items.reduce((sum, item) => sum + item.totalPrice, 0);
@@ -549,184 +535,187 @@ updateSubTotal() {
     });
   }
 
+   // ==================== Product Search Methods ====================
+
+  loadProducts(): void {
+    this.productService.getAllProducts('', true).subscribe({
+      next: (res) => {
+        this.products = res.data || [];
+        this.filteredProducts = [...this.products];
+      },
+      error: (err) => {
+        console.error('Failed to load products', err);
+      }
+    });
+  }
+
+  setupProductSearch(): void {
+    this.productSearchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(searchTerm => {
+      this.filterProducts(searchTerm);
+    });
+  }
+
+  onProductSearchInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const searchTerm = input.value;
+    this.currentItem.itemName = searchTerm;
+    this.showProductDropdown = true;
+    this.productSearchSubject.next(searchTerm);
+  }
+
+  filterProducts(searchTerm: string): void {
+    if (!searchTerm || searchTerm.trim() === '') {
+      this.filteredProducts = [...this.products];
+      return;
+    }
+
+    const search = searchTerm.toLowerCase();
+    this.filteredProducts = this.products.filter(product =>
+      product.name.toLowerCase().includes(search)
+    );
+  }
+
+  selectProduct(product: Product): void {
+    this.currentItem.itemName = product.name;
+    this.currentItem.unitPrice = product.pricePerUnit || 0;
+    this.calculateItemTotal();
+    this.showProductDropdown = false;
+  }
+
+  hideProductDropdown(): void {
+    // Delay to allow click event on dropdown items
+    setTimeout(() => {
+      this.showProductDropdown = false;
+    }, 200);
+  }
+
   updatePaymentData = {
-  amount: 0,
-  date: new Date().toISOString().split('T')[0],
-  paymentMethodId: 0,
-  trackingId: '',
-  description: ''
-};
-
-// Method to open the update modal
-openUpdateModal(sale: Sales): void {
-  this.selectedSale = sale;
-  this.validationErrors = {};
-  this.errorMessage = '';
-
-  // Reset payment form
-  this.updatePaymentData = {
-    amount: sale.dueAmount > 0 ? sale.dueAmount : 0,
+    amount: 0,
     date: new Date().toISOString().split('T')[0],
     paymentMethodId: 0,
     trackingId: '',
     description: ''
   };
 
-  // Open modal
-  const modal = new (window as any).bootstrap.Modal(
-    document.getElementById('updateSaleModal')
-  );
-  modal.show();
-}
+  openUpdateModal(sale: Sales): void {
+    this.selectedSale = sale;
+    this.validationErrors = {};
+    this.errorMessage = '';
 
-// Calculate remaining due after adding new payment
-calculateRemainingDue(): number {
-  if (!this.selectedSale) return 0;
-  const remainingDue = this.selectedSale.dueAmount - (this.updatePaymentData.amount || 0);
-  return remainingDue < 0 ? 0 : remainingDue;
-}
+    this.updatePaymentData = {
+      amount: sale.dueAmount > 0 ? sale.dueAmount : 0,
+      date: new Date().toISOString().split('T')[0],
+      paymentMethodId: 0,
+      trackingId: '',
+      description: ''
+    };
 
-// Add payment to sale
-addPaymentToSale(): void {
-  if (!this.selectedSale) return;
-
-  // Validation
-  if (!this.updatePaymentData.amount || this.updatePaymentData.amount <= 0) {
-    this.validationErrors['amount'] = ['Payment amount is required and must be greater than 0'];
-    return;
+    const modal = new (window as any).bootstrap.Modal(
+      document.getElementById('updateSaleModal')
+    );
+    modal.show();
   }
 
-  if (this.updatePaymentData.amount > this.selectedSale.dueAmount) {
-    this.validationErrors['amount'] = ['Payment amount cannot exceed due amount'];
-    return;
+  calculateRemainingDue(): number {
+    if (!this.selectedSale) return 0;
+    const remainingDue = this.selectedSale.dueAmount - (this.updatePaymentData.amount || 0);
+    return remainingDue < 0 ? 0 : remainingDue;
   }
 
-  if (!this.updatePaymentData.date) {
-    this.validationErrors['date'] = ['Payment date is required'];
-    return;
-  }
+  addPaymentToSale(): void {
+    if (!this.selectedSale) return;
 
-  if (!this.updatePaymentData.paymentMethodId || this.updatePaymentData.paymentMethodId === 0) {
-    this.validationErrors['paymentMethodId'] = ['Payment method is required'];
-    return;
-  }
+    if (!this.updatePaymentData.amount || this.updatePaymentData.amount <= 0) {
+      this.validationErrors['amount'] = ['Payment amount is required and must be greater than 0'];
+      return;
+    }
 
-  // Create payment DTO
-  const paymentDto = {
-    saleId: this.selectedSale.id,
-    amount: this.updatePaymentData.amount,
-    incomeDate: this.updatePaymentData.date,
-    paymentMethodId: this.updatePaymentData.paymentMethodId,
-    trackingId: this.updatePaymentData.trackingId || '',
-    description: this.updatePaymentData.description || `Payment for Invoice ${this.selectedSale.invoiceNo}`
-  };
+    if (this.updatePaymentData.amount > this.selectedSale.dueAmount) {
+      this.validationErrors['amount'] = ['Payment amount cannot exceed due amount'];
+      return;
+    }
 
-  this.isLoading = true;
-  this.validationErrors = {};
-  this.errorMessage = '';
+    if (!this.updatePaymentData.date) {
+      this.validationErrors['date'] = ['Payment date is required'];
+      return;
+    }
 
-  // Call your service method to add payment
-  // Assuming you have a method like addPayment in your SalesService
-  this.incomeService.addPayment(paymentDto)
-    .pipe(
-      takeUntil(this.destroy$),
-      finalize(() => this.isLoading = false)
-    )
-    .subscribe({
-      next: (response: any) => {
-        if (response.success === false && response.errors) {
-          this.validationErrors = response.errors;
-          this.errorMessage = response.message || 'Validation Failed';
-        } else if (response.success) {
-          this.handleCrudSuccess('Payment added successfully', 'updateSaleModal');
-          this.loadItems(); // Reload the sales list
-          this.validationErrors = {};
+    if (!this.updatePaymentData.paymentMethodId || this.updatePaymentData.paymentMethodId === 0) {
+      this.validationErrors['paymentMethodId'] = ['Payment method is required'];
+      return;
+    }
+
+    const paymentDto = {
+      saleId: this.selectedSale.id,
+      amount: this.updatePaymentData.amount,
+      incomeDate: this.updatePaymentData.date,
+      paymentMethodId: this.updatePaymentData.paymentMethodId,
+      trackingId: this.updatePaymentData.trackingId || '',
+      description: this.updatePaymentData.description || `Payment for Invoice ${this.selectedSale.invoiceNo}`
+    };
+
+    this.isLoading = true;
+    this.validationErrors = {};
+    this.errorMessage = '';
+
+    this.incomeService.addPayment(paymentDto)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response: any) => {
+          if (response.success === false && response.errors) {
+            this.validationErrors = response.errors;
+            this.errorMessage = response.message || 'Validation Failed';
+          } else if (response.success) {
+            this.handleCrudSuccess('Payment added successfully', 'updateSaleModal');
+            this.loadItems();
+            this.validationErrors = {};
+          }
+        },
+        error: (error: any) => {
+          if (error.status === 400 && error.error && error.error.errors) {
+            this.validationErrors = error.error.errors;
+            this.errorMessage = error.error.message || 'Validation Failed';
+          } else {
+            this.handleError('Failed to add payment', error);
+          }
         }
-      },
-      error: (error: any) => {
-        if (error.status === 400 && error.error && error.error.errors) {
-          this.validationErrors = error.error.errors;
-          this.errorMessage = error.error.message || 'Validation Failed';
-        } else {
-          this.handleError('Failed to add payment', error);
-        }
-      }
-    });
-}
-
-
-
-
-  // ==================== Utility Methods ====================
-
-//   printSaleMemo(): void {
-//   if (!this.selectedSale) {
-//     this.errorMessage = 'No sale selected';
-//     setTimeout(() => this.clearError(), 3000);
-//     return;
-//   }
-
-//   this.isLoading = true;
-
-//   this.service.downloadInvoice(this.selectedSale.id)
-//     .pipe(
-//       takeUntil(this.destroy$),
-//       finalize(() => this.isLoading = false)
-//     )
-//     .subscribe({
-//       next: (blob: Blob) => {
-//         // Create a blob URL and trigger download
-//         const url = window.URL.createObjectURL(blob);
-//         const link = document.createElement('a');
-//         link.href = url;
-//         link.download = `invoice_${this.selectedSale!.invoiceNo}.pdf`;
-//         link.click();
-
-//         // Clean up
-//         window.URL.revokeObjectURL(url);
-
-//         // Optional: Show success message
-//         this.successMessage = 'Invoice downloaded successfully';
-//         setTimeout(() => this.clearSuccess(), 3000);
-//       },
-//       error: (error: any) => {
-//         console.error('Failed to download invoice:', error);
-//         this.errorMessage = 'Failed to download invoice';
-//         setTimeout(() => this.clearError(), 3000);
-//       }
-//     });
-// }
-
-printSaleMemo(): void {
-  if (!this.selectedSale) {
-    this.errorMessage = 'No sale selected';
-    setTimeout(() => this.clearError(), 3000);
-    return;
+      });
   }
 
-  this.isLoading = true;
+  printSaleMemo(): void {
+    if (!this.selectedSale) {
+      this.errorMessage = 'No sale selected';
+      setTimeout(() => this.clearError(), 3000);
+      return;
+    }
 
-  this.service.downloadInvoice(this.selectedSale.id)
-    .pipe(
-      takeUntil(this.destroy$),
-      finalize(() => this.isLoading = false)
-    )
-    .subscribe({
-      next: (blob: Blob) => {
-        // Create blob URL and open in new tab
-        const url = window.URL.createObjectURL(blob);
-        window.open(url, '_blank');
+    this.isLoading = true;
 
-        // Clean up after a delay
-        setTimeout(() => window.URL.revokeObjectURL(url), 1000);
-      },
-      error: (error: any) => {
-        console.error('Failed to open invoice:', error);
-        this.errorMessage = 'Failed to open invoice';
-        setTimeout(() => this.clearError(), 3000);
-      }
-    });
-}
+    this.service.downloadInvoice(this.selectedSale.id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (blob: Blob) => {
+          const url = window.URL.createObjectURL(blob);
+          window.open(url, '_blank');
+          setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+        },
+        error: (error: any) => {
+          console.error('Failed to open invoice:', error);
+          this.errorMessage = 'Failed to open invoice';
+          setTimeout(() => this.clearError(), 3000);
+        }
+      });
+  }
 
   hasValidationErrors(): boolean {
     return Object.keys(this.validationErrors).length > 0;
