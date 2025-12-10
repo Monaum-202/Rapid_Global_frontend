@@ -53,13 +53,12 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     deliveryDate: '',
     notes: '',
     items: [] as SalesItem[],
+    payments: [] as any[],
     subTotal: 0,
     vat: 0,
     discount: 0,
     totalPrice: 0,
     paidAmount: 0,
-    paymentMethodId: 0,
-    trackingId: '',
     dueAmount: 0,
     status: 'PENDING'
   };
@@ -71,6 +70,14 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     unitPrice: 0,
     totalPrice: 0
   };
+
+  currentPayment = {
+    amount: 0,
+    paymentMethodId: 0,
+    trackingId: ''
+  };
+
+  paymentEditIndex: number | null = null;
 
   columns: TableColumn<Sales>[] = [
     { key: 'invoiceNo', label: 'Invoice No', visible: true },
@@ -90,6 +97,14 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
   get filteredSales(): Sales[] {
     return this.items;
   }
+
+  updatePaymentData = {
+    amount: 0,
+    date: new Date().toISOString().split('T')[0],
+    paymentMethodId: 0,
+    trackingId: '',
+    description: ''
+  };
 
   constructor(
     public service: SalesService,
@@ -151,23 +166,25 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       address: this.formData.address?.trim() || '',
       companyName: this.formData.companyName?.trim() || '',
       sellDate: this.formData.sellDate,
-      deliveryDate: this.formData.deliveryDate?.trim() || '',
+      deliveryDate: this.formData.deliveryDate || null,
       notes: this.formData.notes?.trim() || '',
-      subTotal: this.formData.subTotal,
-      vat: this.formData.vat,
       discount: this.formData.discount,
-      totalAmount: this.formData.totalPrice,
-      paidAmount: this.formData.paidAmount,
-      paymentMethodId: this.formData.paymentMethodId,
-      dueAmount: this.formData.dueAmount,
+      vat: this.formData.vat,
+      paymentMethodId: 0, // Not used when payments array exists
       status: this.formData.status,
-      items: this.formData.items
+      items: this.formData.items,
+      payments: this.formData.payments.map(p => ({
+        amount: p.amount,
+        paymentMethodId: p.paymentMethodId,
+        incomeDate: this.formData.sellDate,
+        description: `Payment for Invoice`,
+        paidFrom: this.formData.customerName,
+        paidFromCompany: this.formData.companyName || '',
+        incomeCategory: null,
+        trackingId: p.trackingId || ''
+      }))
     };
   }
-
-
-
-  // ==================== Rest of the methods remain the same ====================
 
   openAddModal(): void {
     this.resetFormData();
@@ -200,13 +217,12 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       deliveryDate: sale.deliveryDate || '',
       notes: sale.notes || '',
       items: [...sale.items],
+      payments: [], // Don't include existing payments in edit mode
       subTotal: sale.subTotal,
       vat: sale.vat,
       discount: sale.discount,
       totalPrice: sale.totalAmount,
       paidAmount: sale.paidAmount,
-      paymentMethodId: sale.paymentMethodId,
-      trackingId: sale.trackingId || '',
       dueAmount: sale.dueAmount,
       status: sale.status
     };
@@ -304,11 +320,11 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       discount: this.formData.discount,
       totalAmount: this.formData.totalPrice,
       paidAmount: this.formData.paidAmount,
-      paymentMethodId: this.formData.paymentMethodId,
+      paymentMethodId: 0,
       dueAmount: this.formData.dueAmount,
       status: this.formData.status,
       items: this.formData.items,
-      trackingId: this.formData.trackingId
+      trackingId: ''
     };
 
     const dto = this.mapToDto(sale);
@@ -367,11 +383,11 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       discount: this.formData.discount,
       totalAmount: this.formData.totalPrice,
       paidAmount: this.formData.paidAmount,
-      paymentMethodId: this.formData.paymentMethodId,
+      paymentMethodId: 0,
       dueAmount: this.formData.dueAmount,
       status: this.formData.status,
       items: this.formData.items,
-      trackingId: this.formData.trackingId
+      trackingId: ''
     };
 
     const dto = this.mapToDto(sale);
@@ -478,22 +494,99 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
   }
 
   resetCurrentItem() {
-    this.currentItem = { itemName: '', unitName:'', quantity: 1, unitPrice: 0, totalPrice: 0 };
+    this.currentItem = { itemName: '', unitName: '', quantity: 1, unitPrice: 0, totalPrice: 0 };
   }
 
   updateSubTotal() {
     this.formData.subTotal = this.formData.items.reduce((acc, item) => acc + (item.totalPrice || 0), 0);
+    this.calculateTotals();
   }
 
   calculateTotals(): void {
     this.formData.subTotal = this.formData.items.reduce((sum, item) => sum + item.totalPrice, 0);
     const vatAmount = (this.formData.subTotal * this.formData.vat) / 100;
     this.formData.totalPrice = this.formData.subTotal + vatAmount - this.formData.discount;
+    
+    // Calculate paid amount from payments array
+    this.formData.paidAmount = this.formData.payments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
+    
     this.formData.dueAmount = this.formData.totalPrice - this.formData.paidAmount;
 
     if (this.formData.dueAmount < 0) {
       this.formData.dueAmount = 0;
     }
+  }
+
+  // Payment Management Methods (like Item Management)
+  addPaymentToList(): void {
+    if (!this.currentPayment.amount || this.currentPayment.amount <= 0) {
+      this.validationErrors['payment'] = ['Payment amount is required'];
+      return;
+    }
+
+    if (!this.currentPayment.paymentMethodId || this.currentPayment.paymentMethodId === 0) {
+      this.validationErrors['payment'] = ['Payment method is required'];
+      return;
+    }
+
+    // Check if total payments would exceed total amount
+    const totalPayments = this.formData.payments.reduce((sum, p) => sum + p.amount, 0);
+    if (this.paymentEditIndex === null) {
+      if (totalPayments + this.currentPayment.amount > this.formData.totalPrice) {
+        this.validationErrors['payment'] = ['Total payments cannot exceed total amount'];
+        return;
+      }
+    } else {
+      const oldAmount = this.formData.payments[this.paymentEditIndex].amount;
+      if (totalPayments - oldAmount + this.currentPayment.amount > this.formData.totalPrice) {
+        this.validationErrors['payment'] = ['Total payments cannot exceed total amount'];
+        return;
+      }
+    }
+
+    if (this.paymentEditIndex !== null) {
+      this.formData.payments[this.paymentEditIndex] = { ...this.currentPayment };
+      this.paymentEditIndex = null;
+    } else {
+      this.formData.payments.push({ ...this.currentPayment });
+    }
+
+    this.resetCurrentPayment();
+    this.calculateTotals();
+    delete this.validationErrors['payment'];
+  }
+
+  editPayment(index: number): void {
+    this.paymentEditIndex = index;
+    this.currentPayment = { ...this.formData.payments[index] };
+  }
+
+  removePayment(index: number): void {
+    this.formData.payments.splice(index, 1);
+    this.calculateTotals();
+  }
+
+  resetCurrentPayment(): void {
+    this.currentPayment = {
+      amount: 0,
+      paymentMethodId: 0,
+      trackingId: ''
+    };
+  }
+
+  getPaymentMethodName(id: number): string {
+    const method = this.paymentMethod.find(m => m.id === id);
+    return method ? method.name : 'Unknown';
+  }
+
+  calculateDueAfterPayment(index: number): number {
+    // Calculate cumulative payments up to and including this payment
+    let cumulativePaid = 0;
+    for (let i = 0; i <= index; i++) {
+      cumulativePaid += this.formData.payments[i].amount || 0;
+    }
+    const due = this.formData.totalPrice - cumulativePaid;
+    return due < 0 ? 0 : due;
   }
 
   resetFormData(): void {
@@ -508,18 +601,19 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       deliveryDate: '',
       notes: '',
       items: [],
+      payments: [],
       subTotal: 0,
       vat: 0,
       discount: 0,
       totalPrice: 0,
       paidAmount: 0,
-      paymentMethodId: 0,
-      trackingId: '',
       dueAmount: 0,
       status: 'PENDING'
     };
     this.resetCurrentItem();
+    this.resetCurrentPayment();
     this.customerFound = false;
+    this.paymentEditIndex = null;
   }
 
   loadPaymentMethods(): void {
@@ -535,8 +629,6 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       }
     });
   }
-
-   // ==================== Product Search Methods ====================
 
   loadProducts(): void {
     this.productService.getAllProducts('', true).subscribe({
@@ -582,26 +674,17 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
 
   selectProduct(product: Product): void {
     this.currentItem.itemName = product.name;
-    this.currentItem.unitName = product.unitName|| '';
+    this.currentItem.unitName = product.unitName || '';
     this.currentItem.unitPrice = product.pricePerUnit || 0;
     this.calculateItemTotal();
     this.showProductDropdown = false;
   }
 
   hideProductDropdown(): void {
-    // Delay to allow click event on dropdown items
     setTimeout(() => {
       this.showProductDropdown = false;
     }, 200);
   }
-
-  updatePaymentData = {
-    amount: 0,
-    date: new Date().toISOString().split('T')[0],
-    paymentMethodId: 0,
-    trackingId: '',
-    description: ''
-  };
 
   openUpdateModal(sale: Sales): void {
     this.selectedSale = sale;
@@ -615,11 +698,6 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       trackingId: '',
       description: ''
     };
-
-    const modal = new (window as any).bootstrap.Modal(
-      document.getElementById('updateSaleModal')
-    );
-    modal.show();
   }
 
   calculateRemainingDue(): number {

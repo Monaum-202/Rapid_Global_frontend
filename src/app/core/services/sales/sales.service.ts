@@ -13,23 +13,27 @@ export interface SalesItem {
   totalPrice: number;
 }
 
-export interface Payments {
+export interface Payment {
   incomeId?: string;
   amount: number;
   incomeDate: string;
-  paymentMethodName: string;
-  trackingId: string;
-  createdBy: string;
-}
-  export interface AddPaymentDto {
-  saleId: number;
-  amount: number;
-  incomeDate: string;
   paymentMethodId: number;
+  paymentMethodName?: string;
   trackingId?: string;
   description?: string;
+  createdBy?: string;
 }
 
+export interface PaymentReqDto {
+  incomeCategory?: number | null;
+  amount: number;
+  paymentMethodId: number;
+  paidFrom?: string;
+  paidFromCompany?: string;
+  incomeDate: string;
+  description?: string;
+  trackingId?: string;
+}
 
 export interface Sales {
   id: number;
@@ -52,7 +56,7 @@ export interface Sales {
   dueAmount: number;
   status: string;
   items: SalesItem[];
-  payments?: Payments[];
+  payments?: Payment[];
   createdBy?: number;
   createdByName?: string;
   createdDate?: string;
@@ -65,18 +69,23 @@ export interface SalesReqDto {
   address?: string;
   companyName?: string;
   sellDate: string;
-  deliveryDate?: string;
+  deliveryDate?: string | null;
   notes?: string;
-  subTotal: number;
-  vat: number;
   discount: number;
-  totalAmount: number;
-  paidAmount: number;
+  vat: number;
   paymentMethodId: number;
-  trackingId?: string;
-  dueAmount: number;
   status: string;
   items: SalesItem[];
+  payments?: PaymentReqDto[];
+}
+
+export interface AddPaymentDto {
+  saleId: number;
+  amount: number;
+  incomeDate: string;
+  paymentMethodId: number;
+  trackingId?: string;
+  description?: string;
 }
 
 export interface SalesFilterParams {
@@ -169,12 +178,12 @@ export class SalesService extends BaseService {
     return this.put<Sales>(`${this.ENDPOINT}/${id}/approve-payment`, {});
   }
 
-/**
- * Download invoice PDF for a sale
- */
-downloadInvoice(id: number): Observable<Blob> {
-  return this.downloadFile(`sales/${id}/invoice`, `invoice_${id}.pdf`);
-}
+  /**
+   * Download invoice PDF for a sale
+   */
+  downloadInvoice(id: number): Observable<Blob> {
+    return this.downloadFile(`sales/${id}/invoice`, `invoice_${id}.pdf`);
+  }
 
   // ==================== Helper Methods ====================
 
@@ -235,18 +244,18 @@ downloadInvoice(id: number): Observable<Blob> {
     };
   }
 
+  /**
+   * Calculate total paid amount from payments array
+   */
+  calculatePaidAmount(payments: Payment[]): number {
+    return payments.reduce((sum, payment) => sum + payment.amount, 0);
+  }
 
-// Add this method to your SalesService class:
-
-/**
- * Add a new payment to an existing sale
- */
-
-/**
- * Alternative: If your backend expects the payment without saleId in the body
- */
-addPaymentAlternative(saleId: number, dto: Omit<AddPaymentDto, 'saleId'>): Observable<BaseApiResponse<Sales>> {
-  return this.post<Sales>(`${this.ENDPOINT}/${saleId}/payments`, dto);
-}
-
+  /**
+   * Calculate due amount
+   */
+  calculateDueAmount(totalAmount: number, paidAmount: number): number {
+    const due = totalAmount - paidAmount;
+    return due < 0 ? 0 : due;
+  }
 }

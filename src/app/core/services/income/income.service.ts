@@ -3,7 +3,6 @@ import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { BaseApiResponse, PaginatedData } from '../../models/api-response.model';
 import { BaseService } from '../base/base.service';
-import { AddPaymentDto } from '../sales/sales.service';
 
 export interface Income {
   id: number;
@@ -34,6 +33,15 @@ export interface IncomeReqDto {
   paidFromCompany?: string;
   status?: string;
   approvalDate?: string;
+  description?: string;
+}
+
+export interface AddPaymentDto {
+  saleId: number;
+  amount: number;
+  incomeDate: string;
+  paymentMethodId: number;
+  trackingId?: string;
   description?: string;
 }
 
