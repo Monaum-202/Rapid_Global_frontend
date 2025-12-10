@@ -7,6 +7,7 @@ import { BaseService } from '../base/base.service';
 export interface SalesItem {
   id?: number;
   itemName: string;
+  unitName: string;
   quantity: number;
   unitPrice: number;
   totalPrice: number;

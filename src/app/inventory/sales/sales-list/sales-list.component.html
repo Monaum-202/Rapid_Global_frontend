@@ -120,9 +120,11 @@
                                 [hidden]="sale.status === 'COMPLETED' || sale.status === 'CANCELED'" title="Edit">
                                 <i class="fa fa-pen"></i>
                             </button>
+
+                            <!-- payment -->
                             <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
                                 data-bs-target="#updateSaleModal" (click)="openUpdateModal(sale)"
-                                [hidden]="sale.status === 'COMPLETED' || sale.status === 'CANCELED'"
+                                [hidden]="sale.status === 'COMPLETED' || sale.status === 'CANCELED' || sale.dueAmount === 0"
                                 title="Update Payment">
                                 <i class="fa fa-credit-card"></i>
                             </button>
@@ -196,6 +198,19 @@
                             [class.bg-success]="selectedSale.status === 'COMPLETED'"
                             [class.bg-danger]="selectedSale.status === 'CANCELED'">
                             {{ selectedSale.status }}
+                        </span>
+                        &nbsp;&nbsp;
+                        <span class="badge" *ngIf="selectedSale" [class.bg-success]="selectedSale.dueAmount === 0"
+                            [class.bg-warning]="selectedSale.paidAmount > 0 && selectedSale.dueAmount > 0"
+                            [class.bg-danger]="selectedSale.paidAmount === 0">
+
+                            {{
+                            selectedSale.dueAmount === 0
+                            ? 'Paid'
+                            : (selectedSale.paidAmount > 0
+                            ? 'Partially Paid'
+                            : 'Unpaid')
+                            }}
                         </span>
                     </div>
                 </div>
@@ -310,7 +325,7 @@
                                                     {{ item.quantity }}
                                                 </td>
                                                 <td style="padding: 0.4rem; text-align: center;">
-                                                    {{ item.quantity }}
+                                                    {{ item.unitName }}
                                                 </td>
                                                 <td style="padding: 0.4rem; text-align: right;"> {{ item.unitPrice |
                                                     number:'1.2-2' }}</td>
@@ -556,7 +571,7 @@
                                     <div class="bg-light p-3 rounded-3 mb-3">
                                         <div class="row g-2">
                                             <!-- Item Name with Searchable Dropdown -->
-                                            <div class="col-md-5">
+                                            <div class="col-md-4">
                                                 <label class="form-label fw-semibold small">Item Name</label>
                                                 <div class="position-relative">
                                                     <input type="text" class="form-control form-control-sm"
@@ -591,6 +606,14 @@
                                                 </div>
                                             </div>
 
+                                            <!-- Unit -->
+                                            <div class="col-md-2">
+                                                <label class="form-label fw-semibold small">Unit</label>
+                                                <input type="text" class="form-control form-control-sm"
+                                                    [(ngModel)]="currentItem.unitName" name="unitName" min="0"
+                                                    step="0.01" />
+                                            </div>
+
                                             <!-- Quantity -->
                                             <div class="col-md-2">
                                                 <label class="form-label fw-semibold small">Qty</label>
@@ -600,7 +623,7 @@
                                             </div>
 
                                             <!-- Unit Price -->
-                                            <div class="col-md-3">
+                                            <div class="col-md-2">
                                                 <label class="form-label fw-semibold small">Unit Price</label>
                                                 <input type="number" class="form-control form-control-sm"
                                                     [(ngModel)]="currentItem.unitPrice" name="itemPrice"
@@ -631,6 +654,7 @@
                                             <thead class="table-light sticky-top">
                                                 <tr>
                                                     <th>Item</th>
+                                                    <th class="text-center">Unit</th>
                                                     <th class="text-center">Qty</th>
                                                     <th class="text-end">Unit Price</th>
                                                     <th class="text-end">Total</th>
@@ -640,6 +664,7 @@
                                             <tbody>
                                                 <tr *ngFor="let item of formData.items; let i = index">
                                                     <td>{{ item.itemName }}</td>
+                                                    <td class="text-center">{{ item.unitName }}</td>
                                                     <td class="text-center">{{ item.quantity }}</td>
                                                     <td class="text-end">
                                                         {{ item.unitPrice | number:'1.2-2' }}
@@ -662,19 +687,8 @@
                                                     </td>
 
                                                 </tr>
-                                                <tr>
-                                                    <td style="background-color: #ececec;"></td>
-                                                    <td style="background-color: #ececec;"></td>
-                                                    <td style="background-color: #ececec;" class="text-end"><span
-                                                            class="fw-bold">Subtotal:</span></td>
-                                                    <td class="text-end" style="background-color: #ececec;">
-                                                        <span class="fw-bold">{{ formData.subTotal |
-                                                            number:'1.2-2'}}</span>
-                                                    </td>
-                                                    <td style="background-color: #ececec;"></td>
-                                                </tr>
                                                 <tr *ngIf="formData.items.length === 0">
-                                                    <td colspan="5" class="text-center"
+                                                    <td colspan="6" class="text-center"
                                                         [class.text-danger]="validationErrors['items']"
                                                         [class.text-muted]="!validationErrors['items']">
 
@@ -686,6 +700,19 @@
                                                         </span>
                                                     </td>
                                                 </tr>
+                                                <tr>
+                                                    <td style="background-color: #ececec;"></td>
+                                                    <td style="background-color: #ececec;"></td>
+                                                    <td style="background-color: #ececec;"></td>
+                                                    <td style="background-color: #ececec;" class="text-end"><span
+                                                            class="fw-bold">Subtotal:</span></td>
+                                                    <td class="text-end" style="background-color: #ececec;">
+                                                        <span class="fw-bold">{{ formData.subTotal |
+                                                            number:'1.2-2'}}</span>
+                                                    </td>
+                                                    <td style="background-color: #ececec;"></td>
+                                                </tr>
+
                                             </tbody>
                                         </table>
                                     </div>

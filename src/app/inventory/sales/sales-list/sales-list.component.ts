@@ -66,6 +66,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
 
   currentItem: SalesItem = {
     itemName: '',
+    unitName: '',
     quantity: 1,
     unitPrice: 0,
     totalPrice: 0
@@ -477,7 +478,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
   }
 
   resetCurrentItem() {
-    this.currentItem = { itemName: '', quantity: 1, unitPrice: 0, totalPrice: 0 };
+    this.currentItem = { itemName: '', unitName:'', quantity: 1, unitPrice: 0, totalPrice: 0 };
   }
 
   updateSubTotal() {
@@ -581,6 +582,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
 
   selectProduct(product: Product): void {
     this.currentItem.itemName = product.name;
+    this.currentItem.unitName = product.unitName|| '';
     this.currentItem.unitPrice = product.pricePerUnit || 0;
     this.calculateItemTotal();
     this.showProductDropdown = false;
