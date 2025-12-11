@@ -19,9 +19,7 @@ export interface CrudService<T extends BaseEntity, TDto> {
   create(dto: TDto): Observable<any>;
   update(id: number, dto: TDto): Observable<any>;
   activeUpdate(id: number): Observable<any>;
-  deleteEmployee?(id: number): Observable<any>;
-  deletePaymentMethod?(id: number): Observable<any>;
-  // Add other delete method names as needed
+  remove(id: number): Observable<any>; // Use 'remove' instead of 'delete'
 }
 
 @Directive()
@@ -61,24 +59,22 @@ export abstract class BaseCrudComponent<T extends BaseEntity, TDto> implements O
     this.clearError();
 
     const searchParam = this.searchTerm.trim() || undefined;
-    const request$ = this.service.getAll(
-      searchParam
-    );
+    const request$ = this.service.getAll(searchParam);
 
     const startTime = Date.now();
 
-  request$
-    .pipe(
-      takeUntil(this.destroy$),
-      finalize(() => {
-        const elapsed = Date.now() - startTime;
-        const remaining = Math.max(0, 1000 - elapsed);
-        setTimeout(() => {
-          this.isLoading = false;
-          this.isSearching = false;
-        }, remaining);
-      })
-    )
+    request$
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          const elapsed = Date.now() - startTime;
+          const remaining = Math.max(0, 1000 - elapsed);
+          setTimeout(() => {
+            this.isLoading = false;
+            this.isSearching = false;
+          }, remaining);
+        })
+      )
       .subscribe({
         next: (response) => {
           if (response.success && response.data) {
@@ -195,35 +191,37 @@ export abstract class BaseCrudComponent<T extends BaseEntity, TDto> implements O
             item.active = !item.active;
           }
         },
-        error: (error) => this.handleError('Failed to update active', error)
+        error: (error) => this.handleError('Failed to update status', error)
       });
   }
 
-deleteItem(item: T, itemName: string): void {
-  if (!item.id) return;
+  deleteItem(item: T, itemName: string): void {
+    if (!item.id) return;
 
-  const deleteMethod = (this.service as any)[`delete${this.entityName}`];
-  if (!deleteMethod) {
-    console.error(`Delete method not found for ${this.entityName}`);
-    return;
-  }
+    this.isLoading = true;
 
-  this.isLoading = true;
-  deleteMethod.call(this.service, item.id)
-    .pipe(
-      takeUntil(this.destroy$),
-      finalize(() => this.isLoading = false)
-    )
-    .subscribe({
-      next: (response: any) => {
-        if (response.success) {
-          this.handleCrudSuccess(`${this.entityName} deleted successfully`);
+    this.service.remove(item.id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.isLoading = false;
+          // Close the delete modal after operation completes
+          this.closeModal('confirmDeleteModal');
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          if (response.success) {
+            this.handleCrudSuccess(`${this.entityName} "${itemName}" deleted successfully`);
+          } else {
+            this.errorMessage = response.message || `Failed to delete ${this.entityNameLower}`;
+          }
+        },
+        error: (error: any) => {
+          this.handleError(`Failed to delete ${this.entityNameLower}`, error);
         }
-      },
-      error: (error: any) => this.handleError(`Failed to delete ${this.entityNameLower}`, error)
-    });
-}
-
+      });
+  }
 
   abstract createNew(): T;
   abstract isValid(item: T | null): boolean;

@@ -74,7 +74,12 @@ export interface SalesReqDto {
   discount: number;
   vat: number;
   paymentMethodId: number;
+<<<<<<< HEAD
   status: string;
+=======
+  trackingId?: string;
+  dueAmount: number;
+>>>>>>> 7ede8a1 (1112)
   items: SalesItem[];
   payments?: PaymentReqDto[];
 }

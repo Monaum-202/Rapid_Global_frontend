@@ -102,7 +102,7 @@ export class EmployeeService extends BaseService {
   /**
    * Delete an employee
    */
-  deleteEmployee(id: number): Observable<BaseApiResponse<void>> {
+  remove(id: number): Observable<BaseApiResponse<void>> {
     return this.delete<void>(`${this.ENDPOINT}/${id}`);
   }
 

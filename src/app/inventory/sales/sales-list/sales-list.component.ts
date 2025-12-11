@@ -152,7 +152,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
       paymentMethodId: 0,
       trackingId: '',
       dueAmount: 0,
-      status: 'PENDING',
+      status: '',
       items: [],
       payments: []
     };
@@ -506,10 +506,10 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     this.formData.subTotal = this.formData.items.reduce((sum, item) => sum + item.totalPrice, 0);
     const vatAmount = (this.formData.subTotal * this.formData.vat) / 100;
     this.formData.totalPrice = this.formData.subTotal + vatAmount - this.formData.discount;
-    
+
     // Calculate paid amount from payments array
     this.formData.paidAmount = this.formData.payments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
-    
+
     this.formData.dueAmount = this.formData.totalPrice - this.formData.paidAmount;
 
     if (this.formData.dueAmount < 0) {

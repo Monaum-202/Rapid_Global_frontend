@@ -83,7 +83,7 @@ export class TransectionCategoryService extends BaseService {
   /**
    * Delete an transectionCategory
    */
-  deleteTransectionCategory(id: number): Observable<BaseApiResponse<void>> {
+  remove(id: number): Observable<BaseApiResponse<void>> {
     return this.delete<void>(`${this.ENDPOINT}/${id}`);
   }
 

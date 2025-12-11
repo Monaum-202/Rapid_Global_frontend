@@ -78,9 +78,10 @@ export class UnitService extends BaseService {
   /**
    * Delete a unit
    */
-  deleteUnit(id: number): Observable<BaseApiResponse<void>> {
+  remove(id: number): Observable<BaseApiResponse<void>> {
     return this.delete<void>(`${this.ENDPOINT}/${id}`);
   }
+
 
   /**
    * Toggle unit active status

@@ -76,7 +76,7 @@ export class PaymentMethodService extends BaseService {
   /**
    * Delete an paymentMethod
    */
-  deletePaymentMethod(id: number): Observable<BaseApiResponse<void>> {
+  remove(id: number): Observable<BaseApiResponse<void>> {
     return this.delete<void>(`${this.ENDPOINT}/${id}`);
   }
 

@@ -129,9 +129,10 @@ export class ProductService extends BaseService {
   /**
    * Delete a product
    */
-  deleteProduct(id: number): Observable<BaseApiResponse<void>> {
+  remove(id: number): Observable<BaseApiResponse<void>> {
     return this.delete<void>(`${this.ENDPOINT}/${id}`);
   }
+
 
   /**
    * Toggle product active status

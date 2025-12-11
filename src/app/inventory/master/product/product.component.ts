@@ -25,10 +25,8 @@ export class ProductComponent extends BaseCrudComponent<Product, ProductReqDto> 
   entityNameLower = 'product';
   isEditMode = false;
 
-  // Units for dropdown
   units: Unit[] = [];
 
-  // Product types for dropdown
   productTypes = this.productService.getProductTypes();
 
   columns: TableColumn<Product>[] = [
@@ -115,9 +113,6 @@ export class ProductComponent extends BaseCrudComponent<Product, ProductReqDto> 
     };
   }
 
-  /**
-   * Load units for dropdown
-   */
   loadUnits(): void {
     this.unitService.getAllActive(true)
       .pipe(takeUntil(this.destroy$))
@@ -134,47 +129,29 @@ export class ProductComponent extends BaseCrudComponent<Product, ProductReqDto> 
       });
   }
 
-  /**
-   * Get unit name by ID
-   */
   getUnitName(unitId: number): string {
     const unit = this.units.find(u => u.id === unitId);
     return unit ? `${unit.name} - ${unit.fullName}` : 'Unknown';
   }
 
-  /**
-   * Get product type display name
-   */
   getProductTypeDisplay(type: ProductType): string {
     return this.productService.getProductTypeDisplay(type);
   }
 
-  /**
-   * Open modal for adding new product
-   */
   openAddModal(): void {
     this.isEditMode = false;
     this.selectedProduct = this.createNew();
   }
 
-  /**
-   * Open modal for editing existing product
-   */
   editProduct(product: Product): void {
     this.isEditMode = true;
     this.editItem(product);
   }
 
-  /**
-   * View product details
-   */
   viewProduct(product: Product): void {
     this.viewItem(product);
   }
 
-  /**
-   * Save product (add or edit)
-   */
   saveProduct(): void {
     if (!this.isValid(this.selectedProduct)) {
       this.errorMessage = 'Please fill in all required fields';
@@ -211,37 +188,56 @@ export class ProductComponent extends BaseCrudComponent<Product, ProductReqDto> 
       });
   }
 
-  /**
-   * Delete product
-   */
-  deleteProduct(product: Product): void {
-    this.deleteItem(product, product.name);
-  }
 
-  /**
-   * Load products
-   */
   loadProducts(isSearchOperation = false): void {
     this.loadItems(isSearchOperation);
   }
 
-  /**
-   * Open delete confirmation modal
-   */
-  openDeleteModal(product: Product): void {
-    this.selectedProduct = product;
-    const modal = new (window as any).bootstrap.Modal(
-      document.getElementById('confirmDeleteModal')
-    );
-    modal.show();
-  }
 
-  /**
-   * Confirm delete action
-   */
-  confirmDelete(): void {
-    if (this.selectedProduct) {
-      this.deleteItem(this.selectedProduct, this.selectedProduct.name);
-    }
+openDeleteModal(product: Product) {
+  this.selectedProduct = product;
+  const modal = new (window as any).bootstrap.Modal(
+    document.getElementById('confirmDeleteModal')
+  );
+  modal.show();
+}
+
+confirmDelete() {
+  if (this.selectedProduct) {
+    this.deleteItem(this.selectedProduct, this.selectedProduct.name);
   }
+}
+
+// confirmDelete() {
+//   if (this.selectedProduct && this.selectedProduct.id) {
+//     const productId = this.selectedProduct.id;
+//     const productName = this.selectedProduct.name;
+
+
+//     const modalElement = document.getElementById('confirmDeleteModal');
+//     const modal = (window as any).bootstrap.Modal.getInstance(modalElement);
+//     if (modal) {
+//       modal.hide();
+//     }
+
+//     this.isLoading = true;
+
+//     this.service.remove(productId)
+//       .pipe(
+//         takeUntil(this.destroy$),
+//         finalize(() => this.isLoading = false)
+//       )
+//       .subscribe({
+//         next: (response) => {
+//           if (response.success) {
+//             this.handleCrudSuccess(`Product "${productName}" deleted successfully`);
+//             this.items = this.items.filter(item => item.id !== productId);
+//           }
+//         },
+//         error: (error) => {
+//           this.handleError(`Failed to delete product "${productName}"`, error);
+//         }
+//       });
+//   }
+// }
 }
