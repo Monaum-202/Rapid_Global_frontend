@@ -54,6 +54,7 @@ export interface Sales {
   paymentMethodId: number;
   trackingId?: string;
   dueAmount: number;
+  cancelReason?: string;
   status: string;
   items: SalesItem[];
   payments?: Payment[];
@@ -74,12 +75,8 @@ export interface SalesReqDto {
   discount: number;
   vat: number;
   paymentMethodId: number;
-<<<<<<< HEAD
   status: string;
-=======
   trackingId?: string;
-  dueAmount: number;
->>>>>>> 7ede8a1 (1112)
   items: SalesItem[];
   payments?: PaymentReqDto[];
 }
@@ -189,6 +186,11 @@ export class SalesService extends BaseService {
   downloadInvoice(id: number): Observable<Blob> {
     return this.downloadFile(`sales/${id}/invoice`, `invoice_${id}.pdf`);
   }
+
+  cancelExpense(id: number, reason: string): Observable<BaseApiResponse<Sales>> {
+      // Send reason as plain text string directly
+      return this.put<Sales>(`${this.ENDPOINT}/${id}/cancel`, reason);
+    }
 
   // ==================== Helper Methods ====================
 

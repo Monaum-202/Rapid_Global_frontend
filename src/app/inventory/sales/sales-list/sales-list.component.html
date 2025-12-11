@@ -101,8 +101,9 @@
                         number:'1.2-2') }}</td>
                     <td *ngIf="isColumnVisible('status')">
                         <span class="badge" [class.bg-warning]="sale.status === 'PENDING'"
+                        [class.bg-warning]="sale.status === 'PROCESSING'"
                             [class.bg-success]="sale.status === 'COMPLETED'"
-                            [class.bg-danger]="sale.status === 'CANCELED'">
+                            [class.bg-danger]="sale.status === 'CANCELLED'">
                             {{ sale.status }}
                         </span>
                     </td>
@@ -117,22 +118,22 @@
                             <!-- Edit button -->
                             <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
                                 data-bs-target="#expadd" (click)="editSale(sale)"
-                                [hidden]="sale.status === 'COMPLETED' || sale.status === 'CANCELED'" title="Edit">
+                                [hidden]="sale.status !== 'PENDING'" title="Edit">
                                 <i class="fa fa-pen"></i>
                             </button>
 
                             <!-- payment -->
                             <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
                                 data-bs-target="#updateSaleModal" (click)="openUpdateModal(sale)"
-                                [hidden]="sale.status === 'COMPLETED' || sale.status === 'CANCELED' || sale.dueAmount === 0"
+                                [hidden]="sale.dueAmount === 0"
                                 title="Update Payment">
                                 <i class="fa fa-credit-card"></i>
                             </button>
 
-                            <!-- Delete button -->
-                            <button type="button" class="btn btn-outline-danger btn-sm" (click)="openDeleteModal(sale)"
-                                *ngIf="sale.status !== 'COMPLETED' && sale.status !== 'CANCELED'" title="Delete">
-                                <i class="fa fa-trash"></i>
+                            <button type="button" class="btn btn-outline-warning btn-sm"
+                                (click)="openCencelModal(sale)"
+                                *ngIf=" sale.status !== 'CANCELLED' && ( roleId === 1 || roleId === 2 )" title="Cancel">
+                                <i class="fa fa-times-circle"></i>
                             </button>
                         </div>
                     </td>
@@ -783,7 +784,7 @@
         </div>
 
         <!-- Validation Error -->
-        <div class="alert alert-danger alert-sm mt-2 mb-0 py-1 px-2" 
+        <div class="alert alert-danger alert-sm mt-2 mb-0 py-1 px-2"
             *ngIf="validationErrors['payment']" style="font-size: 0.85rem;">
             <i class="bi bi-exclamation-triangle me-1"></i>
             {{ validationErrors['payment'][0] }}
@@ -1166,21 +1167,38 @@
 </div>
 
 <!-- Delete Confirmation Modal -->
-<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+<div class="modal fade" id="cancelReasonModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg rounded-4">
-            <div class="modal-body text-center p-4">
-                <h4 class="fw-bold">Delete Customer?</h4>
-                <p class="text-muted mb-4">
-                    You really want to delete <strong>{{ selectedSale?.invoiceNo }}</strong>?
+
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Cancel Expense</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body px-4" *ngIf="selectedSale">
+                <p class="text-muted">
+                    Provide a reason for cancelling
+                    <strong>{{ selectedSale.invoiceNo }}</strong>.
                 </p>
-                <div class="d-flex justify-content-center gap-3">
-                    <button class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
-                    <button class="btn btn-danger px-4" (click)="confirmDelete()" data-bs-dismiss="modal">
-                        Delete
-                    </button>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Cancel Reason</label>
+                    <textarea class="form-control rounded-3" rows="3" placeholder="Write reason here..."
+                        [(ngModel)]="selectedSale.cancelReason" name="cancelReason">
+                    </textarea>
                 </div>
             </div>
+
+            <div class="modal-footer border-0 d-flex justify-content-end gap-2 px-4 pb-4">
+                <button class="btn btn-light px-4" data-bs-dismiss="modal">Close</button>
+
+                <button class="btn btn-danger px-4" (click)="submitCancelReason()"
+                    [disabled]="!selectedSale?.cancelReason?.trim()" data-bs-dismiss="modal">
+                    Submit
+                </button>
+            </div>
+
         </div>
     </div>
 </div>

@@ -13,8 +13,10 @@ import { Product, ProductService } from 'src/app/core/services/product/product.s
 enum ModalType {
   VIEW = 'sellModal',
   FORM = 'expadd',
-  DELETE = 'confirmDeleteModal'
+  DELETE = 'confirmDeleteModal',
+  CANCEL = 'cancelReasonModal'
 }
+
 
 @Component({
   selector: 'app-sales-list',
@@ -804,4 +806,42 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
   getValidationErrorKeys(): string[] {
     return Object.keys(this.validationErrors);
   }
+
+  openCencelModal(sales: Sales): void {
+      this.selectedSale = { ...sales, cancelReason: '' };
+      const modal = new (window as any).bootstrap.Modal(
+        document.getElementById(ModalType.CANCEL)
+      );
+      modal.show();
+    }
+
+    submitCancelReason(): void {
+      if (!this.selectedSale || !this.selectedSale.cancelReason?.trim()) {
+        this.errorMessage = 'Please provide a cancellation reason';
+        setTimeout(() => this.clearError(), 3000);
+        return;
+      }
+
+      this.isLoading = true;
+      this.service.cancelExpense(this.selectedSale.id, this.selectedSale.cancelReason.trim())
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => this.isLoading = false)
+        )
+        .subscribe({
+          next: (response: any) => {
+            if (response.success) {
+              this.loadItems();
+              console.log('Expense cancelled successfully');
+              this.closeModal(ModalType.CANCEL);
+            } else {
+              this.errorMessage = response.message || 'Failed to cancel expense';
+              setTimeout(() => this.clearError(), 3000);
+            }
+          },
+          error: (error: any) => {
+            this.handleError('Failed to cancel expense', error);
+          }
+        });
+    }
 }
