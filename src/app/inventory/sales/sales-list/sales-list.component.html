@@ -455,8 +455,8 @@
                                             <span class="spinner-border spinner-border-sm" role="status"
                                                 *ngIf="isSearchingCustomer"></span>
                                             <input type="text" class="form-control"
-                                                [class.is-invalid]="(validationErrors['phone']?.length || 0) > 0"
-                                                [class.border-success]="customerFound && !((validationErrors['phone']?.length || 0) > 0)"
+                                                [class.is-invalid]="(validationErrors['phone'].length || 0) > 0"
+                                                [class.border-success]="customerFound && !((validationErrors['phone'].length || 0) > 0)"
                                                 id="phone" [(ngModel)]="formData.phone" name="phone"
                                                 (input)="onPhoneInput($event)" (keypress)="onPhoneKeyPress($event)"
                                                 placeholder="Enter phone & press Enter" required />
