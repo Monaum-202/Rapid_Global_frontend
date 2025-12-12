@@ -41,6 +41,7 @@ import { UnitComponent } from './inventory/master/unit/unit.component';
 import { CustomerComponent } from './inventory/sales/customer/customer.component';
 import { SalesListComponent } from './inventory/sales/sales-list/sales-list.component';
 import { ProductComponent } from './inventory/master/product/product.component';
+import { EstimateListComponent } from './inventory/sales/estimate-list/estimate-list.component';
 
 @NgModule({
   declarations: [
@@ -80,6 +81,7 @@ import { ProductComponent } from './inventory/master/product/product.component';
     CustomerComponent,
     SalesListComponent,
     ProductComponent,
+    EstimateListComponent
   ],
   imports: [
     BrowserModule,

@@ -33,6 +33,7 @@ import { UnitComponent } from './inventory/master/unit/unit.component';
 import { CustomerComponent } from './inventory/sales/customer/customer.component';
 import { SalesListComponent } from './inventory/sales/sales-list/sales-list.component';
 import { ProductComponent } from './inventory/master/product/product.component';
+import { EstimateListComponent } from './inventory/sales/estimate-list/estimate-list.component';
 
 const routes: Routes = [
   {
@@ -67,7 +68,7 @@ const routes: Routes = [
       { path: 'customer', component: CustomerComponent },
       { path: 'customer-payment', component: CustomerPaymentComponent },
       { path: 'sales-return', component: SalesReturnComponent },
-      // { path: 'estimate', component: EstimateComponent },
+      { path: 'estimate', component: EstimateListComponent },
 
       // Purchases
       { path: 'purchase-list', component: PurchasesListComponent },

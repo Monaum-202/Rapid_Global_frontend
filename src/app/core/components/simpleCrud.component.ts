@@ -16,7 +16,7 @@ export interface CrudService<T extends BaseEntity, TDto> {
   getAll(page: number, pageSize: number, search?: string): Observable<any>;
   create(dto: TDto): Observable<any>;
   update(id: number, dto: TDto): Observable<any>;
-  activeUpdate(id: number): Observable<any>;
+  // activeUpdate(id: number): Observable<any>;
   deleteEmployee?(id: number): Observable<any>;
   deletePaymentMethod?(id: number): Observable<any>;
   // Add other delete method names as needed
