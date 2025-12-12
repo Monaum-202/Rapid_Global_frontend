@@ -90,7 +90,7 @@
         <table class="table table-hover mb-0 align-middle text-nowrap">
             <thead>
                 <tr>
-                    <th *ngIf="isColumnVisible('id')">ID</th>
+                    <th *ngIf="isColumnVisible('id')">SL</th>
                     <th *ngIf="isColumnVisible('name')">NAME</th>
                     <th *ngIf="isColumnVisible('phone')">PHONE</th>
                     <th *ngIf="isColumnVisible('altPhone')">ALT PHONE</th>
@@ -102,8 +102,8 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let customer of filteredCustomers">
-                    <td *ngIf="isColumnVisible('id')">#{{ customer.id }}</td>
+                <tr *ngFor="let customer of filteredCustomers, let i = index">
+                    <td *ngIf="isColumnVisible('id')">{{ i + 1 }}</td>
                     <td *ngIf="isColumnVisible('name')">{{ customer.name }}</td>
                     <td *ngIf="isColumnVisible('phone')">{{ customer.phone }}</td>
                     <td *ngIf="isColumnVisible('altPhone')">{{ customer.altPhone || '-' }}</td>
