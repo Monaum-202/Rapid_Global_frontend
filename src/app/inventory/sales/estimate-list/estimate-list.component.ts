@@ -662,7 +662,7 @@ export class EstimateListComponent extends simpleCrudComponent<Estimate, Estimat
 
             // Navigate to sales page with the new sale ID
             if (response.data) {
-              this.router.navigate(['/sales'], { queryParams: { saleId: response.data } });
+              this.router.navigate(['/inventory/sales-list'], { queryParams: { invoiceNo: response.data } });
             }
           } else {
             this.errorMessage = response.message || 'Failed to convert estimate';

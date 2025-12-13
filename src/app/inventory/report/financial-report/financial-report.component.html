@@ -1,0 +1,438 @@
+<div class="loading-overlay-scoped" *ngIf="isLoading || isLoadingSummary || isLoadingTrend">
+    <div class="bouncing-dots-loader">
+        <div></div><div></div><div></div><div></div><div></div><div></div>
+    </div>
+</div>
+
+<div class="container-fluid my-3">
+    <!-- Header with View Toggle -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="bi bi-graph-up-arrow me-2"></i>Financial Report</h4>
+
+                <!-- View Toggle Buttons -->
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-sm"
+                        [class.btn-primary]="activeView === 'summary'"
+                        [class.btn-outline-primary]="activeView !== 'summary'"
+                        (click)="switchView('summary')">
+                        <i class="bi bi-pie-chart-fill me-1"></i> Dashboard
+                    </button>
+                    <button type="button" class="btn btn-sm"
+                        [class.btn-primary]="activeView === 'table'"
+                        [class.btn-outline-primary]="activeView !== 'table'"
+                        (click)="switchView('table')">
+                        <i class="bi bi-table me-1"></i> Transactions
+                    </button>
+                    <button type="button" class="btn btn-sm"
+                        [class.btn-primary]="activeView === 'trend'"
+                        [class.btn-outline-primary]="activeView !== 'trend'"
+                        (click)="switchView('trend')">
+                        <i class="bi bi-graph-up me-1"></i> Trend
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="card mb-3 shadow-sm">
+        <div class="card-body">
+            <div class="row g-3">
+                <!-- Date Range -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold small">Start Date</label>
+                    <input type="date" class="form-control form-control-sm"
+                        [(ngModel)]="filters.startDate" name="startDate" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold small">End Date</label>
+                    <input type="date" class="form-control form-control-sm"
+                        [(ngModel)]="filters.endDate" name="endDate" />
+                </div>
+
+                <!-- Transaction Type -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold small">Type</label>
+                    <select class="form-select form-select-sm" [(ngModel)]="filters.transactionType" name="transactionType">
+                        <option *ngFor="let type of transactionTypeOptions" [value]="type.value">
+                            {{ type.label }}
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Category -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold small">Category</label>
+                    <select class="form-select form-select-sm" [(ngModel)]="filters.categoryId" name="categoryId">
+                        <option [ngValue]="undefined">All Categories</option>
+                        <option *ngFor="let cat of categories" [ngValue]="cat.id">{{ cat.name }}</option>
+                    </select>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold small">Payment Method</label>
+                    <select class="form-select form-select-sm" [(ngModel)]="filters.paymentMethodId" name="paymentMethodId">
+                        <option [ngValue]="undefined">All Methods</option>
+                        <option *ngFor="let method of paymentMethods" [ngValue]="method.id">{{ method.name }}</option>
+                    </select>
+                </div>
+
+                <!-- Status -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold small">Status</label>
+                    <select class="form-select form-select-sm" [(ngModel)]="filters.status" name="status">
+                        <option [ngValue]="undefined">All Status</option>
+                        <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
+                    </select>
+                </div>
+
+                <!-- Quick Date Ranges -->
+                <div class="col-12">
+                    <label class="form-label fw-semibold small">Quick Ranges</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                            *ngFor="let range of quickDateRanges"
+                            (click)="applyQuickDateRange(range)">
+                            {{ range.label }}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="col-12">
+                    <button type="button" class="btn btn-sm btn-primary me-2" (click)="applyFilters()">
+                        <i class="bi bi-filter me-1"></i> Apply Filters
+                    </button>
+                    <button type="button" class="btn btn-sm btn-secondary me-2" (click)="resetFilters()">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Reset
+                    </button>
+                    <button type="button" class="btn btn-sm btn-success" (click)="exportReport('csv')" [disabled]="isExporting">
+                        <span *ngIf="isExporting" class="spinner-border spinner-border-sm me-1"></span>
+                        <i class="bi bi-download me-1" *ngIf="!isExporting"></i> Export CSV
+                    </button>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div class="alert alert-danger alert-sm mt-2 mb-0" *ngIf="errorMessage">
+                <i class="bi bi-exclamation-triangle me-2"></i>{{ errorMessage }}
+            </div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD/SUMMARY VIEW -->
+    <div *ngIf="activeView === 'summary' && summary">
+        <!-- Top Summary Cards -->
+        <div class="row mb-3 g-3">
+            <!-- Income Card -->
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #28a745 !important;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="text-muted mb-0">Total Income</h6>
+                            <i class="bi bi-arrow-down-circle fs-4 text-success"></i>
+                        </div>
+                        <h3 class="mb-1 text-success">{{ summary.approvedIncome | number:'1.2-2' }}</h3>
+                        <small class="text-muted">{{ summary.approvedIncomeTransactions }} transactions</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expense Card -->
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #dc3545 !important;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="text-muted mb-0">Total Expense</h6>
+                            <i class="bi bi-arrow-up-circle fs-4 text-danger"></i>
+                        </div>
+                        <h3 class="mb-1 text-danger">{{ summary.approvedExpense | number:'1.2-2' }}</h3>
+                        <small class="text-muted">{{ summary.approvedExpenseTransactions }} transactions</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Net Profit Card -->
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm h-100"
+                    [style.border-left]="summary.netProfit >= 0 ? '4px solid #17a2b8 !important' : '4px solid #ffc107 !important'">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="text-muted mb-0">Net Profit</h6>
+                            <i class="bi bi-currency-dollar fs-4"
+                                [class.text-info]="summary.netProfit >= 0"
+                                [class.text-warning]="summary.netProfit < 0"></i>
+                        </div>
+                        <h3 class="mb-1"
+                            [class.text-info]="summary.netProfit >= 0"
+                            [class.text-warning]="summary.netProfit < 0">
+                            {{ summary.netProfit | number:'1.2-2' }}
+                        </h3>
+                        <small class="text-muted">{{ summary.netProfitPercentage | number:'1.1-1' }}% margin</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cash Flow Card -->
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #6c757d !important;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="text-muted mb-0">Total Cash Flow</h6>
+                            <i class="bi bi-cash-stack fs-4 text-secondary"></i>
+                        </div>
+                        <h3 class="mb-1 text-secondary">{{ summary.totalCashFlow | number:'1.2-2' }}</h3>
+                        <small class="text-muted">All approved transactions</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category & Payment Method Breakdown -->
+        <div class="row mb-3 g-3">
+            <!-- Income Categories -->
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0"><i class="bi bi-arrow-down-circle me-2"></i>Income by Category</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                            <table class="table table-sm table-hover mb-0">
+                                <thead class="sticky-top bg-light">
+                                    <tr>
+                                        <th>Category</th>
+                                        <th class="text-end">Amount</th>
+                                        <th class="text-center">Count</th>
+                                        <th class="text-end">%</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let cat of summary.incomeCategories">
+                                        <td>{{ cat.categoryName }}</td>
+                                        <td class="text-end fw-semibold text-success">{{ cat.totalAmount | number:'1.2-2' }}</td>
+                                        <td class="text-center">{{ cat.transactionCount }}</td>
+                                        <td class="text-end">{{ cat.percentage | number:'1.1-1' }}%</td>
+                                    </tr>
+                                    <tr *ngIf="summary.incomeCategories.length === 0">
+                                        <td colspan="4" class="text-center text-muted">No data</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expense Categories -->
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-danger text-white">
+                        <h6 class="mb-0"><i class="bi bi-arrow-up-circle me-2"></i>Expense by Category</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                            <table class="table table-sm table-hover mb-0">
+                                <thead class="sticky-top bg-light">
+                                    <tr>
+                                        <th>Category</th>
+                                        <th class="text-end">Amount</th>
+                                        <th class="text-center">Count</th>
+                                        <th class="text-end">%</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let cat of summary.expenseCategories">
+                                        <td>{{ cat.categoryName }}</td>
+                                        <td class="text-end fw-semibold text-danger">{{ cat.totalAmount | number:'1.2-2' }}</td>
+                                        <td class="text-center">{{ cat.transactionCount }}</td>
+                                        <td class="text-end">{{ cat.percentage | number:'1.1-1' }}%</td>
+                                    </tr>
+                                    <tr *ngIf="summary.expenseCategories.length === 0">
+                                        <td colspan="4" class="text-center text-muted">No data</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Method Breakdown -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0"><i class="bi bi-credit-card me-2"></i>Payment Method Analysis</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Payment Method</th>
+                                        <th class="text-end text-success">Income</th>
+                                        <th class="text-end text-danger">Expense</th>
+                                        <th class="text-end text-info">Net</th>
+                                        <th class="text-center">Transactions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let method of summary.paymentMethodBreakdowns">
+                                        <td>{{ method.paymentMethodName }}</td>
+                                        <td class="text-end text-success fw-semibold">{{ method.incomeAmount | number:'1.2-2' }}</td>
+                                        <td class="text-end text-danger fw-semibold">{{ method.expenseAmount | number:'1.2-2' }}</td>
+                                        <td class="text-end fw-bold"
+                                            [class.text-info]="method.netAmount >= 0"
+                                            [class.text-warning]="method.netAmount < 0">
+                                            {{ method.netAmount | number:'1.2-2' }}
+                                        </td>
+                                        <td class="text-center">{{ method.transactionCount }}</td>
+                                    </tr>
+                                    <tr *ngIf="summary.paymentMethodBreakdowns.length === 0">
+                                        <td colspan="5" class="text-center text-muted">No data</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLE VIEW -->
+    <div *ngIf="activeView === 'table'">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Type</th>
+                                <th>ID</th>
+                                <th>Date</th>
+                                <th>Category</th>
+                                <th>Counterparty</th>
+                                <th>Payment Method</th>
+                                <th class="text-end">Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let txn of transactions">
+                                <td>
+                                    <span class="badge" [ngClass]="getTransactionTypeBadgeClass(txn.transactionType)">
+                                        <i [class]="getTransactionTypeIcon(txn.transactionType)" class="me-1"></i>
+                                        {{ txn.transactionType }}
+                                    </span>
+                                </td>
+                                <td><small>{{ txn.transactionId }}</small></td>
+                                <td>{{ txn.transactionDate | date:'dd/MM/yyyy' }}</td>
+                                <td>{{ txn.categoryName }}</td>
+                                <td>
+                                    <div>{{ txn.counterparty }}</div>
+                                    <small class="text-muted" *ngIf="txn.counterpartyCompany">{{ txn.counterpartyCompany }}</small>
+                                </td>
+                                <td>{{ txn.paymentMethodName }}</td>
+                                <td class="text-end fw-semibold"
+                                    [class.text-success]="txn.transactionType === 'INCOME'"
+                                    [class.text-danger]="txn.transactionType === 'EXPENSE'">
+                                    {{ txn.amount | number:'1.2-2' }}
+                                </td>
+                                <td>
+                                    <span class="badge" [ngClass]="getStatusBadgeClass(txn.status)">
+                                        {{ txn.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr *ngIf="transactions.length === 0">
+                                <td colspan="8" class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                    No transactions found
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="d-flex justify-content-between align-items-center p-3 border-top" *ngIf="transactions.length > 0">
+                    <div>
+                        <select class="form-select form-select-sm" [(ngModel)]="pageSize" (change)="onPageSizeChange($event)">
+                            <option [value]="25">25</option>
+                            <option [value]="50">50</option>
+                            <option [value]="100">100</option>
+                        </select>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-outline-dark btn-sm" (click)="previousPage()" [disabled]="!canGoPrevious">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+
+                        <button *ngFor="let page of getPageNumbers()" class="btn btn-sm"
+                            [class.btn-success]="page === currentPage"
+                            [class.btn-outline-dark]="page !== currentPage"
+                            (click)="goToPage(page)">
+                            {{ page + 1 }}
+                        </button>
+
+                        <button class="btn btn-outline-dark btn-sm" (click)="nextPage()" [disabled]="!canGoNext">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TREND VIEW -->
+    <div *ngIf="activeView === 'trend'">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+                <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>Daily Financial Trend</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th class="text-end text-success">Income</th>
+                                <th class="text-end text-danger">Expense</th>
+                                <th class="text-end text-info">Net</th>
+                                <th class="text-center">Income Count</th>
+                                <th class="text-center">Expense Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let trend of trends">
+                                <td>{{ trend.date | date:'dd MMM, yyyy' }}</td>
+                                <td class="text-end fw-semibold text-success">{{ trend.incomeAmount | number:'1.2-2' }}</td>
+                                <td class="text-end fw-semibold text-danger">{{ trend.expenseAmount | number:'1.2-2' }}</td>
+                                <td class="text-end fw-bold"
+                                    [class.text-info]="trend.netAmount >= 0"
+                                    [class.text-warning]="trend.netAmount < 0">
+                                    {{ trend.netAmount | number:'1.2-2' }}
+                                </td>
+                                <td class="text-center">{{ trend.incomeCount }}</td>
+                                <td class="text-center">{{ trend.expenseCount }}</td>
+                            </tr>
+                            <tr *ngIf="trends.length === 0">
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                    No trend data available
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -42,6 +42,8 @@ import { CustomerComponent } from './inventory/sales/customer/customer.component
 import { SalesListComponent } from './inventory/sales/sales-list/sales-list.component';
 import { ProductComponent } from './inventory/master/product/product.component';
 import { EstimateListComponent } from './inventory/sales/estimate-list/estimate-list.component';
+import { IncomeReportComponent } from './inventory/report/income-report/income-report.component';
+import { FinancialReportComponent } from './inventory/report/financial-report/financial-report.component';
 
 @NgModule({
   declarations: [
@@ -81,7 +83,9 @@ import { EstimateListComponent } from './inventory/sales/estimate-list/estimate-
     CustomerComponent,
     SalesListComponent,
     ProductComponent,
-    EstimateListComponent
+    EstimateListComponent,
+    IncomeReportComponent,
+    FinancialReportComponent
   ],
   imports: [
     BrowserModule,

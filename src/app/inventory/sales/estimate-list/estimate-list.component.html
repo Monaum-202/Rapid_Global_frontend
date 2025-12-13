@@ -116,11 +116,9 @@
 
                             <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal"
                                 data-bs-target="#convertToSaleModal" (click)="openConvertModal(estimate)"
-                                [hidden]="estimate.status !== 'APPROVED' || estimate.convertedToSale"
                                 title="Convert to Sale">
                                 <i class="fa fa-exchange-alt"></i>
                             </button>
-
                             <button type="button" class="btn btn-outline-warning btn-sm"
                                 (click)="openCancelModal(estimate)"
                                 *ngIf="estimate.status !== 'CANCELLED' && !estimate.convertedToSale && (roleId === 1 || roleId === 2)"
@@ -520,13 +518,11 @@
                                                         <!-- ddd -->
                                                          </button>
                                                     </td>
-
                                                 </tr>
                                                 <tr *ngIf="formData.items.length === 0">
-                                                    <td colspan="6" class="text-center"
+                                                    <td colspan="5" class="text-center"
                                                         [class.text-danger]="validationErrors['items']"
                                                         [class.text-muted]="!validationErrors['items']">
-
                                                         <span *ngIf="validationErrors['items']" class="fw-bold">
                                                             {{ validationErrors['items'][0] }}
                                                         </span>
@@ -536,66 +532,58 @@
                                                     </td>
                                                 </tr>
                                                 <tr>
-                                                    <td style="background-color: #ececec;"></td>
-                                                    <td style="background-color: #ececec;"></td>
-                                                    <td style="background-color: #ececec;"></td>
-                                                    <td style="background-color: #ececec;" class="text-end"><span
-                                                            class="fw-bold">Subtotal:</span></td>
-                                                    <td class="text-end" style="background-color: #ececec;">
-                                                        <span class="fw-bold">{{ formData.subTotal |
-                                                            number:'1.2-2'}}</span>
-                                                    </td>
+                                                    <td colspan="3" style="background-color: #ececec;"
+                                                        class="text-end fw-bold">Subtotal:</td>
+                                                    <td class="text-end fw-bold" style="background-color: #ececec;">{{
+                                                        formData.subTotal | number:'1.2-2'}}</td>
                                                     <td style="background-color: #ececec;"></td>
                                                 </tr>
-
                                             </tbody>
                                         </table>
                                     </div>
 
                                     <!-- Price Calculation -->
-                                    <!-- Replace the entire payment section (after items list, before modal footer) -->
-
-                                    <!-- Price Calculation & Payment Section - Only show in Add mode -->
-                                    <div *ngIf="!isEditMode">
-                                        <div class="row mb-2">
-                                            <div class="col-6">
-                                                <label class="form-label fw-semibold small">VAT (%)</label>
-                                                <input type="number" class="form-control form-control-sm"
-                                                    [(ngModel)]="formData.vat" name="vat"
-                                                    (ngModelChange)="calculateTotals()" min="0" step="0.1" />
-                                            </div>
-                                            <div class="col-6">
-                                                <label class="form-label fw-semibold small">Discount</label>
-                                                <input type="number" class="form-control form-control-sm"
-                                                    [(ngModel)]="formData.discount" name="discount"
-                                                    (ngModelChange)="calculateTotals()" min="0" step="0.01" />
-                                            </div>
+                                    <div class="row mb-2 mt-3">
+                                        <div class="col-6">
+                                            <label class="form-label fw-semibold small">VAT (%)</label>
+                                            <input type="number" class="form-control form-control-sm"
+                                                [(ngModel)]="formData.vat" name="vat"
+                                                (ngModelChange)="calculateTotals()" min="0" step="0.1" />
                                         </div>
-
-                                        <!-- Summary -->
-                                        <div class="text-dark rounded-3 mb-3">
-                                            <div class="d-flex justify-content-between mb-1">
-                                                <span>VAT ({{ formData.vat }}%):</span>
-                                                <span>{{ ((formData.subTotal * formData.vat) / 100) | number:'1.2-2'
-                                                    }}</span>
-                                            </div>
-                                            <div class="d-flex justify-content-between mb-2">
-                                                <span>Discount:</span>
-                                                <span>-{{ formData.discount | number:'1.2-2' }}</span>
-                                            </div>
+                                        <div class="col-6">
+                                            <label class="form-label fw-semibold small">Discount</label>
+                                            <input type="number" class="form-control form-control-sm"
+                                                [(ngModel)]="formData.discount" name="discount"
+                                                (ngModelChange)="calculateTotals()" min="0" step="0.01" />
                                         </div>
+                                    </div>
 
-                                        <!-- Final Summary with Due Amount -->
+                                    <!-- Summary -->
+                                    <div class="bg-light rounded-3 p-2" style="font-size: 0.9rem;">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="text-muted">VAT ({{ formData.vat }}%):</span>
+                                            <span class="fw-semibold">{{ ((formData.subTotal * formData.vat) / 100) |
+                                                number:'1.2-2' }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="text-muted">Discount:</span>
+                                            <span class="fw-semibold">-{{ formData.discount | number:'1.2-2' }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between p-2 bg-white rounded">
+                                            <span class="fw-bold text-dark">Total Amount:</span>
+                                            <span class="fw-bold text-dark">{{ formData.totalPrice | number:'1.2-2'
+                                                }}</span>
+                                        </div>
                                     </div>
                                 </div>
+
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-                                        Close
-                                    </button>
+                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                                     <button type="button" class="btn btn-success" (click)="saveEstimateForm()"
                                         [disabled]="isLoading">
-                                        <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
-                                        {{ isEditMode ? 'Update Sale' : 'Save Sale' }}
+                                        <span *ngIf="isLoading"
+                                            class="spinner-border spinner-border-sm me-2"></span>
+                                        {{ isEditMode ? 'Update Estimate' : 'Save Estimate' }}
                                     </button>
                                 </div>
                             </div>
@@ -607,40 +595,106 @@
     </div>
 </div>
 
-
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="cancelReasonModal" tabindex="-1" aria-hidden="true">
+<!-- Convert to Sale Modal -->
+<div class="modal fade" id="convertToSaleModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg rounded-4">
-
             <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold">Cancel Expense</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title fw-bold">Convert to Sale</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
             <div class="modal-body px-4" *ngIf="selectedEstimate">
                 <p class="text-muted">
-                    Provide a reason for cancelling
-                    <strong>{{ selectedEstimate.estimateNo }}</strong>.
+                    Convert estimate <strong>{{ selectedEstimate.estimateNo }}</strong> to a sale.
                 </p>
 
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Cancel Reason</label>
-                    <textarea class="form-control rounded-3" rows="3" placeholder="Write reason here..."
-                        [(ngModel)]="selectedEstimate.cancelReason" name="cancelReason">
-                    </textarea>
+                    <label class="form-label fw-semibold">Sale Date</label>
+                    <input type="date" class="form-control rounded-3" [(ngModel)]="convertToSaleData.sellDate"
+                        name="sellDate" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Delivery Date</label>
+                    <input type="date" class="form-control rounded-3" [(ngModel)]="convertToSaleData.deliveryDate"
+                        name="deliveryDate" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Notes</label>
+                    <textarea class="form-control rounded-3" rows="3" [(ngModel)]="convertToSaleData.notes"
+                        name="notes" placeholder="Additional notes for the sale..."></textarea>
                 </div>
             </div>
 
             <div class="modal-footer border-0 d-flex justify-content-end gap-2 px-4 pb-4">
                 <button class="btn btn-light px-4" data-bs-dismiss="modal">Close</button>
+                <button class="btn btn-success px-4" (click)="convertToSale()" [disabled]="isLoading">
+                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                    Convert to Sale
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
+<!-- Cancel Confirmation Modal -->
+<div class="modal fade" id="cancelReasonModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Cancel Estimate</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body px-4" *ngIf="selectedEstimate">
+                <p class="text-muted">
+                    Provide a reason for cancelling <strong>{{ selectedEstimate.estimateNo }}</strong>.
+                </p>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Cancel Reason</label>
+                    <textarea class="form-control rounded-3" rows="3" placeholder="Write reason here..."
+                        [(ngModel)]="selectedEstimate.cancelReason" name="cancelReason"></textarea>
+                </div>
+            </div>
+
+            <div class="modal-footer border-0 d-flex justify-content-end gap-2 px-4 pb-4">
+                <button class="btn btn-light px-4" data-bs-dismiss="modal">Close</button>
                 <button class="btn btn-danger px-4" (click)="submitCancelReason()"
                     [disabled]="!selectedEstimate?.cancelReason?.trim()" data-bs-dismiss="modal">
                     Submit
                 </button>
             </div>
+        </div>
+    </div>
+</div>
 
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold text-danger">Delete Estimate</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body px-4" *ngIf="selectedEstimate">
+                <p class="text-muted">
+                    Are you sure you want to delete estimate <strong>{{ selectedEstimate.estimateNo }}</strong>?
+                    This action cannot be undone.
+                </p>
+            </div>
+
+            <div class="modal-footer border-0 d-flex justify-content-end gap-2 px-4 pb-4">
+                <button class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-danger px-4" (click)="confirmDelete()" [disabled]="isLoading"
+                    data-bs-dismiss="modal">
+                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                    Delete
+                </button>
+            </div>
         </div>
     </div>
 </div>
