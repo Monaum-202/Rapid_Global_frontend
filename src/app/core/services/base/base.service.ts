@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, retry } from 'rxjs/operators';
@@ -22,12 +22,12 @@ export class BaseService {
   // ==================== HTTP Methods ====================
 
   protected get<T>(
-    endpoint: string, 
+    endpoint: string,
     params?: HttpParams,
     config?: RequestConfig
   ): Observable<BaseApiResponse<T>> {
     return this.http.get<BaseApiResponse<T>>(
-      this.buildUrl(endpoint), 
+      this.buildUrl(endpoint),
       {
         headers: this.getHeaders(config),
         params
@@ -38,30 +38,35 @@ export class BaseService {
     );
   }
 
-  protected post<T>(
-    endpoint: string, 
-    body: any,
-    config?: RequestConfig
-  ): Observable<BaseApiResponse<T>> {
-    return this.http.post<BaseApiResponse<T>>(
-      this.buildUrl(endpoint), 
-      body, 
-      {
-        headers: this.getHeaders(config)
-      }
-    ).pipe(
-      catchError(this.handleError)
-    );
-  }
+  // protected post<T>(
+  //   endpoint: string,
+  //   body: any,
+  //   config?: RequestConfig
+  // ): Observable<BaseApiResponse<T>> {
+  //   return this.http.post<BaseApiResponse<T>>(
+  //     this.buildUrl(endpoint),
+  //     body,
+  //     {
+  //       headers: this.getHeaders(config)
+  //     }
+  //   ).pipe(
+  //     catchError(this.handleError)
+  //   );
+  // }
+
+    protected post<T>(endpoint: string, body: any, params?: HttpParams): Observable<BaseApiResponse<T>> {
+  return this.http.post<BaseApiResponse<T>>(this.buildUrl(endpoint), body, { params, headers: this.getHeaders() })
+    .pipe(catchError(this.handleError));
+}
 
   protected put<T>(
-    endpoint: string, 
+    endpoint: string,
     body: any,
     config?: RequestConfig
   ): Observable<BaseApiResponse<T>> {
     return this.http.put<BaseApiResponse<T>>(
-      this.buildUrl(endpoint), 
-      body, 
+      this.buildUrl(endpoint),
+      body,
       {
         headers: this.getHeaders(config)
       }
@@ -71,13 +76,13 @@ export class BaseService {
   }
 
   protected patch<T>(
-    endpoint: string, 
+    endpoint: string,
     body: any,
     config?: RequestConfig
   ): Observable<BaseApiResponse<T>> {
     return this.http.patch<BaseApiResponse<T>>(
-      this.buildUrl(endpoint), 
-      body, 
+      this.buildUrl(endpoint),
+      body,
       {
         headers: this.getHeaders(config)
       }
@@ -91,7 +96,7 @@ export class BaseService {
     config?: RequestConfig
   ): Observable<BaseApiResponse<T>> {
     return this.http.delete<BaseApiResponse<T>>(
-      this.buildUrl(endpoint), 
+      this.buildUrl(endpoint),
       {
         headers: this.getHeaders(config)
       }
@@ -100,7 +105,24 @@ export class BaseService {
     );
   }
 
+  protected getBlob(
+  endpoint: string,
+  config?: RequestConfig
+): Observable<HttpResponse<Blob>> {
+  return this.http.get(
+    this.buildUrl(endpoint),
+    {
+      headers: this.getHeaders(config),
+      responseType: 'blob',
+      observe: 'response'
+    }
+  );
+}
+
+
   // ==================== Helper Methods ====================
+
+
 
   /**
    * Build full URL from endpoint
@@ -223,13 +245,13 @@ export class BaseService {
    */
   protected buildParams(params: Record<string, any>): HttpParams {
     let httpParams = new HttpParams();
-    
+
     Object.entries(params).forEach(([key, value]) => {
       if (value !== null && value !== undefined && value !== '') {
         httpParams = httpParams.set(key, value.toString());
       }
     });
-    
+
     return httpParams;
   }
 
@@ -252,13 +274,13 @@ export class BaseService {
    * Upload file to API
    */
   protected uploadFile(
-    endpoint: string, 
-    file: File, 
+    endpoint: string,
+    file: File,
     additionalData?: Record<string, any>
   ): Observable<BaseApiResponse<any>> {
     const formData = new FormData();
     formData.append('file', file);
-    
+
     if (additionalData) {
       Object.entries(additionalData).forEach(([key, value]) => {
         formData.append(key, value);
@@ -272,7 +294,7 @@ export class BaseService {
     );
 
     return this.http.post<BaseApiResponse<any>>(
-      this.buildUrl(endpoint), 
+      this.buildUrl(endpoint),
       formData,
       { headers }
     ).pipe(

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpParams } from '@angular/common/http';
+import { HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { BaseApiResponse, PaginatedData } from '../../models/api-response.model';
 import { BaseService } from '../base/base.service';
@@ -173,19 +173,28 @@ export class SalesService extends BaseService {
     return this.put<Sales>(`${this.ENDPOINT}/${id}/status`, { status });
   }
 
-  /**
-   * Approve payment for a sale
-   */
-  approvePayment(id: number): Observable<BaseApiResponse<Sales>> {
-    return this.put<Sales>(`${this.ENDPOINT}/${id}/approve-payment`, {});
-  }
+  // /**
+  //  * Approve payment for a sale
+  //  */
+  // approvePayment(id: number): Observable<BaseApiResponse<Sales>> {
+  //   return this.put<Sales>(`${this.ENDPOINT}/${id}/approve-payment`, {});
+  // }
 
   /**
    * Download invoice PDF for a sale
    */
-  downloadInvoice(id: number): Observable<Blob> {
-    return this.downloadFile(`sales/${id}/invoice`, `invoice_${id}.pdf`);
-  }
+  // downloadInvoice(id: number): Observable<Blob> {
+  //   return this.downloadFile(`sales/${id}/invoice`, `invoice_${id}.pdf`);
+  // }
+
+  downloadInvoice(id: number): Observable<HttpResponse<Blob>> {
+  return this.getBlob(`${this.ENDPOINT}/${id}/invoice`);
+}
+
+emailInvoice(id: number, email: string): Observable<BaseApiResponse<string>> {
+  const params = new HttpParams().set('email', email);
+  return this.post<string>(`${this.ENDPOINT}/${id}/invoice/email`, null, params);
+}
 
   cancelExpense(id: number, reason: string): Observable<BaseApiResponse<Sales>> {
       // Send reason as plain text string directly

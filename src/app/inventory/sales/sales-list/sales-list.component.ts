@@ -684,62 +684,67 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
   }
 
   createSale(): void {
-    if (this.isLoading) return; // Prevent double submission
+  if (this.isLoading) return;
 
-    const sale: Sales = {
-      id: 0,
-      invoiceNo: '',
-      customerName: this.formData.customerName,
-      phone: this.formData.phone,
-      email: this.formData.email,
-      address: this.formData.address,
-      companyName: this.formData.companyName,
-      sellDate: this.formData.sellDate,
-      deliveryDate: this.formData.deliveryDate,
-      notes: this.formData.notes,
-      subTotal: this.formData.subTotal,
-      vat: this.formData.vat,
-      discount: this.formData.discount,
-      totalAmount: this.formData.totalPrice,
-      paidAmount: this.formData.paidAmount,
-      paymentMethodId: 0,
-      dueAmount: this.formData.dueAmount,
-      status: this.formData.status,
-      items: this.formData.items,
-      trackingId: ''
-    };
+  const sale: Sales = {
+    id: 0,
+    invoiceNo: '',
+    customerName: this.formData.customerName,
+    phone: this.formData.phone,
+    email: this.formData.email,
+    address: this.formData.address,
+    companyName: this.formData.companyName,
+    sellDate: this.formData.sellDate,
+    deliveryDate: this.formData.deliveryDate,
+    notes: this.formData.notes,
+    subTotal: this.formData.subTotal,
+    vat: this.formData.vat,
+    discount: this.formData.discount,
+    totalAmount: this.formData.totalPrice,
+    paidAmount: this.formData.paidAmount,
+    paymentMethodId: 0,
+    dueAmount: this.formData.dueAmount,
+    status: this.formData.status,
+    items: this.formData.items,
+    trackingId: ''
+  };
 
-    const dto = this.mapToDto(sale);
-    this.isLoading = true;
-    this.validationErrors = {};
-    this.errorMessage = '';
+  const dto = this.mapToDto(sale);
+  this.isLoading = true;
+  this.validationErrors = {};
+  this.errorMessage = '';
 
-    this.service.create(dto)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.isLoading = false)
-      )
-      .subscribe({
-        next: (response: any) => {
-          if (response.success === false && response.errors) {
-            this.validationErrors = response.errors;
-            this.errorMessage = response.message || 'Validation Failed';
-          } else if (response.success) {
-            this.handleCrudSuccess('Sale created successfully', ModalType.FORM);
-            this.resetFormData();
-            this.submitted = false;
-          }
-        },
-        error: (error: any) => {
-          if (error.status === 400 && error.error && error.error.errors) {
-            this.validationErrors = error.error.errors;
-            this.errorMessage = error.error.message || 'Validation Failed';
-          } else {
-            this.handleError('Failed to create sale', error);
-          }
+  this.service.create(dto)
+    .pipe(
+      takeUntil(this.destroy$),
+      finalize(() => this.isLoading = false)
+    )
+    .subscribe({
+      next: (response: any) => {
+        if (response.success === false && response.errors) {
+          this.validationErrors = response.errors;
+          this.errorMessage = response.message || 'Validation Failed';
+        } else if (response.success) {
+          const createdSale: Sales = response.data;
+
+          this.handleCrudSuccess('Sale created successfully', ModalType.FORM);
+          this.resetFormData();
+          this.submitted = false;
+
+          // 🎯 AUTO ACTIONS: Print & Email
+          this.handlePostSaleActions(createdSale);
         }
-      });
-  }
+      },
+      error: (error: any) => {
+        if (error.status === 400 && error.error && error.error.errors) {
+          this.validationErrors = error.error.errors;
+          this.errorMessage = error.error.message || 'Validation Failed';
+        } else {
+          this.handleError('Failed to create sale', error);
+        }
+      }
+    });
+}
 
   updateSale(): void {
     if (!this.selectedSale?.id || this.isLoading) return;
@@ -873,64 +878,107 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
   // OTHER OPERATIONS
   // ============================================
 
-  approvePayment(sale: Sales): void {
-    if (sale.dueAmount <= 0) {
-      this.errorMessage = 'No due amount to approve';
-      setTimeout(() => this.clearError(), 3000);
-      return;
-    }
+  // approvePayment(sale: Sales): void {
+  //   if (sale.dueAmount <= 0) {
+  //     this.errorMessage = 'No due amount to approve';
+  //     setTimeout(() => this.clearError(), 3000);
+  //     return;
+  //   }
 
-    if (!confirm(`Are you sure you want to approve payment of ${sale.dueAmount.toFixed(2)} for invoice ${sale.invoiceNo}?`)) {
-      return;
-    }
+  //   if (!confirm(`Are you sure you want to approve payment of ${sale.dueAmount.toFixed(2)} for invoice ${sale.invoiceNo}?`)) {
+  //     return;
+  //   }
 
-    this.isLoading = true;
-    this.service.approvePayment(sale.id)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.isLoading = false)
-      )
-      .subscribe({
-        next: (response: any) => {
-          if (response.success) {
-            this.loadItems();
-            this.closeModal(ModalType.VIEW);
-          } else {
-            this.errorMessage = response.message || 'Failed to approve payment';
-            setTimeout(() => this.clearError(), 3000);
-          }
-        },
-        error: (error: any) => this.handleError('Failed to approve payment', error)
-      });
-  }
+  //   this.isLoading = true;
+  //   this.service.approvePayment(sale.id)
+  //     .pipe(
+  //       takeUntil(this.destroy$),
+  //       finalize(() => this.isLoading = false)
+  //     )
+  //     .subscribe({
+  //       next: (response: any) => {
+  //         if (response.success) {
+  //           this.loadItems();
+  //           this.closeModal(ModalType.VIEW);
+  //         } else {
+  //           this.errorMessage = response.message || 'Failed to approve payment';
+  //           setTimeout(() => this.clearError(), 3000);
+  //         }
+  //       },
+  //       error: (error: any) => this.handleError('Failed to approve payment', error)
+  //     });
+  // }
 
   printSaleMemo(): void {
-    if (!this.selectedSale) {
-      this.errorMessage = 'No sale selected';
-      setTimeout(() => this.clearError(), 3000);
-      return;
-    }
+    if (!this.selectedSale) return;
 
-    this.isLoading = true;
+    this.service.downloadInvoice(this.selectedSale.id).subscribe(res => {
 
-    this.service.downloadInvoice(this.selectedSale.id)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.isLoading = false)
-      )
-      .subscribe({
-        next: (blob: Blob) => {
-          const url = window.URL.createObjectURL(blob);
-          window.open(url, '_blank');
-          setTimeout(() => window.URL.revokeObjectURL(url), 1000);
-        },
-        error: (error: any) => {
-          console.error('Failed to open invoice:', error);
-          this.errorMessage = 'Failed to open invoice';
-          setTimeout(() => this.clearError(), 3000);
-        }
-      });
+      const blob = new Blob([res.body!], { type: 'application/pdf' });
+      const blobUrl = URL.createObjectURL(blob);
+
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = blobUrl;
+
+      document.body.appendChild(iframe);
+
+      iframe.onload = () => {
+        iframe.contentWindow?.print();
+
+        iframe.contentWindow!.onafterprint = () => {
+          URL.revokeObjectURL(blobUrl);
+          document.body.removeChild(iframe);
+        };
+      };
+    });
   }
+
+  /**
+ * Share invoice via email
+ */
+shareInvoice(sale: Sales): void {
+  if (!sale || !sale.id) {
+    this.errorMessage = 'Invalid sale selected';
+    setTimeout(() => this.clearError(), 3000);
+    return;
+  }
+
+  if (!sale.email || sale.email.trim() === '') {
+    this.errorMessage = 'Customer email is not available. Please update customer information first.';
+    setTimeout(() => this.clearError(), 5000);
+    return;
+  }
+
+  const confirmMessage = `Send invoice ${sale.invoiceNo} to ${sale.email}?`;
+  if (!confirm(confirmMessage)) {
+    return;
+  }
+
+  this.isLoading = true;
+  this.errorMessage = '';
+
+  this.service.emailInvoice(sale.id, sale.email)
+    .pipe(
+      takeUntil(this.destroy$),
+      finalize(() => this.isLoading = false)
+    )
+    .subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          alert(`Invoice sent successfully to ${sale.email}`);
+        } else {
+          this.errorMessage = response.message || 'Failed to send invoice';
+          setTimeout(() => this.clearError(), 5000);
+        }
+      },
+      error: (error: any) => {
+        this.errorMessage = 'Failed to send invoice email';
+        setTimeout(() => this.clearError(), 5000);
+      }
+    });
+}
+
 
   openCencelModal(sales: Sales): void {
     this.selectedSale = { ...sales, cancelReason: '' };
@@ -1063,4 +1111,109 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
   getValidationErrorKeys(): string[] {
     return Object.keys(this.validationErrors);
   }
+
+
+
+
+
+
+  /**
+ * Handle post-sale actions: Auto print and email
+ */
+private handlePostSaleActions(sale: Sales): void {
+  setTimeout(() => {
+    // 1. Auto-print invoice
+    this.printInvoiceAuto(sale.id);
+
+    // 2. Auto-send email if customer has email
+    if (sale.email && sale.email.trim() !== '') {
+      this.emailInvoiceAuto(sale.id, sale.email);
+    }
+  }, 500); // Small delay to ensure modal is closed
+}
+
+/**
+ * Automatically print invoice
+ */
+private printInvoiceAuto(saleId: number): void {
+  this.service.downloadInvoice(saleId)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (res) => {
+        const blob = new Blob([res.body!], { type: 'application/pdf' });
+        const blobUrl = URL.createObjectURL(blob);
+
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = blobUrl;
+        document.body.appendChild(iframe);
+
+        iframe.onload = () => {
+          iframe.contentWindow?.print();
+          iframe.contentWindow!.onafterprint = () => {
+            URL.revokeObjectURL(blobUrl);
+            document.body.removeChild(iframe);
+          };
+        };
+      },
+      error: (error) => {
+        console.error('Auto-print failed:', error);
+      }
+    });
+}
+
+/**
+ * Automatically send invoice email
+ */
+private emailInvoiceAuto(saleId: number, email: string): void {
+  this.service.emailInvoice(saleId, email)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          this.showToast(`✓ Invoice sent to ${email}`, 'success');
+        }
+      },
+      error: (error) => {
+        console.error('Auto-email failed:', error);
+      }
+    });
+}
+
+/**
+ * Show toast notification
+ */
+private showToast(message: string, type: 'success' | 'error' = 'success'): void {
+  const bgColor = type === 'success' ? '#28a745' : '#dc3545';
+  const icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
+
+  const toast = document.createElement('div');
+  toast.style.cssText = `
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: ${bgColor};
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 10000;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideInRight 0.3s ease-out;
+  `;
+  toast.innerHTML = `
+    <i class="bi bi-${icon}" style="font-size: 20px;"></i>
+    <span>${message}</span>
+  `;
+
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.animation = 'slideOutRight 0.3s ease-out';
+    setTimeout(() => document.body.removeChild(toast), 300);
+  }, 4000);
+}
 }
