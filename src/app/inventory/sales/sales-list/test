@@ -1,0 +1,186 @@
+// // ============================================
+// // STEP 1: CREATE toast.service.ts
+// // Location: src/app/core/services/toast.service.ts
+// // ============================================
+
+
+
+// // ============================================
+// // STEP 2: UPDATE YOUR sales-list.component.ts
+// // ============================================
+
+// import { ToastService } from 'src/app/core/services/toast.service';
+
+// // Add to constructor:
+// constructor(
+//   public service: SalesService,
+//   public incomeService: IncomeService,
+//   public pageHeaderService: PageHeaderService,
+//   public authService: AuthService,
+//   private customerService: CustomerService,
+//   public paymentMethodService: PaymentMethodService,
+//   private productService: ProductService,
+//   private toastService: ToastService  // 👈 ADD THIS
+// ) {
+//   super();
+// }
+
+// // ============================================
+// // STEP 3: REPLACE showToast() METHOD
+// // ============================================
+
+// // REMOVE the old showToast() method and update these methods:
+
+// private emailInvoiceAuto(saleId: number, email: string): void {
+//   this.service.emailInvoice(saleId, email)
+//     .pipe(takeUntil(this.destroy$))
+//     .subscribe({
+//       next: (response: any) => {
+//         if (response.success) {
+//           this.toastService.success(`Invoice sent to ${email}`);
+//         } else {
+//           this.toastService.error('Failed to send invoice');
+//         }
+//       },
+//       error: (error) => {
+//         console.error('Auto-email failed:', error);
+//         this.toastService.error('Failed to send invoice email');
+//       }
+//     });
+// }
+
+// // ============================================
+// // USAGE EXAMPLES IN ANY COMPONENT
+// // ============================================
+
+// // 1. Inject ToastService in constructor
+// constructor(private toastService: ToastService) {}
+
+// // 2. Use anywhere in your component
+
+// // Success
+// this.toastService.success('Sale created successfully!');
+
+// // Error
+// this.toastService.error('Failed to save sale');
+
+// // Warning
+// this.toastService.warning('Please fill all required fields');
+
+// // Info
+// this.toastService.info('Loading data...');
+
+// // Custom duration (in milliseconds)
+// this.toastService.success('Saved!', 2000); // Show for 2 seconds
+
+// // Custom position and duration
+// this.toastService.show({
+//   message: 'Invoice sent successfully!',
+//   type: 'success',
+//   duration: 5000,
+//   position: 'bottom-right'
+// });
+
+// // ============================================
+// // COMPLETE EXAMPLE: UPDATE ALL YOUR CRUD OPERATIONS
+// // ============================================
+
+// // CREATE
+// createSale(): void {
+//   // ... your create logic
+//   this.service.create(dto).subscribe({
+//     next: (response) => {
+//       if (response.success) {
+//         this.toastService.success('Sale created successfully!');
+//         this.handlePostSaleActions(response.data);
+//       } else {
+//         this.toastService.error(response.message);
+//       }
+//     },
+//     error: (error) => {
+//       this.toastService.error('Failed to create sale');
+//     }
+//   });
+// }
+
+// // UPDATE
+// updateSale(): void {
+//   // ... your update logic
+//   this.service.update(id, dto).subscribe({
+//     next: (response) => {
+//       if (response.success) {
+//         this.toastService.success('Sale updated successfully!');
+//       }
+//     },
+//     error: (error) => {
+//       this.toastService.error('Failed to update sale');
+//     }
+//   });
+// }
+
+// // DELETE
+// deleteSale(): void {
+//   this.service.delete(id).subscribe({
+//     next: (response) => {
+//       if (response.success) {
+//         this.toastService.success('Sale deleted successfully!');
+//       }
+//     },
+//     error: (error) => {
+//       this.toastService.error('Failed to delete sale');
+//     }
+//   });
+// }
+
+// // PAYMENT
+// addPaymentToSale(): void {
+//   this.incomeService.addPayment(paymentDto).subscribe({
+//     next: (response) => {
+//       if (response.success) {
+//         this.toastService.success('Payment added successfully!');
+//       }
+//     },
+//     error: (error) => {
+//       this.toastService.error('Failed to add payment');
+//     }
+//   });
+// }
+
+// // VALIDATION ERRORS
+// if (!this.validateForm()) {
+//   this.toastService.warning('Please fix validation errors');
+//   return;
+// }
+
+// // CUSTOMER SEARCH
+// searchCustomerByPhone(phone: string): void {
+//   this.customerService.getByPhone(phone).subscribe({
+//     next: (response) => {
+//       if (response.success && response.data) {
+//         this.toastService.info('Customer found!');
+//       } else {
+//         this.toastService.warning('Customer not found');
+//       }
+//     }
+//   });
+// }
+
+// // ============================================
+// // AVAILABLE POSITIONS
+// // ============================================
+
+// 'top-right'      // Default
+// 'top-left'
+// 'bottom-right'
+// 'bottom-left'
+// 'top-center'
+// 'bottom-center'
+
+// // ============================================
+// // AVAILABLE TYPES
+// // ============================================
+
+// 'success'  // Green
+// 'error'    // Red  
+// 'warning'  // Yellow
+// 'info'     // Blue

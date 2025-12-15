@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { finalize, takeUntil } from 'rxjs';
+import { ToastService } from 'src/app/core/services/feature/toast.service';
 import { BaseCrudComponent, TableColumn } from 'src/app/core/components/base-crud.component';
 import { PageHeaderService } from 'src/app/core/services/page-header/page-header.service';
 import { TransectionCategory, TransectionCategoryReqDto, TransectionCategoryService } from 'src/app/core/services/transectionCategory/transection-category.service';
+
 
 enum ModalType {
   VIEW = 'transectionCategoryModal',
@@ -55,7 +57,8 @@ export class TransectionCategoryComponent extends BaseCrudComponent<TransectionC
 
   constructor(
     public service: TransectionCategoryService,
-    public pageHeaderService: PageHeaderService
+    public pageHeaderService: PageHeaderService,
+    private toastService: ToastService
   ) {
     super();
   }
@@ -65,7 +68,7 @@ export class TransectionCategoryComponent extends BaseCrudComponent<TransectionC
     this.loadItems();
   }
 
-  createNew(): TransectionCategory {
+  override createNew(): TransectionCategory {
     return {
       id: 0,
       name: '',
@@ -76,12 +79,12 @@ export class TransectionCategoryComponent extends BaseCrudComponent<TransectionC
     };
   }
 
-  isValid(transectionCategory: TransectionCategory | null): boolean {
+  override isValid(transectionCategory: TransectionCategory | null): boolean {
     if (!transectionCategory) return false;
     return !!(transectionCategory.name && transectionCategory.sqn && transectionCategory.type);
   }
 
-  mapToDto(transectionCategory: TransectionCategory): TransectionCategoryReqDto {
+  override mapToDto(transectionCategory: TransectionCategory): TransectionCategoryReqDto {
     return {
       name: transectionCategory.name,
       description: transectionCategory.description,
@@ -109,7 +112,7 @@ export class TransectionCategoryComponent extends BaseCrudComponent<TransectionC
   // Single save method that handles both add and edit
   saveTransectionCategory(): void {
     if (!this.isValid(this.selectedTransectionCategory)) {
-      this.errorMessage = 'Please fill in all required fields';
+      this.toastService.warning('Please fill in all required fields');
       return;
     }
 
@@ -128,13 +131,18 @@ export class TransectionCategoryComponent extends BaseCrudComponent<TransectionC
       .subscribe({
         next: (response) => {
           if (response.success) {
+            this.toastService.success(response.message || (this.isEditMode ? 'Transaction Category updated successfully' : 'Transaction Category added successfully'));
             const message = this.isEditMode
               ? 'Transaction Category updated successfully'
               : 'Transaction Category added successfully';
             this.handleCrudSuccess(message, ModalType.FORM);
+          } else {
+            this.toastService.error(response.message || 'Operation failed');
           }
         },
         error: (error) => {
+          const errorMsg = error?.error?.message || (this.isEditMode ? 'Failed to update transaction category' : 'Failed to add transaction category');
+          this.toastService.error(errorMsg);
           const message = this.isEditMode
             ? 'Failed to update transaction category'
             : 'Failed to add transaction category';
@@ -160,8 +168,62 @@ export class TransectionCategoryComponent extends BaseCrudComponent<TransectionC
   }
 
   confirmDelete() {
-    if (this.selectedTransectionCategory) {
-      this.deleteItem(this.selectedTransectionCategory, this.selectedTransectionCategory.name);
+    if (!this.selectedTransectionCategory) {
+      this.toastService.warning('No transaction category selected');
+      return;
     }
+
+    const id = this.selectedTransectionCategory.id;
+
+    this.isLoading = true;
+    this.service.remove(id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.toastService.success(response.message || 'Transaction Category deleted successfully');
+            this.loadItems();
+          } else {
+            this.toastService.error(response.message || 'Failed to delete transaction category');
+          }
+        },
+        error: (error) => {
+          const errorMsg = error?.error?.message || 'Failed to delete transaction category';
+          this.toastService.error(errorMsg);
+          this.handleError('Failed to delete transaction category', error);
+        }
+      });
+  }
+
+  override toggleActive(transectionCategory: TransectionCategory): void {
+    this.isLoading = true;
+    this.service.activeUpdate(transectionCategory.id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.toastService.success(response.message || 'Status updated successfully');
+            this.loadItems();
+          } else {
+            this.toastService.error(response.message || 'Failed to toggle status');
+          }
+        },
+        error: (error) => {
+          const errorMsg = error?.error?.message || 'Failed to toggle status';
+          this.toastService.error(errorMsg);
+          this.handleError('Failed to toggle active status', error);
+        }
+      });
+  }
+
+  // Override base class error handling to clear old error messages
+  override clearError(): void {
+    this.errorMessage = '';
   }
 }

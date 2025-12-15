@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { finalize, takeUntil } from 'rxjs';
 import { BaseCrudComponent, TableColumn } from 'src/app/core/components/base-crud.component';
+import { ToastService } from 'src/app/core/services/feature/toast.service';
 import { PageHeaderService } from 'src/app/core/services/page-header/page-header.service';
 import { PaymentMethod, PaymentMethodReqDto, PaymentMethodService } from 'src/app/core/services/paymentMethod/payment-method.service';
 
@@ -45,7 +46,8 @@ export class PaymentMethodComponent extends BaseCrudComponent<PaymentMethod, Pay
 
   constructor(
     public service: PaymentMethodService,
-    public pageHeaderService: PageHeaderService
+    public pageHeaderService: PageHeaderService,
+    private toastService: ToastService
   ) {
     super();
   }
@@ -57,7 +59,7 @@ export class PaymentMethodComponent extends BaseCrudComponent<PaymentMethod, Pay
 
   // ==================== Component-Specific Methods ====================
 
-  createNew(): PaymentMethod {
+  override createNew(): PaymentMethod {
     return {
       id: 0,
       name: '',
@@ -67,12 +69,12 @@ export class PaymentMethodComponent extends BaseCrudComponent<PaymentMethod, Pay
     };
   }
 
-  isValid(paymentMethod: PaymentMethod | null): boolean {
+  override isValid(paymentMethod: PaymentMethod | null): boolean {
     if (!paymentMethod) return false;
     return !!(paymentMethod.name && paymentMethod.description && paymentMethod.sqn);
   }
 
-  mapToDto(paymentMethod: PaymentMethod): PaymentMethodReqDto {
+  override mapToDto(paymentMethod: PaymentMethod): PaymentMethodReqDto {
     return {
       name: paymentMethod.name,
       description: paymentMethod.description,
@@ -96,7 +98,7 @@ export class PaymentMethodComponent extends BaseCrudComponent<PaymentMethod, Pay
 
   addPaymentMethod(): void {
     if (!this.isValid(this.selectedPaymentMethod)) {
-      this.errorMessage = 'Please fill in all required fields';
+      this.toastService.warning('Please fill in all required fields');
       return;
     }
 
@@ -111,16 +113,23 @@ export class PaymentMethodComponent extends BaseCrudComponent<PaymentMethod, Pay
       .subscribe({
         next: (response) => {
           if (response.success) {
+            this.toastService.success(response.message || 'Payment Method added successfully');
             this.handleCrudSuccess('PaymentMethod added successfully', ModalType.ADD);
+          } else {
+            this.toastService.error(response.message || 'Failed to add payment method');
           }
         },
-        error: (error) => this.handleError('Failed to add paymentMethod', error)
+        error: (error) => {
+          const errorMsg = error?.error?.message || 'Failed to add payment method';
+          this.toastService.error(errorMsg);
+          this.handleError('Failed to add paymentMethod', error);
+        }
       });
   }
 
   savePaymentMethod(): void {
     if (!this.isValid(this.selectedPaymentMethod) || !this.selectedPaymentMethod?.id) {
-      this.errorMessage = 'Invalid paymentMethod data';
+      this.toastService.warning('Invalid payment method data');
       return;
     }
 
@@ -135,16 +144,19 @@ export class PaymentMethodComponent extends BaseCrudComponent<PaymentMethod, Pay
       .subscribe({
         next: (response) => {
           if (response.success) {
+            this.toastService.success(response.message || 'Payment Method updated successfully');
             this.handleCrudSuccess('PaymentMethod updated successfully', ModalType.EDIT);
+          } else {
+            this.toastService.error(response.message || 'Failed to update payment method');
           }
         },
-        error: (error) => this.handleError('Failed to update paymentMethod', error)
+        error: (error) => {
+          const errorMsg = error?.error?.message || 'Failed to update payment method';
+          this.toastService.error(errorMsg);
+          this.handleError('Failed to update paymentMethod', error);
+        }
       });
   }
-
-  // deletePaymentMethod(paymentMethod: PaymentMethod): void {
-  //   this.deleteItem(paymentMethod, paymentMethod.name);
-  // }
 
   loadPaymentMethods(isSearchOperation = false): void {
     this.loadItems(isSearchOperation);
@@ -160,9 +172,62 @@ export class PaymentMethodComponent extends BaseCrudComponent<PaymentMethod, Pay
   }
 
   confirmDelete() {
-    if (this.selectedPaymentMethod) {
-      this.deleteItem(this.selectedPaymentMethod, this.selectedPaymentMethod.name);
+    if (!this.selectedPaymentMethod) {
+      this.toastService.warning('No payment method selected');
+      return;
     }
+
+    const id = this.selectedPaymentMethod.id;
+
+    this.isLoading = true;
+    this.service.remove(id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.toastService.success(response.message || 'Payment Method deleted successfully');
+            this.loadItems();
+          } else {
+            this.toastService.error(response.message || 'Failed to delete payment method');
+          }
+        },
+        error: (error) => {
+          const errorMsg = error?.error?.message || 'Failed to delete payment method';
+          this.toastService.error(errorMsg);
+          this.handleError('Failed to delete paymentMethod', error);
+        }
+      });
   }
 
+  override toggleActive(paymentMethod: PaymentMethod): void {
+    this.isLoading = true;
+    this.service.activeUpdate(paymentMethod.id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.toastService.success(response.message || 'Status updated successfully');
+            this.loadItems();
+          } else {
+            this.toastService.error(response.message || 'Failed to toggle status');
+          }
+        },
+        error: (error) => {
+          const errorMsg = error?.error?.message || 'Failed to toggle status';
+          this.toastService.error(errorMsg);
+          this.handleError('Failed to toggle active status', error);
+        }
+      });
+  }
+
+  // Override base class error handling to clear old error messages
+  override clearError(): void {
+    this.errorMessage = '';
+  }
 }

@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { BaseApiResponse, PaginatedData } from 'src/app/core/models/api-response.model';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { BaseService } from '../base/base.service';
 
 export interface TransectionCategory {
@@ -14,6 +15,7 @@ export interface TransectionCategory {
   createdAt?: string;
   updatedAt?: string;
 }
+
 export interface TransectionCategoryReqDto {
   name: string;
   description: string;
@@ -35,16 +37,23 @@ export class TransectionCategoryService extends BaseService {
   private readonly ENDPOINT = 'transection-category';
 
   /**
-   * Get all transectionCategories (no pagination)
+   * Get all transaction categories (no pagination)
    */
   getAll(search?: string): Observable<BaseApiResponse<TransectionCategory[]>> {
     let params = new HttpParams();
     if (search?.trim()) {
       params = params.set('search', search.trim());
     }
-    return this.get<TransectionCategory[]>(this.ENDPOINT, params);
+    return this.get<TransectionCategory[]>(this.ENDPOINT, params).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
+  /**
+   * Get all active transaction categories
+   */
   getAllActive(
     status: boolean,
     type?: 'INCOME' | 'EXPENSE'
@@ -53,45 +62,68 @@ export class TransectionCategoryService extends BaseService {
     if (type) {
       params = params.set('type', type);
     }
-    return this.get<TransectionCategory[]>(`${this.ENDPOINT}/all-active`, params);
+    return this.get<TransectionCategory[]>(`${this.ENDPOINT}/all-active`, params).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
-
   /**
-   * Get a single transectionCategory by ID
+   * Get a single transaction category by ID
    */
   getById(id: number): Observable<BaseApiResponse<TransectionCategory>> {
-    return this.get<TransectionCategory>(`${this.ENDPOINT}/${id}`);
+    return this.get<TransectionCategory>(`${this.ENDPOINT}/${id}`).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
-   * Create a new transectionCategory
+   * Create a new transaction category
    */
   create(dto: TransectionCategoryReqDto): Observable<BaseApiResponse<TransectionCategory>> {
     this.validateTransectionCategoryDto(dto);
-    return this.post<TransectionCategory>(this.ENDPOINT, dto);
+    return this.post<TransectionCategory>(this.ENDPOINT, dto).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
-   * Update an existing transectionCategory
+   * Update an existing transaction category
    */
   update(id: number, dto: TransectionCategoryReqDto): Observable<BaseApiResponse<TransectionCategory>> {
     this.validateTransectionCategoryDto(dto);
-    return this.put<TransectionCategory>(`${this.ENDPOINT}/${id}`, dto);
+    return this.put<TransectionCategory>(`${this.ENDPOINT}/${id}`, dto).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
-   * Delete an transectionCategory
+   * Delete a transaction category
    */
   remove(id: number): Observable<BaseApiResponse<void>> {
-    return this.delete<void>(`${this.ENDPOINT}/${id}`);
+    return this.delete<void>(`${this.ENDPOINT}/${id}`).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
-   * Toggle transectionCategory active
+   * Toggle transaction category active status
    */
   activeUpdate(id: number): Observable<BaseApiResponse<TransectionCategory>> {
-    return this.patch<TransectionCategory>(`${this.ENDPOINT}/${id}`, {});
+    return this.patch<TransectionCategory>(`${this.ENDPOINT}/${id}`, {}).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   // ==================== Helper Methods ====================
@@ -106,11 +138,14 @@ export class TransectionCategoryService extends BaseService {
   }
 
   /**
-   * Validate transectionCategory DTO before sending to backend
+   * Validate transaction category DTO before sending to backend
    */
   private validateTransectionCategoryDto(dto: TransectionCategoryReqDto): void {
     if (!dto.name?.trim()) {
-      throw new Error('TransectionCategory name is required');
+      throw new Error('Transaction category name is required');
+    }
+    if (!dto.type) {
+      throw new Error('Transaction category type is required');
     }
   }
 

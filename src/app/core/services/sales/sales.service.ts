@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpParams, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { BaseApiResponse, PaginatedData } from '../../models/api-response.model';
 import { BaseService } from '../base/base.service';
 
@@ -114,7 +115,11 @@ export class SalesService extends BaseService {
       params = params.set('search', search.trim());
     }
 
-    return this.get<PaginatedData<Sales>>(this.ENDPOINT, params);
+    return this.get<PaginatedData<Sales>>(this.ENDPOINT, params).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
@@ -128,78 +133,114 @@ export class SalesService extends BaseService {
     const params = this.buildPaginationParams(page, size)
       .set('active', active.toString());
 
-    return this.get<PaginatedData<Sales>>(`${this.ENDPOINT}/all-active`, params);
+    return this.get<PaginatedData<Sales>>(`${this.ENDPOINT}/all-active`, params).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
    * Get a single sale by ID
    */
   getById(id: number): Observable<BaseApiResponse<Sales>> {
-    return this.get<Sales>(`${this.ENDPOINT}/${id}`);
+    return this.get<Sales>(`${this.ENDPOINT}/${id}`).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
    * Create a new sale
    */
   create(dto: SalesReqDto): Observable<BaseApiResponse<Sales>> {
-    return this.post<Sales>(this.ENDPOINT, dto);
+    this.validateSalesDto(dto);
+    return this.post<Sales>(this.ENDPOINT, dto).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
    * Update an existing sale
    */
   update(id: number, dto: SalesReqDto): Observable<BaseApiResponse<Sales>> {
-    return this.put<Sales>(`${this.ENDPOINT}/${id}`, dto);
+    this.validateSalesDto(dto);
+    return this.put<Sales>(`${this.ENDPOINT}/${id}`, dto).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
    * Delete a sale
    */
   deleteSale(id: number): Observable<BaseApiResponse<void>> {
-    return this.delete<void>(`${this.ENDPOINT}/${id}`);
+    return this.delete<void>(`${this.ENDPOINT}/${id}`).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
    * Toggle sale active status
    */
   activeUpdate(id: number): Observable<BaseApiResponse<Sales>> {
-    return this.patch<Sales>(`${this.ENDPOINT}/${id}`, {});
+    return this.patch<Sales>(`${this.ENDPOINT}/${id}`, {}).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
    * Update sale status (e.g., PENDING, COMPLETED, CANCELED)
    */
   updateStatus(id: number, status: string): Observable<BaseApiResponse<Sales>> {
-    return this.put<Sales>(`${this.ENDPOINT}/${id}/status`, { status });
+    return this.put<Sales>(`${this.ENDPOINT}/${id}/status`, { status }).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
-
-  // /**
-  //  * Approve payment for a sale
-  //  */
-  // approvePayment(id: number): Observable<BaseApiResponse<Sales>> {
-  //   return this.put<Sales>(`${this.ENDPOINT}/${id}/approve-payment`, {});
-  // }
 
   /**
    * Download invoice PDF for a sale
    */
-  // downloadInvoice(id: number): Observable<Blob> {
-  //   return this.downloadFile(`sales/${id}/invoice`, `invoice_${id}.pdf`);
-  // }
-
   downloadInvoice(id: number): Observable<HttpResponse<Blob>> {
-  return this.getBlob(`${this.ENDPOINT}/${id}/invoice`);
-}
+    return this.getBlob(`${this.ENDPOINT}/${id}/invoice`).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
+  }
 
-emailInvoice(id: number, email: string): Observable<BaseApiResponse<string>> {
-  const params = new HttpParams().set('email', email);
-  return this.post<string>(`${this.ENDPOINT}/${id}/invoice/email`, null, params);
-}
+  /**
+   * Email invoice to customer
+   */
+  emailInvoice(id: number, email: string): Observable<BaseApiResponse<string>> {
+    const params = new HttpParams().set('email', email);
+    return this.post<string>(`${this.ENDPOINT}/${id}/invoice/email`, null, params).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
+  }
 
+  /**
+   * Cancel sale with reason
+   */
   cancelExpense(id: number, reason: string): Observable<BaseApiResponse<Sales>> {
-      // Send reason as plain text string directly
-      return this.put<Sales>(`${this.ENDPOINT}/${id}/cancel`, reason);
-    }
+    return this.put<Sales>(`${this.ENDPOINT}/${id}/cancel`, reason).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
+  }
 
   // ==================== Helper Methods ====================
 
@@ -210,6 +251,56 @@ emailInvoice(id: number, email: string): Observable<BaseApiResponse<string>> {
     return new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
+  }
+
+  /**
+   * Validate sales DTO before sending to backend
+   */
+  private validateSalesDto(dto: SalesReqDto): void {
+    if (!dto.customerName?.trim()) {
+      throw new Error('Customer name is required');
+    }
+
+    if (!dto.phone?.trim()) {
+      throw new Error('Phone number is required');
+    }
+
+    if (dto.phone.trim().length < 11) {
+      throw new Error('Phone number must be at least 11 digits');
+    }
+
+    if (!dto.sellDate) {
+      throw new Error('Sale date is required');
+    }
+
+    if (!dto.items || dto.items.length === 0) {
+      throw new Error('At least one item is required');
+    }
+
+    // Validate items
+    dto.items.forEach((item, index) => {
+      if (!item.itemName?.trim()) {
+        throw new Error(`Item ${index + 1}: Item name is required`);
+      }
+      if (item.quantity <= 0) {
+        throw new Error(`Item ${index + 1}: Quantity must be greater than 0`);
+      }
+      if (item.unitPrice < 0) {
+        throw new Error(`Item ${index + 1}: Unit price cannot be negative`);
+      }
+    });
+
+    // Validate payments if provided
+    if (dto.payments && dto.payments.length > 0) {
+      dto.payments.forEach((payment, index) => {
+        if (payment.amount <= 0) {
+          throw new Error(`Payment ${index + 1}: Amount must be greater than 0`);
+        }
+        if (!payment.paymentMethodId || payment.paymentMethodId === 0) {
+          throw new Error(`Payment ${index + 1}: Payment method is required`);
+        }
+      });
+    }
   }
 
   /**
@@ -256,7 +347,7 @@ emailInvoice(id: number, email: string): Observable<BaseApiResponse<string>> {
     return {
       subTotal,
       vatAmount,
-      totalPrice
+      totalPrice: totalPrice < 0 ? 0 : totalPrice
     };
   }
 

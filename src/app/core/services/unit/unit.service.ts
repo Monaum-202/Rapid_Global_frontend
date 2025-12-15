@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { BaseApiResponse, PaginatedData } from 'src/app/core/models/api-response.model';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { BaseService } from '../base/base.service';
 
 export interface Unit {
@@ -41,7 +42,11 @@ export class UnitService extends BaseService {
     if (search?.trim()) {
       params = params.set('search', search.trim());
     }
-    return this.get<Unit[]>(this.ENDPOINT, params);
+    return this.get<Unit[]>(this.ENDPOINT, params).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
@@ -49,14 +54,22 @@ export class UnitService extends BaseService {
    */
   getAllActive(status: boolean): Observable<BaseApiResponse<Unit[]>> {
     let params = new HttpParams().set('status', status.toString());
-    return this.get<Unit[]>(`${this.ENDPOINT}/all-active`, params);
+    return this.get<Unit[]>(`${this.ENDPOINT}/all-active`, params).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
    * Get a single unit by ID
    */
   getById(id: number): Observable<BaseApiResponse<Unit>> {
-    return this.get<Unit>(`${this.ENDPOINT}/${id}`);
+    return this.get<Unit>(`${this.ENDPOINT}/${id}`).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
@@ -64,7 +77,11 @@ export class UnitService extends BaseService {
    */
   create(dto: UnitReqDto): Observable<BaseApiResponse<Unit>> {
     this.validateUnitDto(dto);
-    return this.post<Unit>(this.ENDPOINT, dto);
+    return this.post<Unit>(this.ENDPOINT, dto).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
@@ -72,22 +89,33 @@ export class UnitService extends BaseService {
    */
   update(id: number, dto: UnitReqDto): Observable<BaseApiResponse<Unit>> {
     this.validateUnitDto(dto);
-    return this.put<Unit>(`${this.ENDPOINT}/${id}`, dto);
+    return this.put<Unit>(`${this.ENDPOINT}/${id}`, dto).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
    * Delete a unit
    */
   remove(id: number): Observable<BaseApiResponse<void>> {
-    return this.delete<void>(`${this.ENDPOINT}/${id}`);
+    return this.delete<void>(`${this.ENDPOINT}/${id}`).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
-
 
   /**
    * Toggle unit active status
    */
   activeUpdate(id: number): Observable<BaseApiResponse<Unit>> {
-    return this.patch<Unit>(`${this.ENDPOINT}/${id}`, {});
+    return this.patch<Unit>(`${this.ENDPOINT}/${id}`, {}).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   // ==================== Helper Methods ====================

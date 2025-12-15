@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { BaseApiResponse, PaginatedData } from '../../models/api-response.model';
 import { BaseService } from '../base/base.service';
 
@@ -13,6 +14,7 @@ export interface PaymentMethod {
   createdAt?: string;
   updatedAt?: string;
 }
+
 export interface PaymentMethodReqDto {
   name: string;
   description: string;
@@ -33,58 +35,87 @@ export class PaymentMethodService extends BaseService {
   private readonly ENDPOINT = 'payment-method';
 
   /**
-   * Get all transectionCategories (no pagination)
+   * Get all payment methods (no pagination)
    */
   getAll(search?: string): Observable<BaseApiResponse<PaymentMethod[]>> {
     let params = new HttpParams();
     if (search?.trim()) {
       params = params.set('search', search.trim());
     }
-    return this.get<PaymentMethod[]>(this.ENDPOINT, params);
-  }
-
-  getAllActive(
-    status: boolean
-  ): Observable<BaseApiResponse<PaymentMethod[]>> {
-    let params = new HttpParams().set('status', status.toString());
-    return this.get<PaymentMethod[]>(`${this.ENDPOINT}/all-active`, params);
+    return this.get<PaymentMethod[]>(this.ENDPOINT, params).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
-   * Get a single paymentMethod by ID
+   * Get all active payment methods
+   */
+  getAllActive(status: boolean): Observable<BaseApiResponse<PaymentMethod[]>> {
+    let params = new HttpParams().set('status', status.toString());
+    return this.get<PaymentMethod[]>(`${this.ENDPOINT}/all-active`, params).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Get a single payment method by ID
    */
   getById(id: number): Observable<BaseApiResponse<PaymentMethod>> {
-    return this.get<PaymentMethod>(`${this.ENDPOINT}/${id}`);
+    return this.get<PaymentMethod>(`${this.ENDPOINT}/${id}`).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
-   * Create a new paymentMethod
+   * Create a new payment method
    */
   create(dto: PaymentMethodReqDto): Observable<BaseApiResponse<PaymentMethod>> {
     this.validatePaymentMethodDto(dto);
-    return this.post<PaymentMethod>(this.ENDPOINT, dto);
+    return this.post<PaymentMethod>(this.ENDPOINT, dto).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
-   * Update an existing paymentMethod
+   * Update an existing payment method
    */
   update(id: number, dto: PaymentMethodReqDto): Observable<BaseApiResponse<PaymentMethod>> {
     this.validatePaymentMethodDto(dto);
-    return this.put<PaymentMethod>(`${this.ENDPOINT}/${id}`, dto);
+    return this.put<PaymentMethod>(`${this.ENDPOINT}/${id}`, dto).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
-   * Delete an paymentMethod
+   * Delete a payment method
    */
   remove(id: number): Observable<BaseApiResponse<void>> {
-    return this.delete<void>(`${this.ENDPOINT}/${id}`);
+    return this.delete<void>(`${this.ENDPOINT}/${id}`).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
-   * Toggle paymentMethod active
+   * Toggle payment method active status
    */
   activeUpdate(id: number): Observable<BaseApiResponse<PaymentMethod>> {
-    return this.patch<PaymentMethod>(`${this.ENDPOINT}/${id}`, {});
+    return this.patch<PaymentMethod>(`${this.ENDPOINT}/${id}`, {}).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   // ==================== Helper Methods ====================
@@ -99,11 +130,11 @@ export class PaymentMethodService extends BaseService {
   }
 
   /**
-   * Validate paymentMethod DTO before sending to backend
+   * Validate payment method DTO before sending to backend
    */
   private validatePaymentMethodDto(dto: PaymentMethodReqDto): void {
     if (!dto.name?.trim()) {
-      throw new Error('PaymentMethod name is required');
+      throw new Error('Payment method name is required');
     }
   }
 

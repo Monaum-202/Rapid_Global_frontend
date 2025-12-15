@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { finalize, takeUntil } from 'rxjs';
 import { BaseCrudComponent, TableColumn } from 'src/app/core/components/base-crud.component';
+import { ToastService } from 'src/app/core/services/feature/toast.service';
 import { PageHeaderService } from 'src/app/core/services/page-header/page-header.service';
 import { Unit, UnitReqDto, UnitService } from 'src/app/core/services/unit/unit.service';
 
@@ -55,7 +56,8 @@ export class UnitComponent extends BaseCrudComponent<Unit, UnitReqDto> implement
 
   constructor(
     public service: UnitService,
-    public pageHeaderService: PageHeaderService
+    public pageHeaderService: PageHeaderService,
+    private toastService: ToastService
   ) {
     super();
   }
@@ -65,7 +67,7 @@ export class UnitComponent extends BaseCrudComponent<Unit, UnitReqDto> implement
     this.loadItems();
   }
 
-  createNew(): Unit {
+  override createNew(): Unit {
     return {
       id: 0,
       name: '',
@@ -75,12 +77,12 @@ export class UnitComponent extends BaseCrudComponent<Unit, UnitReqDto> implement
     };
   }
 
-  isValid(unit: Unit | null): boolean {
+  override isValid(unit: Unit | null): boolean {
     if (!unit) return false;
     return !!(unit.name && unit.fullName && unit.sqn !== undefined && unit.sqn !== null);
   }
 
-  mapToDto(unit: Unit): UnitReqDto {
+  override mapToDto(unit: Unit): UnitReqDto {
     return {
       name: unit.name,
       fullName: unit.fullName,
@@ -107,7 +109,7 @@ export class UnitComponent extends BaseCrudComponent<Unit, UnitReqDto> implement
   // Single save method that handles both add and edit
   saveUnit(): void {
     if (!this.isValid(this.selectedUnit)) {
-      this.errorMessage = 'Please fill in all required fields';
+      this.toastService.warning('Please fill in all required fields');
       return;
     }
 
@@ -126,13 +128,18 @@ export class UnitComponent extends BaseCrudComponent<Unit, UnitReqDto> implement
       .subscribe({
         next: (response) => {
           if (response.success) {
+            this.toastService.success(response.message || (this.isEditMode ? 'Unit updated successfully' : 'Unit added successfully'));
             const message = this.isEditMode
               ? 'Unit updated successfully'
               : 'Unit added successfully';
             this.handleCrudSuccess(message, ModalType.FORM);
+          } else {
+            this.toastService.error(response.message || 'Operation failed');
           }
         },
         error: (error) => {
+          const errorMsg = error?.error?.message || (this.isEditMode ? 'Failed to update unit' : 'Failed to add unit');
+          this.toastService.error(errorMsg);
           const message = this.isEditMode
             ? 'Failed to update unit'
             : 'Failed to add unit';
@@ -158,8 +165,62 @@ export class UnitComponent extends BaseCrudComponent<Unit, UnitReqDto> implement
   }
 
   confirmDelete() {
-    if (this.selectedUnit) {
-      this.deleteItem(this.selectedUnit, this.selectedUnit.name);
+    if (!this.selectedUnit) {
+      this.toastService.warning('No unit selected');
+      return;
     }
+
+    const id = this.selectedUnit.id;
+
+    this.isLoading = true;
+    this.service.remove(id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.toastService.success(response.message || 'Unit deleted successfully');
+            this.loadItems();
+          } else {
+            this.toastService.error(response.message || 'Failed to delete unit');
+          }
+        },
+        error: (error) => {
+          const errorMsg = error?.error?.message || 'Failed to delete unit';
+          this.toastService.error(errorMsg);
+          this.handleError('Failed to delete unit', error);
+        }
+      });
+  }
+
+  override toggleActive(unit: Unit): void {
+    this.isLoading = true;
+    this.service.activeUpdate(unit.id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.toastService.success(response.message || 'Status updated successfully');
+            this.loadItems();
+          } else {
+            this.toastService.error(response.message || 'Failed to toggle status');
+          }
+        },
+        error: (error) => {
+          const errorMsg = error?.error?.message || 'Failed to toggle status';
+          this.toastService.error(errorMsg);
+          this.handleError('Failed to toggle active status', error);
+        }
+      });
+  }
+
+  // Override base class error handling to clear old error messages
+  override clearError(): void {
+    this.errorMessage = '';
   }
 }
