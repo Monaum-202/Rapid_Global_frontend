@@ -543,7 +543,7 @@
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label for="deliveryDate" class="form-label fw-semibold">
-                                                Delivery Date
+                                                Delivery Date <span class="text-danger">*</span>
                                             </label>
                                             <input type="date" class="form-control"
                                                 [class.is-invalid]="validationErrors['deliveryDate']" id="deliveryDate"
@@ -574,7 +574,7 @@
                                         <div class="row g-2">
                                             <!-- Item Name with Searchable Dropdown -->
                                             <div class="col-md-4">
-                                                <label class="form-label fw-semibold small">Item Name</label>
+                                                <label class="form-label fw-semibold small">Item Name <span class="text-danger">*</span></label>
                                                 <div class="position-relative">
                                                     <input type="text" class="form-control form-control-sm"
                                                         [(ngModel)]="currentItem.itemName" name="itemName"
@@ -719,9 +719,6 @@
                                         </table>
                                     </div>
 
-                                    <!-- Price Calculation -->
-                                    <!-- Replace the entire payment section (after items list, before modal footer) -->
-
                                     <!-- Price Calculation & Payment Section - Only show in Add mode -->
                                     <div *ngIf="!isEditMode">
                                         <div class="row mb-2">
@@ -758,7 +755,7 @@
                                             <div class="row g-2">
                                                 <!-- Payment Amount -->
                                                 <div class="col-md-4">
-                                                    <label class="form-label fw-semibold small mb-1">Paid</label>
+                                                    <label class="form-label fw-semibold small mb-1">Paid <span class="text-danger">*</span></label>
                                                     <input type="number" class="form-control form-control-sm"
                                                         [(ngModel)]="currentPayment.amount" name="paymentAmount" min="0"
                                                         step="0.01" placeholder="0.00" />
@@ -766,8 +763,8 @@
 
                                                 <!-- Payment Method -->
                                                 <div class="col-md-4">
-                                                    <label class="form-label fw-semibold small mb-1">Payment
-                                                        Method</label>
+                                                    <label class="form-label fw-semibold small mb-1">
+                                                        Payment Method <span class="text-danger">*</span> </label>
                                                     <select class="form-select form-select-sm"
                                                         [(ngModel)]="currentPayment.paymentMethodId"
                                                         name="paymentMethod">

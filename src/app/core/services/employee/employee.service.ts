@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { BaseApiResponse, PaginatedData } from '../../models/api-response.model';
 import { BaseService } from '../base/base.service';
 
@@ -59,28 +60,41 @@ export class EmployeeService extends BaseService {
   private readonly ENDPOINT = 'employee';
 
   /**
-   * Get all transectionCategories (no pagination)
+   * Get all employees (no pagination)
    */
   getAll(search?: string): Observable<BaseApiResponse<Employee[]>> {
     let params = new HttpParams();
     if (search?.trim()) {
       params = params.set('search', search.trim());
     }
-    return this.get<Employee[]>(this.ENDPOINT, params);
+    return this.get<Employee[]>(this.ENDPOINT, params).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
-  getAllActive(
-    status: boolean
-  ): Observable<BaseApiResponse<Employee[]>> {
+  /**
+   * Get all active employees
+   */
+  getAllActive(status: boolean): Observable<BaseApiResponse<Employee[]>> {
     let params = new HttpParams().set('status', status.toString());
-    return this.get<Employee[]>(`${this.ENDPOINT}/all-active`, params);
+    return this.get<Employee[]>(`${this.ENDPOINT}/all-active`, params).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
    * Get a single employee by ID
    */
   getById(id: number): Observable<BaseApiResponse<Employee>> {
-    return this.get<Employee>(`${this.ENDPOINT}/${id}`);
+    return this.get<Employee>(`${this.ENDPOINT}/${id}`).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
@@ -88,7 +102,11 @@ export class EmployeeService extends BaseService {
    */
   create(dto: EmployeeReqDto): Observable<BaseApiResponse<Employee>> {
     this.validateEmployeeDto(dto);
-    return this.post<Employee>(this.ENDPOINT, dto);
+    return this.post<Employee>(this.ENDPOINT, dto).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
@@ -96,21 +114,33 @@ export class EmployeeService extends BaseService {
    */
   update(id: number, dto: EmployeeReqDto): Observable<BaseApiResponse<Employee>> {
     this.validateEmployeeDto(dto);
-    return this.put<Employee>(`${this.ENDPOINT}/${id}`, dto);
+    return this.put<Employee>(`${this.ENDPOINT}/${id}`, dto).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
    * Delete an employee
    */
   remove(id: number): Observable<BaseApiResponse<void>> {
-    return this.delete<void>(`${this.ENDPOINT}/${id}`);
+    return this.delete<void>(`${this.ENDPOINT}/${id}`).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
-   * Toggle employee active
+   * Toggle employee active status
    */
   activeUpdate(id: number): Observable<BaseApiResponse<Employee>> {
-    return this.patch<Employee>(`${this.ENDPOINT}/${id}`, {});
+    return this.patch<Employee>(`${this.ENDPOINT}/${id}`, {}).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 
   // ==================== Helper Methods ====================
@@ -132,8 +162,28 @@ export class EmployeeService extends BaseService {
       throw new Error('Employee name is required');
     }
 
+    if (dto.name.trim().length < 2) {
+      throw new Error('Employee name must be at least 2 characters');
+    }
+
     if (!dto.phone?.trim()) {
       throw new Error('Employee phone is required');
+    }
+
+    if (dto.phone.trim().length < 11) {
+      throw new Error('Phone number must be at least 11 digits');
+    }
+
+    // Email validation (if provided)
+    if (dto.email && dto.email.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(dto.email)) {
+        throw new Error('Please enter a valid email address');
+      }
+    }
+
+    if (dto.salary === undefined || dto.salary === null) {
+      throw new Error('Salary is required');
     }
 
     if (dto.salary < 0) {
@@ -142,6 +192,12 @@ export class EmployeeService extends BaseService {
 
     if (!dto.joiningDate) {
       throw new Error('Joining date is required');
+    }
+
+    // Validate date format
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(dto.joiningDate)) {
+      throw new Error('Invalid joining date format (YYYY-MM-DD required)');
     }
   }
 
@@ -168,5 +224,14 @@ export class EmployeeService extends BaseService {
     }
 
     return params;
+  }
+
+  /**
+   * Calculate total lend amount for an employee
+   */
+  calculateTotalLend(lends: LendRecord[]): number {
+    return lends
+      .filter(lend => lend.status === 'APPROVED')
+      .reduce((sum, lend) => sum + lend.amount, 0);
   }
 }
