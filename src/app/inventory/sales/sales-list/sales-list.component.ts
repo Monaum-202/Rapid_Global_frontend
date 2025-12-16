@@ -111,7 +111,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     private customerService: CustomerService,
     public paymentMethodService: PaymentMethodService,
     private productService: ProductService,
-    private toastService: ToastService
+    public override toastService: ToastService
   ) {
     super();
   }

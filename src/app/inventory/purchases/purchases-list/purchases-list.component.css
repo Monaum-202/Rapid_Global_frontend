@@ -122,3 +122,32 @@ body {
     box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.15);
     border-radius: 50rem;
 }
+
+ .product-dropdown {
+    max-height: 250px;
+    overflow-y: auto;
+    position: absolute;
+    z-index: 1100; /* higher than sticky table headers */
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
