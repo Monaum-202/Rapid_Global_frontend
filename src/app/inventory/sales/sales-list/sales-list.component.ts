@@ -8,7 +8,7 @@ import { PageHeaderService } from 'src/app/core/services/page-header/page-header
 import { Customer, CustomerService } from 'src/app/core/services/customer/customer.service';
 import { PaymentMethod, PaymentMethodService } from 'src/app/core/services/paymentMethod/payment-method.service';
 import { IncomeService } from 'src/app/core/services/income/income.service';
-import { Product, ProductService } from 'src/app/core/services/product/product.service';
+import { Product, ProductService, ProductType } from 'src/app/core/services/product/product.service';
 import { ToastService } from 'src/app/core/services/feature/toast.service';
 
 enum ModalType {
@@ -1078,17 +1078,20 @@ confirmDelete(): void {
   });
 }
 
-  loadProducts(): void {
-  this.productService.getAllProducts('', true).subscribe({
-    next: (res) => {
-      this.products = res.data || [];
-      this.filteredProducts = this.products.slice(0, 10);
-    },
-    error: (err) => {
-      console.error('Failed to load products', err);
-      this.toastService.error('Failed to load products');
-    }
-  });
+
+loadProducts(): void {
+  this.productService
+    .getAllProducts('', true, ProductType.FINISHED_GOODS)
+    .subscribe({
+      next: (res) => {
+        this.products = res.data || [];
+        this.filteredProducts = this.products.slice(0, 10);
+      },
+      error: (err) => {
+        console.error('Failed to load raw materials', err);
+        this.toastService.error('Failed to load raw materials');
+      }
+    });
 }
 
   get sales(): Sales[] {

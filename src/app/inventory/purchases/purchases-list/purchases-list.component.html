@@ -78,7 +78,7 @@
         <table class="table table-hover mb-0 align-middle text-nowrap">
             <thead>
                 <tr>
-                    <th *ngIf="isColumnVisible('purchaseNo')">PURCHASE NO</th>
+                    <th *ngIf="isColumnVisible('invoiceNo')">Invoice NO</th>
                     <th *ngIf="isColumnVisible('supplierName')">SUPPLIER NAME</th>
                     <th *ngIf="isColumnVisible('phone')">PHONE</th>
                     <th *ngIf="isColumnVisible('purchaseDate')">DATE</th>
@@ -91,7 +91,7 @@
             </thead>
             <tbody>
                 <tr *ngFor="let purchase of filteredPurchases">
-                    <td *ngIf="isColumnVisible('purchaseNo')">{{ purchase.purchaseNo }}</td>
+                    <td *ngIf="isColumnVisible('invoiceNo')">{{ purchase.invoiceNo }}</td>
                     <td *ngIf="isColumnVisible('supplierName')">{{ purchase.supplierName }}</td>
                     <td *ngIf="isColumnVisible('phone')">{{ purchase.phone }}</td>
                     <td *ngIf="isColumnVisible('purchaseDate')">{{ purchase.purchaseDate | date:'dd/MM/yyyy' }}</td>
@@ -204,7 +204,7 @@
                         <h5 class="modal-title text-white mb-0" id="purchaseViewModalLabel" style="font-size: 1rem;">
                             Purchase Details
                         </h5>
-                        <small class="text-white-50" *ngIf="selectedPurchase">Purchase: {{ selectedPurchase.purchaseNo
+                        <small class="text-white-50" *ngIf="selectedPurchase">Purchase: {{ selectedPurchase.invoiceNo
                             }}</small>
                         &nbsp;&nbsp;
                         <span class="badge" *ngIf="selectedPurchase"
@@ -331,7 +331,7 @@
                                         <tbody>
                                             <tr *ngFor="let item of selectedPurchase.items; let i = index">
                                                 <td style="padding: 0.4rem;" class="text-muted">{{ i + 1 }}</td>
-                                                <td style="padding: 0.4rem; font-weight: 500;">{{ item.rawMaterialName
+                                                <td style="padding: 0.4rem; font-weight: 500;">{{ item.itemName
                                                     }}</td>
                                                 <td style="padding: 0.4rem; text-align: center;">
                                                     {{ item.quantity }}
@@ -455,6 +455,7 @@
                                             <label for="phone" class="form-label fw-semibold">
                                                 Phone <span class="text-danger">*</span>
                                             </label>
+
                                             <span class="spinner-border spinner-border-sm" role="status"
                                                 *ngIf="isSearchingSupplier"></span>
                                             <input type="text" class="form-control"
@@ -463,13 +464,96 @@
                                                 id="phone" [(ngModel)]="formData.phone" name="phone"
                                                 (input)="onPhoneInput($event)" (keypress)="onPhoneKeyPress($event)"
                                                 placeholder="Enter phone & press Enter" required />
+                                            <div class="invalid-feedback"
+                                                *ngIf="validationErrors['phone'] && validationErrors['phone'].length"
+                                                [style.display]="'block'">
+                                                {{ validationErrors['phone'][0] }}
+                                            </div>
+
+                                            <small class="text-success d-block mt-1"
+                                                *ngIf="supplierFound && !isSearchingSupplier">
+                                                <i class="bi bi-info-circle"></i> Customer found! Data auto-filled
+                                            </small>
+                                            <small class="text-muted d-block mt-1"
+                                                *ngIf="!supplierFound && !isSearchingSupplier && formData.phone.length >= 3">
+                                                <i class="bi bi-info-circle"></i> Press Enter to search
+                                            </small>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="email" class="form-label fw-semibold">Email</label>
+                                            <input type="email" class="form-control"
+                                                [class.is-invalid]="validationErrors['email']" id="email"
+                                                [(ngModel)]="formData.email" name="email"
+                                                placeholder="Enter email address" />
+                                            <div class="invalid-feedback" *ngIf="validationErrors['email']"
+                                                [style.display]="'block'">
+                                                {{ validationErrors['email'][0] }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="supplierName" class="form-label fw-semibold">
+                                            Customer Name <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control"
+                                            [class.is-invalid]="validationErrors['supplierName']" id="supplierName"
+                                            [(ngModel)]="formData.supplierName" name="supplierName"
+                                            placeholder="Enter customer name" required />
+                                        <div class="invalid-feedback" *ngIf="validationErrors['supplierName']"
+                                            [style.display]="'block'">
+                                            {{ validationErrors['supplierName'][0] }}
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="address" class="form-label fw-semibold">Address</label>
+                                        <input type="text" class="form-control"
+                                            [class.is-invalid]="validationErrors['address']" id="address"
+                                            [(ngModel)]="formData.address" name="address" placeholder="Enter address" />
+                                        <div class="invalid-feedback" *ngIf="validationErrors['address']"
+                                            [style.display]="'block'">
+                                            {{ validationErrors['address'][0] }}
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="companyName" class="form-label fw-semibold">Company Name</label>
+                                        <input type="text" class="form-control"
+                                            [class.is-invalid]="validationErrors['companyName']" id="companyName"
+                                            [(ngModel)]="formData.companyName" name="companyName"
+                                            placeholder="Enter company name" />
+                                        <div class="invalid-feedback" *ngIf="validationErrors['companyName']"
+                                            [style.display]="'block'">
+                                            {{ validationErrors['companyName'][0] }}
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="purchaseDate" class="form-label fw-semibold">
+                                                Purchase Date <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="date" class="form-control"
+                                                [class.is-invalid]="validationErrors['purchaseDate']" id="purchaseDate"
+                                                [(ngModel)]="formData.purchaseDate" name="purchaseDate" required />
+                                            <div class="invalid-feedback" *ngIf="validationErrors['purchaseDate']"
+                                                [style.display]="'block'">
+                                                {{ validationErrors['purchaseDate'][0] }}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="deliveryDate" class="form-label fw-semibold">
+                                                Delivery Date <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="date" class="form-control"
+                                                [class.is-invalid]="validationErrors['deliveryDate']" id="deliveryDate"
+                                                [(ngModel)]="formData.deliveryDate" name="deliveryDate" />
                                             <div class="invalid-feedback" *ngIf="validationErrors['deliveryDate']"
                                                 [style.display]="'block'">
                                                 {{ validationErrors['deliveryDate'][0] }}
                                             </div>
                                         </div>
                                     </div>
-
                                     <div class="mb-3">
                                         <label for="notes" class="form-label fw-semibold">Notes</label>
                                         <textarea class="form-control" id="notes" rows="3" [(ngModel)]="formData.notes"
@@ -493,7 +577,7 @@
                                                         class="text-danger">*</span></label>
                                                 <div class="position-relative">
                                                     <input type="text" class="form-control form-control-sm"
-                                                        [(ngModel)]="currentItem.rawMaterialName" name="itemName"
+                                                        [(ngModel)]="currentItem.itemName" name="itemName"
                                                         (input)="onMaterialSearchInput($event)"
                                                         (focus)="showMaterialDropdown = true"
                                                         (blur)="hideMaterialDropdown()" placeholder="Search material..."
@@ -578,7 +662,7 @@
                                             </thead>
                                             <tbody>
                                                 <tr *ngFor="let item of formData.items; let i = index">
-                                                    <td>{{ item.rawMaterialName }}</td>
+                                                    <td>{{ item.itemName }}</td>
                                                     <td class="text-center">{{ item.unitName }}</td>
                                                     <td class="text-center">{{ item.quantity }}</td>
                                                     <td class="text-end">{{ item.unitPrice | number:'1.2-2' }}</td>
@@ -808,7 +892,7 @@
                 </div>
                 <div class="modal-body" *ngIf="selectedPurchase">
                     <div class="alert alert-info">
-                        <strong>Purchase Order:</strong> {{ selectedPurchase.purchaseNo }}<br>
+                        <strong>Purchase Order:</strong> {{ selectedPurchase.invoiceNo }}<br>
                         <strong>Supplier:</strong> {{ selectedPurchase.supplierName }}
                     </div>
 
@@ -832,7 +916,7 @@
                             </thead>
                             <tbody>
                                 <tr *ngFor="let item of receiveGoodsData.items; let i = index">
-                                    <td>{{ item.rawMaterialName }}</td>
+                                    <td>{{ item.itemName }}</td>
                                     <td class="text-center">{{ item.orderedQty }}</td>
                                     <td class="text-center">{{ item.alreadyReceived }}</td>
                                     <td>
@@ -875,7 +959,7 @@
                 </div>
                 <div class="modal-body p-3" *ngIf="selectedPurchase">
                     <div class="alert alert-info">
-                        <strong>Purchase Order:</strong> {{ selectedPurchase.purchaseNo }}<br>
+                        <strong>Purchase Order:</strong> {{ selectedPurchase.invoiceNo }}<br>
                         <strong>Supplier:</strong> {{ selectedPurchase.supplierName }}<br>
                         <strong>Total Amount:</strong> {{ selectedPurchase.totalAmount | number:'1.2-2' }}<br>
                         <strong>Paid Amount:</strong> {{ selectedPurchase.paidAmount | number:'1.2-2' }}<br>
@@ -967,7 +1051,7 @@
                 </div>
                 <div class="modal-body px-4" *ngIf="selectedPurchase">
                     <p class="text-muted">
-                        Provide a reason for cancelling <strong>{{ selectedPurchase.purchaseNo }}</strong>.
+                        Provide a reason for cancelling <strong>{{ selectedPurchase.invoiceNo }}</strong>.
                     </p>
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Cancel Reason</label>

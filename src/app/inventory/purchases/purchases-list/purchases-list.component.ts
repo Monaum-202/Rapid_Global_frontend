@@ -8,7 +8,7 @@ import { PaymentMethod, PaymentMethodService } from 'src/app/core/services/payme
 import { ExpenseService } from 'src/app/core/services/expense/expense.service';
 import { ToastService } from 'src/app/core/services/feature/toast.service';
 import { Purchase, PurchaseItem, PurchaseReqDto, PurchaseService } from 'src/app/core/services/purchase/purchase.service';
-import { Product, ProductService } from 'src/app/core/services/product/product.service';
+import { Product, ProductService, ProductType } from 'src/app/core/services/product/product.service';
 import { Supplier, SupplierService } from 'src/app/core/services/supplier/supplier.service';
 
 enum ModalType {
@@ -70,7 +70,7 @@ export class PurchasesListComponent extends simpleCrudComponent<Purchase, Purcha
   };
 
   currentItem: PurchaseItem = {
-    rawMaterialName: '',
+    itemName: '',
     unitName: '',
     quantity: 1,
     unitPrice: 0,
@@ -86,7 +86,7 @@ export class PurchasesListComponent extends simpleCrudComponent<Purchase, Purcha
   paymentEditIndex: number | null = null;
 
   columns: TableColumn<Purchase>[] = [
-    { key: 'purchaseNo', label: 'Purchase No', visible: true },
+    { key: 'invoiceNo', label: 'Invoice No', visible: true },
     { key: 'supplierName', label: 'Supplier Name', visible: true },
     { key: 'phone', label: 'Phone', visible: true },
     { key: 'purchaseDate', label: 'Date', visible: true },
@@ -108,7 +108,7 @@ export class PurchasesListComponent extends simpleCrudComponent<Purchase, Purcha
     receivedDate: new Date().toISOString().split('T')[0],
     items: [] as {
       purchaseItemId: number;
-      rawMaterialName: string;
+      itemName: string;
       orderedQty: number;
       alreadyReceived: number;
       receiveNow: number;
@@ -154,7 +154,7 @@ export class PurchasesListComponent extends simpleCrudComponent<Purchase, Purcha
     const today = new Date().toISOString().split('T')[0];
     return {
       id: 0,
-      purchaseNo: '',
+      invoiceNo: '',
       supplierName: '',
       phone: '',
       email: '',
@@ -256,7 +256,7 @@ export class PurchasesListComponent extends simpleCrudComponent<Purchase, Purcha
   }
 
   validateCurrentItem(): boolean {
-    if (!this.currentItem.rawMaterialName || this.currentItem.rawMaterialName.trim() === '') {
+    if (!this.currentItem.itemName || this.currentItem.itemName.trim() === '') {
       this.toastService.warning('Raw material name is required');
       return false;
     }
@@ -411,7 +411,6 @@ export class PurchasesListComponent extends simpleCrudComponent<Purchase, Purcha
     this.formData.email = supplier.email || '';
     this.formData.address = supplier.address || '';
     this.formData.companyName = supplier.companyName || '';
-    this.formData.contactPerson = supplier.contactPerson || '';
   }
 
   clearSupplierFields(): void {
@@ -420,7 +419,6 @@ export class PurchasesListComponent extends simpleCrudComponent<Purchase, Purcha
       this.formData.email = '';
       this.formData.address = '';
       this.formData.companyName = '';
-      this.formData.contactPerson = '';
     }
   }
 
@@ -438,7 +436,7 @@ export class PurchasesListComponent extends simpleCrudComponent<Purchase, Purcha
     if (!this.validateCurrentItem()) return;
 
     const newItem = {
-      rawMaterialName: this.currentItem.rawMaterialName.trim(),
+      itemName: this.currentItem.itemName.trim(),
       unitName: this.currentItem.unitName.trim(),
       quantity: Number(this.currentItem.quantity),
       unitPrice: Number(this.currentItem.unitPrice),
@@ -461,7 +459,7 @@ export class PurchasesListComponent extends simpleCrudComponent<Purchase, Purcha
     this.editIndex = index;
     const item = this.formData.items[index];
     this.currentItem = {
-      rawMaterialName: item.rawMaterialName,
+      itemName: item.itemName,
       unitName: item.unitName,
       quantity: item.quantity,
       unitPrice: item.unitPrice,
@@ -481,7 +479,7 @@ export class PurchasesListComponent extends simpleCrudComponent<Purchase, Purcha
   }
 
   resetCurrentItem(): void {
-    this.currentItem = { rawMaterialName: '', unitName: '', quantity: 1, unitPrice: 0, totalPrice: 0 };
+    this.currentItem = { itemName: '', unitName: '', quantity: 1, unitPrice: 0, totalPrice: 0 };
     this.editIndex = null;
   }
 
@@ -595,7 +593,7 @@ export class PurchasesListComponent extends simpleCrudComponent<Purchase, Purcha
   onMaterialSearchInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     const searchTerm = input.value;
-    this.currentItem.rawMaterialName = searchTerm;
+    this.currentItem.itemName = searchTerm;
     this.showMaterialDropdown = true;
     this.materialSearchSubject.next(searchTerm);
   }
@@ -613,7 +611,7 @@ export class PurchasesListComponent extends simpleCrudComponent<Purchase, Purcha
   }
 
   selectMaterial(product: Product): void {
-    this.currentItem.rawMaterialName = product.name;
+    this.currentItem.itemName = product.name;
     this.currentItem.unitName = product.unitName || '';
     this.currentItem.unitPrice = product.pricePerUnit || 0;
     this.calculateItemTotal();
@@ -653,7 +651,7 @@ export class PurchasesListComponent extends simpleCrudComponent<Purchase, Purcha
 
     const purchase: Purchase = {
       id: 0,
-      purchaseNo: '',
+      invoiceNo: '',
       supplierName: this.formData.supplierName,
       phone: this.formData.phone,
       email: this.formData.email,
@@ -713,7 +711,7 @@ export class PurchasesListComponent extends simpleCrudComponent<Purchase, Purcha
 
     const purchase: Purchase = {
       id: this.selectedPurchase.id,
-      purchaseNo: this.selectedPurchase.purchaseNo,
+      invoiceNo: this.selectedPurchase.invoiceNo,
       supplierName: this.formData.supplierName,
       phone: this.formData.phone,
       email: this.formData.email,
@@ -777,7 +775,7 @@ export class PurchasesListComponent extends simpleCrudComponent<Purchase, Purcha
       receivedDate: new Date().toISOString().split('T')[0],
       items: purchase.items.map(item => ({
         purchaseItemId: item.id || 0,
-        rawMaterialName: item.rawMaterialName,
+        itemName: item.itemName,
         orderedQty: item.quantity,
         alreadyReceived: item.receivedQuantity || 0,
         receiveNow: item.quantity - (item.receivedQuantity || 0)
@@ -864,7 +862,7 @@ export class PurchasesListComponent extends simpleCrudComponent<Purchase, Purcha
       paymentDate: this.updatePaymentData.date,
       paymentMethodId: Number(this.updatePaymentData.paymentMethodId),
       trackingId: this.updatePaymentData.trackingId?.trim() || '',
-      description: this.updatePaymentData.description?.trim() || `Payment for Purchase ${this.selectedPurchase.purchaseNo}`
+      description: this.updatePaymentData.description?.trim() || `Payment for Purchase ${this.selectedPurchase.invoiceNo}`
     };
 
     this.isLoading = true;
@@ -937,7 +935,7 @@ export class PurchasesListComponent extends simpleCrudComponent<Purchase, Purcha
       return;
     }
 
-    const confirmMessage = `Send purchase order ${purchase.purchaseNo} to ${purchase.email}?`;
+    const confirmMessage = `Send purchase order ${purchase.invoiceNo} to ${purchase.email}?`;
     if (!confirm(confirmMessage)) {
       return;
     }
@@ -1011,7 +1009,7 @@ export class PurchasesListComponent extends simpleCrudComponent<Purchase, Purcha
     }
 
     const id = this.selectedPurchase.id;
-    const purchaseNo = this.selectedPurchase.purchaseNo;
+    const purchaseNo = this.selectedPurchase.invoiceNo;
 
     this.isLoading = true;
     this.service.deletePurchase(id)
@@ -1086,7 +1084,9 @@ export class PurchasesListComponent extends simpleCrudComponent<Purchase, Purcha
   }
 
   loadProducts(): void {
-    this.prductService.getAllProducts('', true).subscribe({
+  this.prductService
+    .getAllProducts('', true, ProductType.RAW_MATERIAL)
+    .subscribe({
       next: (res) => {
         this.product = res.data || [];
         this.filteredProducts = this.product.slice(0, 10);
@@ -1096,7 +1096,8 @@ export class PurchasesListComponent extends simpleCrudComponent<Purchase, Purcha
         this.toastService.error('Failed to load raw materials');
       }
     });
-  }
+}
+
 
   get purchases(): Purchase[] {
     return this.items;

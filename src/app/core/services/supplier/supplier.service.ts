@@ -9,13 +9,13 @@ export interface Supplier {
   id: number;
   name: string;
   phone: string;
+  altPhone?: number;
   email?: string;
   address?: string;
   companyName?: string;
-  contactPerson?: string;
+  totalTransaction?: number;
   totalPurchases?: number;
   totalDue?: number;
-  isActive: boolean;
   createdBy?: number;
   createdByName?: string;
   createdDate?: string;
@@ -28,7 +28,6 @@ export interface SupplierReqDto {
   email?: string;
   address?: string;
   companyName?: string;
-  contactPerson?: string;
   isActive?: boolean;
 }
 
@@ -36,7 +35,7 @@ export interface SupplierReqDto {
   providedIn: 'root'
 })
 export class SupplierService extends BaseService {
-  private readonly ENDPOINT = 'suppliers';
+  private readonly ENDPOINT = 'supplier';
 
   /**
    * Get all suppliers with pagination and search
@@ -83,7 +82,7 @@ export class SupplierService extends BaseService {
    */
   getByPhone(phone: string): Observable<BaseApiResponse<Supplier>> {
     const params = new HttpParams().set('phone', phone);
-    return this.get<Supplier>(`${this.ENDPOINT}/by-phone`, params).pipe(
+    return this.get<Supplier>(`${this.ENDPOINT}/phone`, params).pipe(
       catchError(error => throwError(() => error))
     );
   }

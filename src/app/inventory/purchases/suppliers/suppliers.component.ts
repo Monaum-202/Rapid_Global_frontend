@@ -1,18 +1,14 @@
 import { Component, OnInit } from '@angular/core';
+import { finalize, takeUntil } from 'rxjs';
+import { simpleCrudComponent, TableColumn } from 'src/app/core/components/simpleCrud.component';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { PageHeaderService } from 'src/app/core/services/page-header/page-header.service';
+import { Supplier, SupplierReqDto, SupplierService } from 'src/app/core/services/supplier/supplier.service';
 
-interface Supplier {
-  id: string;
-  name: string;
-  phone: string;
-  address: string;
-  totalTransactions: number;
-  due: number;
-}
-
-interface TableColumn {
-  key: string;
-  label: string;
-  visible: boolean;
+enum ModalType {
+  VIEW = 'supplierModal',
+  FORM = 'supplierFormModal',
+  DELETE = 'confirmDeleteModal'
 }
 
 @Component({
@@ -20,197 +16,246 @@ interface TableColumn {
   templateUrl: './suppliers.component.html',
   styleUrls: ['./suppliers.component.css']
 })
-export class SuppliersComponent implements OnInit {
+export class SuppliersComponent extends simpleCrudComponent<Supplier, SupplierReqDto> implements OnInit {
+  entityName = 'Supplier';
+  entityNameLower = 'supplier';
+  isEditMode = false;
+  validationErrors: { [key: string]: string[] } = {};
+  roleId = 0;
+  userId = 0;
+  submitted = false;
 
-  suppliers: Supplier[] = [];
-  filteredSuppliers: Supplier[] = [];
-  selectedSupplier: Supplier | null = null;
-
-  // Table settings
-  pageSize = 10;
-  currentPage = 1;
-  searchTerm = '';
-  showColumnDropdown = false;
-
-  columns: TableColumn[] = [
+  columns: TableColumn<Supplier>[] = [
     { key: 'id', label: 'ID', visible: true },
-    { key: 'name', label: 'NAME', visible: true },
-    { key: 'phone', label: 'PHONE', visible: true },
-    { key: 'address', label: 'ADDRESS', visible: true },
-    { key: 'totalTransactions', label: 'TOTAL TRANSACTIONS', visible: false },
-    { key: 'due', label: 'DUE', visible: true }
+    { key: 'name', label: 'Name', visible: true },
+    { key: 'phone', label: 'Phone', visible: true },
+    { key: 'altPhone', label: 'Alt Phone', visible: false },
+    { key: 'email', label: 'Email', visible: true },
+    { key: 'address', label: 'Address', visible: false },
+    { key: 'companyName', label: 'Business Address', visible: false },
+    { key: 'totalTransaction', label: 'Total Transaction', visible: true }
   ];
 
+  get suppliers(): Supplier[] {
+    return this.items;
+  }
+
+  get selectedSupplier(): Supplier | null {
+    return this.selectedItem;
+  }
+
+  set selectedSupplier(value: Supplier | null) {
+    this.selectedItem = value;
+  }
+
+  get filteredSuppliers(): Supplier[] {
+    return this.items;
+  }
+
+  constructor(
+    public service: SupplierService,
+    public pageHeaderService: PageHeaderService,
+    public authService: AuthService
+  ) {
+    super();
+  }
+
   ngOnInit(): void {
-    this.loadSuppliers();
-    this.filterSuppliers();
+    this.pageHeaderService.setTitle('Supplier List');
+    this.loadItems();
+    const id = this.authService.getRoleId();
+    this.roleId = id ?? 0;
+    const id2 = this.authService.getUserId();
+    this.userId = id2 ?? 0;
   }
 
-  // Load sample supplier data
-  loadSuppliers(): void {
-    this.suppliers = [
-      {
-        id: '#PR-00002',
-        name: 'John Doe',
-        phone: '+8801712345678',
-        address: 'Dhaka, Bangladesh',
-        totalTransactions: 18400,
-        due: 1551
-      },
-      {
-        id: '#PR-00003',
-        name: 'Jane Smith',
-        phone: '+8801999888777',
-        address: 'Chattogram, Bangladesh',
-        totalTransactions: 25000,
-        due: 2200
-      },
-      {
-        id: '#PR-00004',
-        name: 'Michael Johnson',
-        phone: '+8801555444333',
-        address: 'Sylhet, Bangladesh',
-        totalTransactions: 15000,
-        due: 500
-      },
-      {
-        id: '#PR-00005',
-        name: 'Sarah Williams',
-        phone: '+8801666777888',
-        address: 'Rajshahi, Bangladesh',
-        totalTransactions: 32000,
-        due: 3200
-      },
-      {
-        id: '#PR-00006',
-        name: 'David Brown',
-        phone: '+8801888999000',
-        address: 'Khulna, Bangladesh',
-        totalTransactions: 12500,
-        due: 0
-      }
-    ];
+  createNew(): Supplier {
+    return {
+      id: 0,
+      name: '',
+      phone: '',
+      altPhone: undefined,
+      email: '',
+      address: '',
+      companyName: '',
+      totalTransaction: 0
+    };
   }
 
-  // Search and filter
-  onSearchChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.searchTerm = input.value.toLowerCase();
-    this.currentPage = 1;
-    this.filterSuppliers();
-  }
+  mapToDto(supplier: Supplier): SupplierReqDto {
+    const dto: any = {};
 
-  filterSuppliers(): void {
-    if (!this.searchTerm) {
-      this.filteredSuppliers = [...this.suppliers];
-    } else {
-      this.filteredSuppliers = this.suppliers.filter(supplier =>
-        supplier.id.toLowerCase().includes(this.searchTerm) ||
-        supplier.name.toLowerCase().includes(this.searchTerm) ||
-        supplier.phone.toLowerCase().includes(this.searchTerm) ||
-        supplier.address.toLowerCase().includes(this.searchTerm)
-      );
+    if (supplier.name && supplier.name.trim() !== '') {
+      dto.name = supplier.name.trim();
     }
-  }
 
-  // Column visibility methods
-  toggleColumnDropdown(): void {
-    this.showColumnDropdown = !this.showColumnDropdown;
-  }
-
-  isColumnVisible(key: string): boolean {
-    const column = this.columns.find(col => col.key === key);
-    return column ? column.visible : false;
-  }
-
-  get visibleColumnsCount(): number {
-    return this.columns.filter(c => c.visible).length + 1; // +1 for actions column
-  }
-
-  // Pagination
-  onPageSizeChange(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    this.pageSize = parseInt(select.value);
-    this.currentPage = 1;
-  }
-
-  get paginatedSuppliers(): Supplier[] {
-    const start = (this.currentPage - 1) * this.pageSize;
-    const end = start + this.pageSize;
-    return this.filteredSuppliers.slice(start, end);
-  }
-
-  get totalPages(): number {
-    return Math.ceil(this.filteredSuppliers.length / this.pageSize);
-  }
-
-  get startEntry(): number {
-    return this.filteredSuppliers.length === 0 ? 0 : (this.currentPage - 1) * this.pageSize + 1;
-  }
-
-  get endEntry(): number {
-    const end = this.currentPage * this.pageSize;
-    return end > this.filteredSuppliers.length ? this.filteredSuppliers.length : end;
-  }
-
-  goToPage(page: number): void {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
+    if (supplier.phone && supplier.phone.trim() !== '') {
+      dto.phone = supplier.phone.trim();
     }
-  }
 
-  previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
+    if (supplier.altPhone) {
+      dto.altPhone = supplier.altPhone;
     }
-  }
 
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
+    if (supplier.email && supplier.email.trim() !== '') {
+      dto.email = supplier.email.trim();
     }
-  }
 
-  getPageNumbers(): number[] {
-    const pages: number[] = [];
-    const maxPagesToShow = 5;
-
-    if (this.totalPages <= maxPagesToShow) {
-      for (let i = 1; i <= this.totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (this.currentPage <= 3) {
-        for (let i = 1; i <= 4; i++) {
-          pages.push(i);
-        }
-      } else if (this.currentPage >= this.totalPages - 2) {
-        for (let i = this.totalPages - 3; i <= this.totalPages; i++) {
-          pages.push(i);
-        }
-      } else {
-        for (let i = this.currentPage - 1; i <= this.currentPage + 1; i++) {
-          pages.push(i);
-        }
-      }
+    if (supplier.address && supplier.address.trim() !== '') {
+      dto.address = supplier.address.trim();
     }
-    return pages;
+
+    if (supplier.companyName && supplier.companyName.trim() !== '') {
+      dto.companyName = supplier.companyName.trim();
+    }
+
+    return dto;
   }
 
-  // View supplier details
+  openAddModal(): void {
+    this.selectedSupplier = this.createNew();
+    this.isEditMode = false;
+    this.validationErrors = {};
+    this.errorMessage = '';
+    console.log('Opening add modal, validation errors cleared:', this.validationErrors);
+  }
+
   viewSupplier(supplier: Supplier): void {
-    this.selectedSupplier = supplier;
+    this.viewItem(supplier);
   }
 
-  // Edit supplier (placeholder for actual implementation)
   editSupplier(supplier: Supplier): void {
-    console.log('Edit supplier:', supplier);
-    // Implement edit logic here
+    this.selectedSupplier = { ...supplier };
+    this.isEditMode = true;
+    this.validationErrors = {};
+    this.errorMessage = '';
+    console.log('Opening edit modal, validation errors cleared:', this.validationErrors);
   }
 
-  // Save supplier (placeholder for actual implementation)
+  addSupplier(): void {
+    const dto = this.mapToDto(this.selectedSupplier!);
+
+    this.isLoading = true;
+    this.validationErrors = {};
+    this.errorMessage = '';
+
+    this.service.create(dto)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response: any) => {
+          console.log('Success response:', response);
+
+          if (response.success === false && response.errors) {
+            this.validationErrors = response.errors;
+            this.errorMessage = response.message || 'Validation Failed';
+            console.log('Validation errors set:', this.validationErrors);
+            console.log('Error message set:', this.errorMessage);
+          } else if (response.success) {
+            this.handleCrudSuccess('Supplier added successfully', ModalType.FORM);
+            this.validationErrors = {};
+          }
+        },
+        error: (error: any) => {
+          console.log('Error response:', error);
+          console.log('Error body:', error.error);
+
+          if (error.status === 400 && error.error && error.error.errors) {
+            this.validationErrors = error.error.errors;
+            this.errorMessage = error.error.message || 'Validation Failed';
+            console.log('Validation errors set:', this.validationErrors);
+            console.log('Error message set:', this.errorMessage);
+          } else {
+            this.handleError('Failed to add supplier', error);
+          }
+        }
+      });
+  }
+
+  saveSupplierForm(): void {
+    this.submitted = true;
+
+    if (this.isEditMode) {
+      this.saveSupplier();
+    } else {
+      this.addSupplier();
+    }
+  }
+
   saveSupplier(): void {
-    console.log('Save supplier');
-    // Implement save logic here
+    if (!this.selectedSupplier?.id) {
+      this.errorMessage = 'Invalid supplier data';
+      setTimeout(() => this.clearError(), 3000);
+      return;
+    }
+
+    const dto = this.mapToDto(this.selectedSupplier);
+    console.log('Updating DTO:', dto);
+
+    this.isLoading = true;
+    this.validationErrors = {};
+    this.errorMessage = '';
+
+    this.service.update(this.selectedSupplier.id, dto)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response: any) => {
+          console.log('Success response:', response);
+
+          if (response.success === false && response.errors) {
+            this.validationErrors = response.errors;
+            this.errorMessage = response.message || 'Validation Failed';
+            console.log('Validation errors set:', this.validationErrors);
+            console.log('Error message set:', this.errorMessage);
+          } else if (response.success) {
+            this.handleCrudSuccess('Supplier updated successfully', ModalType.FORM);
+            this.validationErrors = {};
+          }
+        },
+        error: (error: any) => {
+          console.log('Error response:', error);
+          console.log('Error body:', error.error);
+
+          if (error.status === 400 && error.error && error.error.errors) {
+            this.validationErrors = error.error.errors;
+            this.errorMessage = error.error.message || 'Validation Failed';
+            console.log('Validation errors set:', this.validationErrors);
+            console.log('Error message set:', this.errorMessage);
+          } else {
+            this.handleError('Failed to update supplier', error);
+          }
+        }
+      });
+  }
+
+  openDeleteModal(supplier: Supplier): void {
+    this.selectedSupplier = supplier;
+    const modal = new (window as any).bootstrap.Modal(
+      document.getElementById(ModalType.DELETE)
+    );
+    modal.show();
+  }
+
+  confirmDelete(): void {
+    if (this.selectedSupplier) {
+      this.deleteItem(this.selectedSupplier, this.selectedSupplier.name);
+    }
+  }
+
+  loadSuppliers(isSearchOperation = false): void {
+    this.loadItems(isSearchOperation);
+  }
+
+  hasValidationErrors(): boolean {
+    return Object.keys(this.validationErrors).length > 0;
+  }
+
+  getValidationErrorKeys(): string[] {
+    return Object.keys(this.validationErrors);
   }
 }

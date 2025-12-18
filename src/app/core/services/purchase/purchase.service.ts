@@ -7,8 +7,7 @@ import { BaseService } from '../base/base.service';
 
 export interface PurchaseItem {
   id?: number;
-  rawMaterialId?: number;
-  rawMaterialName: string;
+  itemName: string;
   unitName: string;
   quantity: number;
   receivedQuantity?: number;
@@ -29,7 +28,7 @@ export interface PurchasePayment {
 
 export interface Purchase {
   id: number;
-  purchaseNo: string;
+  invoiceNo: string;
   supplierId?: number;
   supplierName: string;
   phone: string;
@@ -247,7 +246,7 @@ export class PurchaseService extends BaseService {
     }
 
     dto.items.forEach((item, index) => {
-      if (!item.rawMaterialName?.trim()) {
+      if (!item.itemName?.trim()) {
         throw new Error(`Item ${index + 1}: Material name is required`);
       }
       if (item.quantity <= 0) {
