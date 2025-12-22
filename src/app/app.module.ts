@@ -44,6 +44,8 @@ import { ProductComponent } from './inventory/master/product/product.component';
 import { EstimateListComponent } from './inventory/sales/estimate-list/estimate-list.component';
 import { IncomeReportComponent } from './inventory/report/income-report/income-report.component';
 import { FinancialReportComponent } from './inventory/report/financial-report/financial-report.component';
+import { CommonModule } from '@angular/common';
+import { StockListComponent } from './inventory/inventoryMenu/stock-list/stock-list.component';
 
 @NgModule({
   declarations: [
@@ -85,9 +87,11 @@ import { FinancialReportComponent } from './inventory/report/financial-report/fi
     ProductComponent,
     EstimateListComponent,
     IncomeReportComponent,
-    FinancialReportComponent
+    FinancialReportComponent,
+    StockListComponent
   ],
   imports: [
+    CommonModule,
     BrowserModule,
     AppRoutingModule,
     FormsModule,

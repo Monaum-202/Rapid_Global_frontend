@@ -1,957 +1,261 @@
-<div class="container my-1">
-    <h1>Return List</h1>
-    <div class="container-fluid pb-4">
-        <div class="row">
-            <div class="col-12">
-                <div class="row">
-                    <div class="row align-items-center">
-                        <!-- Show Entries -->
-                        <div class="row g-2 p-3 justify-content-center">
-                            <!-- Search -->
-                            <div class="col-md-4 d-flex justify-content-center">
-                                <div class="input-group input-group-sm shadow-sm rounded-pill bg-light border border-dark"
-                                    style="max-width: 300px;">
-                                    <span class="input-group-text bg-transparent border-0 text-dark">
-                                        <i class="bi bi-search"></i>
-                                    </span>
-                                    <input type="text" class="form-control border-0 bg-transparent"
-                                        placeholder="Search..." aria-label="Search" />
-                                </div>
-                            </div>
-                        </div>
+<div class="loading-overlay-scoped" *ngIf="isLoading">
+    <div class="bouncing-dots-loader">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+</div>
 
-                        <!-- TABLE -->
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead class="rounded-pill" style="background-color: #000000; ">
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>PRODUCTS NAME</th>
-                                        <th>Category</th>
-                                        <th>Available Stock</th>
-                                        <th>STATUS</th>
-                                        <th>ACTIONS</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>#PRO-00001</td>
-                                        <td>Sublimation paper</td>
-                                        <td>Paper</td>
-                                        <td>19</td>
-                                        <td>Normal</td>
-                                        <td>
-                                            <div class="btn-group">
-                                                <!-- View button -->
-                                                <button type="button" class="btn btn-outline-primary btn-sm"
-                                                    data-bs-toggle="modal" data-bs-target="#sublimationModal"
-                                                    data-purchase-id="PR-00005">
-                                                    <i class="fa fa-eye"></i> View
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>#PRO-00002</td>
-                                        <td>Supporting paper</td>
-                                        <td>Paper</td>
-                                        <td>12</td>
-                                        <td>Normal</td>
-                                        <td>
-                                            <div class="btn-group">
-                                                <!-- View button -->
-                                                <button type="button" class="btn btn-outline-primary btn-sm"
-                                                    data-bs-toggle="modal" data-bs-target="#supportingModal"
-                                                    data-purchase-id="PR-00005">
-                                                    <i class="fa fa-eye"></i> View
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>#PRO-00003</td>
-                                        <td>Cyan</td>
-                                        <td>Color</td>
-                                        <td>6</td>
-                                        <td>Normal</td>
-                                        <td>
-                                            <div class="btn-group">
-                                                <!-- View button -->
-                                                <button type="button" class="btn btn-outline-primary btn-sm"
-                                                    data-bs-toggle="modal" data-bs-target="#cyanModal"
-                                                    data-purchase-id="PR-00005">
-                                                    <i class="fa fa-eye"></i> View
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>#PRO-00004</td>
-                                        <td>Magenta</td>
-                                        <td>Color</td>
-                                        <td>1</td>
-                                        <td>Low</td>
-                                        <td>
-                                            <div class="btn-group">
-                                                <!-- View button -->
-                                                <button type="button" class="btn btn-outline-primary btn-sm"
-                                                    data-bs-toggle="modal" data-bs-target="#magentaModal"
-                                                    data-purchase-id="PR-00005">
-                                                    <i class="fa fa-eye"></i> View
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>#PRO-00005</td>
-                                        <td>Yellow</td>
-                                        <td>Color</td>
-                                        <td>1</td>
-                                        <td>Low</td>
-                                        <td>
-                                            <div class="btn-group">
-                                                <!-- View button -->
-                                                <button type="button" class="btn btn-outline-primary btn-sm"
-                                                    data-bs-toggle="modal" data-bs-target="#yellowModal"
-                                                    data-purchase-id="PR-00005">
-                                                    <i class="fa fa-eye"></i> View
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>#PRO-00006</td>
-                                        <td>Black</td>
-                                        <td>Color</td>
-                                        <td>6</td>
-                                        <td>Normal</td>
-                                        <td>
-                                            <div class="btn-group">
-                                                <!-- View button -->
-                                                <button type="button" class="btn btn-outline-primary btn-sm"
-                                                    data-bs-toggle="modal" data-bs-target="#blackModal"
-                                                    data-purchase-id="PR-00005">
-                                                    <i class="fa fa-eye"></i> View
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+<div class="container my-1 position-relative">
+    <!-- Toast container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1200">
+        <div *ngIf="errorMessage" class="toast align-items-center text-bg-danger border-0 show" role="alert"
+            aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    {{ errorMessage }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="clearError()"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row align-items-center justify-content-between gy-2 my-3">
+        <!-- Left Section: Columns -->
+        <div class="col-md-4 col-sm-12 d-flex align-items-center gap-3">
+            <!-- Column Selector -->
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm rounded-pill shadow-sm dropdown-toggle" type="button"
+                    (click)="toggleColumnDropdown()">
+                    <i class="bi bi-columns-gap me-1"></i> Columns
+                </button>
+                <div class="dropdown-menu p-3 shadow" [class.show]="showColumnDropdown" style="min-width: 200px">
+                    <div class="form-check" *ngFor="let column of columns">
+                        <input class="form-check-input" type="checkbox" [id]="'column-' + column.key"
+                            [(ngModel)]="column.visible" />
+                        <label class="form-check-label" [for]="'column-' + column.key">
+                            {{ column.label }}
+                        </label>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <!-- MODAL -->
-                <!-- sublimationModal -->
-                <div class="modal fade" id="sublimationModal" tabindex="-1" aria-labelledby="purchaseModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog modal-xl modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title fw-bold" id="purchaseModalLabel">
-                                    Item Details - Sublimation Paper
-                                </h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-hover text-center align-middle">
-                                        <thead class="table-dark">
-                                            <tr>
-                                                <th rowspan="2" class="align-middle">Date</th>
-                                            </tr>
-                                            <tr>
-                                                <th class="bg-warning text-dark">In</th>
-                                                <th class="bg-warning text-dark">Use</th>
-                                                <th class="bg-warning text-dark">Stock</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>01-09-25</td>
-                                                <td>10</td>
-                                                <td>3</td>
-                                                <td>7</td>
-                                            </tr>
-                                            <tr>
-                                                <td>02-09-25</td>
-                                                <td>-</td>
-                                                <td>2</td>
-                                                <td>5</td>
-                                            </tr>
-                                            <tr>
-                                                <td>03-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>4</td>
-                                            </tr>
-                                            <tr>
-                                                <td>04-09-25</td>
-                                                <td>9</td>
-                                                <td>2</td>
-                                                <td>11</td>
-                                            </tr>
-                                            <tr>
-                                                <td>05-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>10</td>
-                                            </tr>
-                                            <tr>
-                                                <td>06-09-25</td>
-                                                <td>5</td>
-                                                <td>2</td>
-                                                <td>13</td>
-                                            </tr>
-                                            <tr>
-                                                <td>07-09-25</td>
-                                                <td>-</td>
-                                                <td>3</td>
-                                                <td>10</td>
-                                            </tr>
-                                            <tr>
-                                                <td>08-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>9</td>
-                                            </tr>
-                                            <tr>
-                                                <td>09-09-25</td>
-                                                <td>8</td>
-                                                <td>2</td>
-                                                <td>15</td>
-                                            </tr>
-                                            <tr>
-                                                <td>10-09-25</td>
-                                                <td>-</td>
-                                                <td>4</td>
-                                                <td>11</td>
-                                            </tr>
-                                            <tr>
-                                                <td>11-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>10</td>
-                                            </tr>
-                                            <tr>
-                                                <td>12-09-25</td>
-                                                <td>6</td>
-                                                <td>2</td>
-                                                <td>14</td>
-                                            </tr>
-                                            <tr>
-                                                <td>13-09-25</td>
-                                                <td>-</td>
-                                                <td>3</td>
-                                                <td>11</td>
-                                            </tr>
-                                            <tr>
-                                                <td>14-09-25</td>
-                                                <td>4</td>
-                                                <td>2</td>
-                                                <td>13</td>
-                                            </tr>
-                                            <tr>
-                                                <td>15-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>12</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-danger action-btn" data-bs-dismiss="modal">
-                                    Close
-                                </button>
-                                <button type="button" class="btn btn-primary action-btn">
-                                    Edit Details
-                                </button>
-                                <button type="button" class="btn btn-success action-btn">
-                                    Approve Payment
-                                </button>
-                            </div>
+        <!-- Middle Section: Search -->
+        <div class="col-md-4 col-sm-12 d-flex justify-content-center">
+            <div class="w-100" style="max-width: 25rem">
+                <div class="input-group input-group-sm shadow-sm rounded-pill bg-light border border-dark">
+                    <span class="input-group-text bg-transparent border-0 text-dark">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control border-0 bg-transparent"
+                        placeholder="Search... (Press Enter)" (input)="onSearchInput($event)"
+                        (keypress)="onSearchKeyPress($event)" [value]="currentSearchValue" />
+                    <button *ngIf="currentSearchValue" class="btn btn-sm bg-transparent border-0 text-muted"
+                        type="button" (click)="clearSearch()" title="Clear search">
+                        <i class="bi bi-x-circle"></i>
+                    </button>
+                    <button class="btn btn-sm bg-transparent border-0 text-dark" type="button"
+                        (click)="onSearchButtonClick()" title="Search">
+                        <i class="bi bi-arrow-right-circle"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Section: Placeholder -->
+        <div class="col-md-4 col-sm-12"></div>
+    </div>
+
+    <!-- Stock Table -->
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle text-nowrap">
+            <thead>
+                <tr>
+                    <th *ngIf="isColumnVisible('productId')">PRODUCT ID</th>
+                    <th *ngIf="isColumnVisible('productName')">PRODUCT NAME</th>
+                    <th *ngIf="isColumnVisible('currentQuantity')">CURRENT STOCK</th>
+                    <th *ngIf="isColumnVisible('availableQuantity')">AVAILABLE</th>
+                    <th *ngIf="isColumnVisible('reservedQuantity')">RESERVED</th>
+                    <th *ngIf="isColumnVisible('minimumStockLevel')">MIN LEVEL</th>
+                    <th *ngIf="isColumnVisible('unitName')">UNIT</th>
+                    <th *ngIf="isColumnVisible('stockStatus')">STATUS</th>
+                    <th class="text-center">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let stock of filteredStocks">
+                    <td *ngIf="isColumnVisible('productId')">
+                        #PRO-{{ stock.productId.toString().padStart(5, '0') }}
+                    </td>
+                    <td *ngIf="isColumnVisible('productName')">{{ stock.productName }}</td>
+                    <td *ngIf="isColumnVisible('currentQuantity')">
+                        {{ stock.currentQuantity | number : '1.0-3' }}
+                    </td>
+                    <td *ngIf="isColumnVisible('availableQuantity')">
+                        {{ stock.availableQuantity | number : '1.0-3' }}
+                    </td>
+                    <td *ngIf="isColumnVisible('reservedQuantity')">
+                        {{ stock.reservedQuantity | number : '1.0-3' }}
+                    </td>
+                    <td *ngIf="isColumnVisible('minimumStockLevel')">
+                        {{ stock.minimumStockLevel | number : '1.0-3' }}
+                    </td>
+                    <td *ngIf="isColumnVisible('unitName')">{{ stock.unitName || 'N/A' }}</td>
+                    <td *ngIf="isColumnVisible('stockStatus')">
+                        <span class="badge" [ngClass]="getStatusClass(stock.stockStatus)">
+                            {{ getStatusText(stock.stockStatus) }}
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center align-items-center gap-1">
+                            <!-- View button -->
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#stockModal" (click)="viewStock(stock)" title="View Details">
+                                <i class="fa fa-eye"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- No data message -->
+                <tr *ngIf="filteredStocks.length === 0 && !isLoading">
+                    <td [attr.colspan]="visibleColumnsCount" class="text-center text-muted py-4">
+                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                        {{
+                        searchTerm
+                        ? "No stock items found matching your search"
+                        : "No stock items found"
+                        }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- View Stock Modal -->
+<div class="modal fade" id="stockModal" tabindex="-1" aria-labelledby="stockModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="stockModalLabel">Stock Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
+                    style="color: #ffffff; font-weight: bolder;">X</button>
+            </div>
+            <div class="modal-body" *ngIf="selectedStock">
+                <div class="compact-view">
+                    <div class="compact-item">
+                        <div class="compact-label">Product ID</div>
+                        <div class="compact-value">#PRO-{{ selectedStock.productId.toString().padStart(5, '0') }}</div>
+                    </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Product Name</div>
+                        <div class="compact-value">{{ selectedStock.productName }}</div>
+                    </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Unit</div>
+                        <div class="compact-value">{{ selectedStock.unitName || 'N/A' }}</div>
+                    </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Current Quantity</div>
+                        <div class="compact-value">
+                            {{ selectedStock.currentQuantity | number : '1.0-3' }}
                         </div>
                     </div>
-                </div>
-
-                <!-- supportingModal -->
-                <div class="modal fade" id="supportingModal" tabindex="-1" aria-labelledby="purchaseModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog modal-xl modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title fw-bold" id="purchaseModalLabel">
-                                    Item Details - Supporting Paper
-                                </h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-hover text-center align-middle">
-                                        <thead class="table-dark">
-                                            <tr>
-                                                <th rowspan="2" class="align-middle">Date</th>
-                                            </tr>
-                                            <tr>
-                                                <th class="bg-warning text-dark">In</th>
-                                                <th class="bg-warning text-dark">Use</th>
-                                                <th class="bg-warning text-dark">Stock</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>01-09-25</td>
-                                                <td>10</td>
-                                                <td>3</td>
-                                                <td>7</td>
-                                            </tr>
-                                            <tr>
-                                                <td>02-09-25</td>
-                                                <td>-</td>
-                                                <td>2</td>
-                                                <td>5</td>
-                                            </tr>
-                                            <tr>
-                                                <td>03-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>4</td>
-                                            </tr>
-                                            <tr>
-                                                <td>04-09-25</td>
-                                                <td>9</td>
-                                                <td>2</td>
-                                                <td>11</td>
-                                            </tr>
-                                            <tr>
-                                                <td>05-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>10</td>
-                                            </tr>
-                                            <tr>
-                                                <td>06-09-25</td>
-                                                <td>5</td>
-                                                <td>2</td>
-                                                <td>13</td>
-                                            </tr>
-                                            <tr>
-                                                <td>07-09-25</td>
-                                                <td>-</td>
-                                                <td>3</td>
-                                                <td>10</td>
-                                            </tr>
-                                            <tr>
-                                                <td>08-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>9</td>
-                                            </tr>
-                                            <tr>
-                                                <td>09-09-25</td>
-                                                <td>8</td>
-                                                <td>2</td>
-                                                <td>15</td>
-                                            </tr>
-                                            <tr>
-                                                <td>10-09-25</td>
-                                                <td>-</td>
-                                                <td>4</td>
-                                                <td>11</td>
-                                            </tr>
-                                            <tr>
-                                                <td>11-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>10</td>
-                                            </tr>
-                                            <tr>
-                                                <td>12-09-25</td>
-                                                <td>6</td>
-                                                <td>2</td>
-                                                <td>14</td>
-                                            </tr>
-                                            <tr>
-                                                <td>13-09-25</td>
-                                                <td>-</td>
-                                                <td>3</td>
-                                                <td>11</td>
-                                            </tr>
-                                            <tr>
-                                                <td>14-09-25</td>
-                                                <td>4</td>
-                                                <td>2</td>
-                                                <td>13</td>
-                                            </tr>
-                                            <tr>
-                                                <td>15-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>12</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-danger action-btn" data-bs-dismiss="modal">
-                                    Close
-                                </button>
-                                <button type="button" class="btn btn-primary action-btn">
-                                    Edit Details
-                                </button>
-                                <button type="button" class="btn btn-success action-btn">
-                                    Approve Payment
-                                </button>
-                            </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Available Quantity</div>
+                        <div class="compact-value">
+                            {{ selectedStock.availableQuantity | number : '1.0-3' }}
                         </div>
                     </div>
-                </div>
-
-                <!-- cyanModal -->
-                <div class="modal fade" id="cyanModal" tabindex="-1" aria-labelledby="purchaseModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog modal-xl modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title fw-bold" id="purchaseModalLabel">
-                                    Item Details - Cyan Color
-                                </h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-hover text-center align-middle">
-                                        <thead class="table-dark">
-                                            <tr>
-                                                <th rowspan="2" class="align-middle">Date</th>
-                                            </tr>
-                                            <tr>
-                                                <th class="bg-warning text-dark">In</th>
-                                                <th class="bg-warning text-dark">Use</th>
-                                                <th class="bg-warning text-dark">Stock</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>01-09-25</td>
-                                                <td>10</td>
-                                                <td>3</td>
-                                                <td>7</td>
-                                            </tr>
-                                            <tr>
-                                                <td>02-09-25</td>
-                                                <td>-</td>
-                                                <td>2</td>
-                                                <td>5</td>
-                                            </tr>
-                                            <tr>
-                                                <td>03-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>4</td>
-                                            </tr>
-                                            <tr>
-                                                <td>04-09-25</td>
-                                                <td>9</td>
-                                                <td>2</td>
-                                                <td>11</td>
-                                            </tr>
-                                            <tr>
-                                                <td>05-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>10</td>
-                                            </tr>
-                                            <tr>
-                                                <td>06-09-25</td>
-                                                <td>5</td>
-                                                <td>2</td>
-                                                <td>13</td>
-                                            </tr>
-                                            <tr>
-                                                <td>07-09-25</td>
-                                                <td>-</td>
-                                                <td>3</td>
-                                                <td>10</td>
-                                            </tr>
-                                            <tr>
-                                                <td>08-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>9</td>
-                                            </tr>
-                                            <tr>
-                                                <td>09-09-25</td>
-                                                <td>8</td>
-                                                <td>2</td>
-                                                <td>15</td>
-                                            </tr>
-                                            <tr>
-                                                <td>10-09-25</td>
-                                                <td>-</td>
-                                                <td>4</td>
-                                                <td>11</td>
-                                            </tr>
-                                            <tr>
-                                                <td>11-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>10</td>
-                                            </tr>
-                                            <tr>
-                                                <td>12-09-25</td>
-                                                <td>6</td>
-                                                <td>2</td>
-                                                <td>14</td>
-                                            </tr>
-                                            <tr>
-                                                <td>13-09-25</td>
-                                                <td>-</td>
-                                                <td>3</td>
-                                                <td>11</td>
-                                            </tr>
-                                            <tr>
-                                                <td>14-09-25</td>
-                                                <td>4</td>
-                                                <td>2</td>
-                                                <td>13</td>
-                                            </tr>
-                                            <tr>
-                                                <td>15-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>12</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-danger action-btn" data-bs-dismiss="modal">
-                                    Close
-                                </button>
-                                <button type="button" class="btn btn-primary action-btn">
-                                    Edit Details
-                                </button>
-                                <button type="button" class="btn btn-success action-btn">
-                                    Approve Payment
-                                </button>
-                            </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Reserved Quantity</div>
+                        <div class="compact-value">
+                            {{ selectedStock.reservedQuantity | number : '1.0-3' }}
                         </div>
                     </div>
-                </div>
-
-                <!-- magentaModal -->
-                <div class="modal fade" id="magentaModal" tabindex="-1" aria-labelledby="purchaseModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog modal-xl modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title fw-bold" id="purchaseModalLabel">
-                                    Item Details - Magenta Color
-                                </h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-hover text-center align-middle">
-                                        <thead class="table-dark">
-                                            <tr>
-                                                <th rowspan="2" class="align-middle">Date</th>
-                                            </tr>
-                                            <tr>
-                                                <th class="bg-warning text-dark">In</th>
-                                                <th class="bg-warning text-dark">Use</th>
-                                                <th class="bg-warning text-dark">Stock</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>01-09-25</td>
-                                                <td>10</td>
-                                                <td>3</td>
-                                                <td>7</td>
-                                            </tr>
-                                            <tr>
-                                                <td>02-09-25</td>
-                                                <td>-</td>
-                                                <td>2</td>
-                                                <td>5</td>
-                                            </tr>
-                                            <tr>
-                                                <td>03-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>4</td>
-                                            </tr>
-                                            <tr>
-                                                <td>04-09-25</td>
-                                                <td>9</td>
-                                                <td>2</td>
-                                                <td>11</td>
-                                            </tr>
-                                            <tr>
-                                                <td>05-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>10</td>
-                                            </tr>
-                                            <tr>
-                                                <td>06-09-25</td>
-                                                <td>5</td>
-                                                <td>2</td>
-                                                <td>13</td>
-                                            </tr>
-                                            <tr>
-                                                <td>07-09-25</td>
-                                                <td>-</td>
-                                                <td>3</td>
-                                                <td>10</td>
-                                            </tr>
-                                            <tr>
-                                                <td>08-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>9</td>
-                                            </tr>
-                                            <tr>
-                                                <td>09-09-25</td>
-                                                <td>8</td>
-                                                <td>2</td>
-                                                <td>15</td>
-                                            </tr>
-                                            <tr>
-                                                <td>10-09-25</td>
-                                                <td>-</td>
-                                                <td>4</td>
-                                                <td>11</td>
-                                            </tr>
-                                            <tr>
-                                                <td>11-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>10</td>
-                                            </tr>
-                                            <tr>
-                                                <td>12-09-25</td>
-                                                <td>6</td>
-                                                <td>2</td>
-                                                <td>14</td>
-                                            </tr>
-                                            <tr>
-                                                <td>13-09-25</td>
-                                                <td>-</td>
-                                                <td>3</td>
-                                                <td>11</td>
-                                            </tr>
-                                            <tr>
-                                                <td>14-09-25</td>
-                                                <td>4</td>
-                                                <td>2</td>
-                                                <td>13</td>
-                                            </tr>
-                                            <tr>
-                                                <td>15-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>12</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-danger action-btn" data-bs-dismiss="modal">
-                                    Close
-                                </button>
-                                <button type="button" class="btn btn-primary action-btn">
-                                    Edit Details
-                                </button>
-                                <button type="button" class="btn btn-success action-btn">
-                                    Approve Payment
-                                </button>
-                            </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Minimum Stock Level</div>
+                        <div class="compact-value">
+                            {{ selectedStock.minimumStockLevel | number : '1.0-3' }}
                         </div>
                     </div>
-                </div>
-
-                <!-- yellowModal -->
-                <div class="modal fade" id="yellowModal" tabindex="-1" aria-labelledby="purchaseModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog modal-xl modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title fw-bold" id="purchaseModalLabel">
-                                    Item Details - Yellow Color
-                                </h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-hover text-center align-middle">
-                                        <thead class="table-dark">
-                                            <tr>
-                                                <th rowspan="2" class="align-middle">Date</th>
-                                            </tr>
-                                            <tr>
-                                                <th class="bg-warning text-dark">In</th>
-                                                <th class="bg-warning text-dark">Use</th>
-                                                <th class="bg-warning text-dark">Stock</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>01-09-25</td>
-                                                <td>10</td>
-                                                <td>3</td>
-                                                <td>7</td>
-                                            </tr>
-                                            <tr>
-                                                <td>02-09-25</td>
-                                                <td>-</td>
-                                                <td>2</td>
-                                                <td>5</td>
-                                            </tr>
-                                            <tr>
-                                                <td>03-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>4</td>
-                                            </tr>
-                                            <tr>
-                                                <td>04-09-25</td>
-                                                <td>9</td>
-                                                <td>2</td>
-                                                <td>11</td>
-                                            </tr>
-                                            <tr>
-                                                <td>05-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>10</td>
-                                            </tr>
-                                            <tr>
-                                                <td>06-09-25</td>
-                                                <td>5</td>
-                                                <td>2</td>
-                                                <td>13</td>
-                                            </tr>
-                                            <tr>
-                                                <td>07-09-25</td>
-                                                <td>-</td>
-                                                <td>3</td>
-                                                <td>10</td>
-                                            </tr>
-                                            <tr>
-                                                <td>08-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>9</td>
-                                            </tr>
-                                            <tr>
-                                                <td>09-09-25</td>
-                                                <td>8</td>
-                                                <td>2</td>
-                                                <td>15</td>
-                                            </tr>
-                                            <tr>
-                                                <td>10-09-25</td>
-                                                <td>-</td>
-                                                <td>4</td>
-                                                <td>11</td>
-                                            </tr>
-                                            <tr>
-                                                <td>11-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>10</td>
-                                            </tr>
-                                            <tr>
-                                                <td>12-09-25</td>
-                                                <td>6</td>
-                                                <td>2</td>
-                                                <td>14</td>
-                                            </tr>
-                                            <tr>
-                                                <td>13-09-25</td>
-                                                <td>-</td>
-                                                <td>3</td>
-                                                <td>11</td>
-                                            </tr>
-                                            <tr>
-                                                <td>14-09-25</td>
-                                                <td>4</td>
-                                                <td>2</td>
-                                                <td>13</td>
-                                            </tr>
-                                            <tr>
-                                                <td>15-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>12</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-danger action-btn" data-bs-dismiss="modal">
-                                    Close
-                                </button>
-                                <button type="button" class="btn btn-primary action-btn">
-                                    Edit Details
-                                </button>
-                                <button type="button" class="btn btn-success action-btn">
-                                    Approve Payment
-                                </button>
-                            </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Average Cost</div>
+                        <div class="compact-value">
+                            {{ selectedStock.averageCost | number : '1.2-2' }}
                         </div>
                     </div>
-                </div>
-
-                <!-- blackModal -->
-                <div class="modal fade" id="blackModal" tabindex="-1" aria-labelledby="purchaseModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog modal-xl modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title fw-bold" id="purchaseModalLabel">
-                                    Item Details - Black Color
-                                </h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-hover text-center align-middle">
-                                        <thead class="table-dark">
-                                            <tr>
-                                                <th rowspan="2" class="align-middle">Date</th>
-                                            </tr>
-                                            <tr>
-                                                <th class="bg-warning text-dark">In</th>
-                                                <th class="bg-warning text-dark">Use</th>
-                                                <th class="bg-warning text-dark">Stock</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>01-09-25</td>
-                                                <td>10</td>
-                                                <td>3</td>
-                                                <td>7</td>
-                                            </tr>
-                                            <tr>
-                                                <td>02-09-25</td>
-                                                <td>-</td>
-                                                <td>2</td>
-                                                <td>5</td>
-                                            </tr>
-                                            <tr>
-                                                <td>03-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>4</td>
-                                            </tr>
-                                            <tr>
-                                                <td>04-09-25</td>
-                                                <td>9</td>
-                                                <td>2</td>
-                                                <td>11</td>
-                                            </tr>
-                                            <tr>
-                                                <td>05-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>10</td>
-                                            </tr>
-                                            <tr>
-                                                <td>06-09-25</td>
-                                                <td>5</td>
-                                                <td>2</td>
-                                                <td>13</td>
-                                            </tr>
-                                            <tr>
-                                                <td>07-09-25</td>
-                                                <td>-</td>
-                                                <td>3</td>
-                                                <td>10</td>
-                                            </tr>
-                                            <tr>
-                                                <td>08-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>9</td>
-                                            </tr>
-                                            <tr>
-                                                <td>09-09-25</td>
-                                                <td>8</td>
-                                                <td>2</td>
-                                                <td>15</td>
-                                            </tr>
-                                            <tr>
-                                                <td>10-09-25</td>
-                                                <td>-</td>
-                                                <td>4</td>
-                                                <td>11</td>
-                                            </tr>
-                                            <tr>
-                                                <td>11-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>10</td>
-                                            </tr>
-                                            <tr>
-                                                <td>12-09-25</td>
-                                                <td>6</td>
-                                                <td>2</td>
-                                                <td>14</td>
-                                            </tr>
-                                            <tr>
-                                                <td>13-09-25</td>
-                                                <td>-</td>
-                                                <td>3</td>
-                                                <td>11</td>
-                                            </tr>
-                                            <tr>
-                                                <td>14-09-25</td>
-                                                <td>4</td>
-                                                <td>2</td>
-                                                <td>13</td>
-                                            </tr>
-                                            <tr>
-                                                <td>15-09-25</td>
-                                                <td>-</td>
-                                                <td>1</td>
-                                                <td>12</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-danger action-btn" data-bs-dismiss="modal">
-                                    Close
-                                </button>
-                                <button type="button" class="btn btn-primary action-btn">
-                                    Edit Details
-                                </button>
-                                <button type="button" class="btn btn-success action-btn">
-                                    Approve Payment
-                                </button>
-                            </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Stock Value</div>
+                        <div class="compact-value">
+                            {{ selectedStock.stockValue | number : '1.2-2' }}
                         </div>
                     </div>
+                    <div class="compact-item">
+                        <div class="compact-label">Status</div>
+                        <span class="badge" [ngClass]="getStatusClass(selectedStock.stockStatus)">
+                            {{ getStatusText(selectedStock.stockStatus) }}
+                        </span>
+                    </div>
                 </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal"
+                    data-bs-target="#stockDetailsModal">
+                    Transaction History
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stock Transaction History Modal -->
+<div class="modal fade" id="stockDetailsModal" tabindex="-1" aria-labelledby="stockDetailsModalLabel" 
+    aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="stockDetailsModalLabel">
+                    Transaction History - {{ selectedStock?.productName }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" *ngIf="selectedStock">
+                <div class="table-responsive" style="max-height: 400px;">
+                    <table class="table table-bordered table-hover text-center align-middle">
+                        <thead class="table-dark sticky-top">
+                            <tr>
+                                <th class="align-middle">Date</th>
+                                <th class="bg-warning text-dark">In</th>
+                                <th class="bg-danger text-white">Out</th>
+                                <th class="bg-info text-dark">Stock</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- This would be populated with actual transaction data -->
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                                    Transaction history coming soon
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
             </div>
         </div>
     </div>
