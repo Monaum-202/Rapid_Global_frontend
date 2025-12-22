@@ -799,7 +799,7 @@ export class PurchasesListComponent extends simpleCrudComponent<Purchase, Purcha
 
     this.isLoading = true;
 
-    this.service.receiveGoods(dto)
+    this.service.receiveGoods(this.selectedPurchase.id ,dto)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => this.isLoading = false)
