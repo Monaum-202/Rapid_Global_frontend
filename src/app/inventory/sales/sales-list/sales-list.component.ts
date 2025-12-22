@@ -8,7 +8,7 @@ import { PageHeaderService } from 'src/app/core/services/page-header/page-header
 import { Customer, CustomerService } from 'src/app/core/services/customer/customer.service';
 import { PaymentMethod, PaymentMethodService } from 'src/app/core/services/paymentMethod/payment-method.service';
 import { IncomeService } from 'src/app/core/services/income/income.service';
-import { Product, ProductService } from 'src/app/core/services/product/product.service';
+import { Product, ProductService, ProductType } from 'src/app/core/services/product/product.service';
 import { ToastService } from 'src/app/core/services/feature/toast.service';
 
 enum ModalType {
@@ -111,7 +111,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
     private customerService: CustomerService,
     public paymentMethodService: PaymentMethodService,
     private productService: ProductService,
-    private toastService: ToastService
+    public override toastService: ToastService
   ) {
     super();
   }
@@ -196,7 +196,7 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
   // IMPROVED VALIDATION METHODS
   // ============================================
 
-  validateForm(): boolean {
+validateForm(): boolean {
   this.validationErrors = {};
   let isValid = true;
 
@@ -792,57 +792,60 @@ updateSale(): void {
   }
 
   addPaymentToSale(): void {
-    if (!this.selectedSale || this.isLoading) return;
+  if (!this.selectedSale || this.isLoading) return;
 
-    // Validation
-    this.validationErrors = {};
+  // Validation
+  this.validationErrors = {};
 
-    if (!this.updatePaymentData.date) {
-      this.validationErrors['date'] = ['Payment date is required'];
-      return;
-    }
-
-    if (!this.updatePaymentData.paymentMethodId || this.updatePaymentData.paymentMethodId === 0) {
-      this.validationErrors['paymentMethodId'] = ['Payment method is required'];
-      return;
-    }
-
-    const paymentDto = {
-      saleId: this.selectedSale.id,
-      amount: Number(this.updatePaymentData.amount),
-      incomeDate: this.updatePaymentData.date,
-      paymentMethodId: Number(this.updatePaymentData.paymentMethodId),
-      trackingId: this.updatePaymentData.trackingId?.trim() || '',
-      description: this.updatePaymentData.description?.trim() || `Payment for Invoice ${this.selectedSale.invoiceNo}`
-    };
-
-    this.isLoading = true;
-
-    this.incomeService.addPayment(paymentDto)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.isLoading = false)
-      )
-      .subscribe({
-        next: (response: any) => {
-          if (response.success === false && response.errors) {
-            this.validationErrors = response.errors;
-            this.errorMessage = response.message || 'Validation Failed';
-          } else if (response.success) {
-            this.handleCrudSuccess('Payment added successfully', ModalType.UPDATE);
-            this.loadItems();
-          }
-        },
-        error: (error: any) => {
-          if (error.status === 400 && error.error && error.error.errors) {
-            this.validationErrors = error.error.errors;
-            this.errorMessage = error.error.message || 'Validation Failed';
-          } else {
-            this.handleError('Failed to add payment', error);
-          }
-        }
-      });
+  if (!this.updatePaymentData.date) {
+    this.toastService.warning('Payment date is required');
+    return;
   }
+
+  if (!this.updatePaymentData.paymentMethodId || this.updatePaymentData.paymentMethodId === 0) {
+    this.toastService.warning('Payment method is required');
+    return;
+  }
+
+  const paymentDto = {
+    saleId: this.selectedSale.id,
+    amount: Number(this.updatePaymentData.amount),
+    incomeDate: this.updatePaymentData.date,
+    paymentMethodId: Number(this.updatePaymentData.paymentMethodId),
+    trackingId: this.updatePaymentData.trackingId?.trim() || '',
+    description: this.updatePaymentData.description?.trim() || `Payment for Invoice ${this.selectedSale.invoiceNo}`
+  };
+
+  this.isLoading = true;
+
+  this.incomeService.addPayment(paymentDto)
+    .pipe(
+      takeUntil(this.destroy$),
+      finalize(() => this.isLoading = false)
+    )
+    .subscribe({
+      next: (response: any) => {
+        if (response.success === false && response.errors) {
+          this.validationErrors = response.errors;
+          this.toastService.error(response.message || 'Validation Failed');
+        } else if (response.success) {
+          this.toastService.success(response.message || 'Payment added successfully');
+          this.handleCrudSuccess('Payment added successfully', ModalType.UPDATE);
+          this.loadItems();
+        }
+      },
+      error: (error: any) => {
+        if (error.status === 400 && error.error && error.error.errors) {
+          this.validationErrors = error.error.errors;
+          this.toastService.error(error.error.message || 'Validation Failed');
+        } else {
+          const errorMsg = error?.error?.message || 'Failed to add payment';
+          this.toastService.error(errorMsg);
+          this.handleError('Failed to add payment', error);
+        }
+      }
+    });
+}
 
   // ============================================
   // OTHER OPERATIONS
@@ -962,7 +965,7 @@ submitCancelReason(): void {
     .subscribe({
       next: (response: any) => {
         if (response.success) {
-          this.toastService.success(response.message || 'Sale canceled successfully');
+          this.toastService.success('Sale canceled successfully');
           this.loadItems();
           this.closeModal(ModalType.CANCEL);
         } else {
@@ -1075,17 +1078,20 @@ confirmDelete(): void {
   });
 }
 
-  loadProducts(): void {
-  this.productService.getAllProducts('', true).subscribe({
-    next: (res) => {
-      this.products = res.data || [];
-      this.filteredProducts = this.products.slice(0, 10);
-    },
-    error: (err) => {
-      console.error('Failed to load products', err);
-      this.toastService.error('Failed to load products');
-    }
-  });
+
+loadProducts(): void {
+  this.productService
+    .getAllProducts('', true, ProductType.FINISHED_GOODS)
+    .subscribe({
+      next: (res) => {
+        this.products = res.data || [];
+        this.filteredProducts = this.products.slice(0, 10);
+      },
+      error: (err) => {
+        console.error('Failed to load raw materials', err);
+        this.toastService.error('Failed to load raw materials');
+      }
+    });
 }
 
   get sales(): Sales[] {

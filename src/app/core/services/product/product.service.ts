@@ -72,20 +72,29 @@ export class ProductService extends BaseService {
   /**
    * Get products with optional search and status filters
    */
-  getAllProducts(search?: string, status?: boolean): Observable<BaseApiResponse<Product[]>> {
-  let params = new HttpParams();
+  getAllProducts(
+    search?: string,
+    status?: boolean,
+    type?: ProductType
+  ): Observable<BaseApiResponse<Product[]>> {
 
-  if (search?.trim()) {
-    params = params.set('search', search.trim());
+    let params = new HttpParams();
+
+    if (search?.trim()) {
+      params = params.set('search', search.trim());
+    }
+
+    if (status !== undefined) {
+      params = params.set('status', status.toString());
+    }
+
+    if (type) {
+      params = params.set('type', type);
+    }
+
+    return this.get<Product[]>(`${this.ENDPOINT}/all-active`, params);
   }
 
-  if (status !== undefined) {
-    params = params.set('status', status.toString());
-  }
-
-  // Make sure to call the BaseService `get` method
-  return this.get<Product[]>(`${this.ENDPOINT}/all-active`, params);
-}
 
 
   /**

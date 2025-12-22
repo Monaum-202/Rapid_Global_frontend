@@ -3,6 +3,7 @@ import { finalize, takeUntil } from 'rxjs';
 import { BaseCrudComponent, TableColumn } from 'src/app/core/components/base-crud.component';
 import { Employee, EmployeeReqDto, EmployeeService, LendRecord } from 'src/app/core/services/employee/employee.service';
 import { PageHeaderService } from 'src/app/core/services/page-header/page-header.service';
+import { ToastService } from 'src/app/core/services/feature/toast.service';
 
 enum ModalType {
   VIEW = 'employeeModal',
@@ -53,9 +54,19 @@ export class EmployeeComponent extends BaseCrudComponent<Employee, EmployeeReqDt
     return this.items;
   }
 
+  // Computed properties for modal
+  get modalTitle(): string {
+    return this.isEditMode ? 'Edit Employee' : 'Add New Employee';
+  }
+
+  get submitButtonText(): string {
+    return this.isEditMode ? 'Save Changes' : 'Add Employee';
+  }
+
   constructor(
     public service: EmployeeService,
-    public pageHeaderService: PageHeaderService
+    public pageHeaderService: PageHeaderService,
+    private toastService: ToastService
   ) {
     super();
   }
@@ -83,8 +94,32 @@ export class EmployeeComponent extends BaseCrudComponent<Employee, EmployeeReqDt
   }
 
   isValid(employee: Employee | null): boolean {
-    if (!employee) return false;
-    return !!(employee.name && employee.phone && employee.salary && employee.joiningDate);
+    if (!employee) {
+      this.toastService.warning('Employee data is required');
+      return false;
+    }
+
+    if (!employee.name || employee.name.trim().length < 2) {
+      this.toastService.warning('Employee name is required (min 2 characters)');
+      return false;
+    }
+
+    if (!employee.phone || employee.phone.trim().length < 11) {
+      this.toastService.warning('Phone number must be at least 11 digits');
+      return false;
+    }
+
+    if (!employee.salary || employee.salary < 0) {
+      this.toastService.warning('Valid salary is required');
+      return false;
+    }
+
+    if (!employee.joiningDate) {
+      this.toastService.warning('Joining date is required');
+      return false;
+    }
+
+    return true;
   }
 
   mapToDto(employee: Employee): EmployeeReqDto {
@@ -102,6 +137,7 @@ export class EmployeeComponent extends BaseCrudComponent<Employee, EmployeeReqDt
   openAddModal(): void {
     this.isEditMode = false;
     this.selectedEmployee = this.createNew();
+    this.clearError();
   }
 
   viewEmployee(employee: Employee): void {
@@ -111,6 +147,7 @@ export class EmployeeComponent extends BaseCrudComponent<Employee, EmployeeReqDt
   editEmployee(employee: Employee): void {
     this.isEditMode = true;
     this.editItem(employee);
+    this.clearError();
   }
 
   deleteEmployee(employee: Employee): void {
@@ -123,6 +160,10 @@ export class EmployeeComponent extends BaseCrudComponent<Employee, EmployeeReqDt
 
   // Combined save method
   saveEmployeeForm(): void {
+    if (!this.isValid(this.selectedEmployee)) {
+      return;
+    }
+
     if (this.isEditMode) {
       this.saveEmployee();
     } else {
@@ -132,7 +173,6 @@ export class EmployeeComponent extends BaseCrudComponent<Employee, EmployeeReqDt
 
   addEmployee(): void {
     if (!this.isValid(this.selectedEmployee)) {
-      this.errorMessage = 'Please fill in all required fields';
       return;
     }
 
@@ -147,16 +187,23 @@ export class EmployeeComponent extends BaseCrudComponent<Employee, EmployeeReqDt
       .subscribe({
         next: (response) => {
           if (response.success) {
+            this.toastService.success(response.message || 'Employee added successfully');
             this.handleCrudSuccess('Employee added successfully', ModalType.FORM);
+          } else {
+            this.toastService.error(response.message || 'Failed to add employee');
           }
         },
-        error: (error) => this.handleError('Failed to add employee', error)
+        error: (error) => {
+          const errorMsg = error?.error?.message || 'Failed to add employee';
+          this.toastService.error(errorMsg);
+          this.handleError('Failed to add employee', error);
+        }
       });
   }
 
   saveEmployee(): void {
     if (!this.isValid(this.selectedEmployee) || !this.selectedEmployee?.id) {
-      this.errorMessage = 'Invalid employee data';
+      this.toastService.warning('Invalid employee data');
       return;
     }
 
@@ -171,27 +218,96 @@ export class EmployeeComponent extends BaseCrudComponent<Employee, EmployeeReqDt
       .subscribe({
         next: (response) => {
           if (response.success) {
+            this.toastService.success(response.message || 'Employee updated successfully');
             this.handleCrudSuccess('Employee updated successfully', ModalType.FORM);
+          } else {
+            this.toastService.error(response.message || 'Failed to update employee');
           }
         },
-        error: (error) => this.handleError('Failed to update employee', error)
+        error: (error) => {
+          const errorMsg = error?.error?.message || 'Failed to update employee';
+          this.toastService.error(errorMsg);
+          this.handleError('Failed to update employee', error);
+        }
       });
   }
 
   openDeleteModal(employee: Employee) {
-      this.selectedEmployee = employee;
-
-      const modal = new (window as any).bootstrap.Modal(
-        document.getElementById('confirmDeleteModal')
-      );
-      modal.show();
-    }
-
-    confirmDelete() {
-    if (this.selectedEmployee) {
-      this.deleteItem(this.selectedEmployee, this.selectedEmployee.name);
-    }
+    this.selectedEmployee = employee;
+    const modal = new (window as any).bootstrap.Modal(
+      document.getElementById('confirmDeleteModal')
+    );
+    modal.show();
   }
 
+  confirmDelete() {
+    if (!this.selectedEmployee) {
+      this.toastService.warning('No employee selected');
+      return;
+    }
 
+    const id = this.selectedEmployee.id;
+    const name = this.selectedEmployee.name;
+
+    this.isLoading = true;
+    this.service.remove(id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.toastService.success(response.message || `Employee ${name} deleted successfully`);
+            this.loadItems();
+            // Close modal
+            const modal = (window as any).bootstrap.Modal.getInstance(
+              document.getElementById('confirmDeleteModal')
+            );
+            if (modal) modal.hide();
+          } else {
+            this.toastService.error(response.message || 'Failed to delete employee');
+          }
+        },
+        error: (error) => {
+          const errorMsg = error?.error?.message || 'Failed to delete employee';
+          this.toastService.error(errorMsg);
+          this.handleError('Failed to delete employee', error);
+        }
+      });
+  }
+
+  /**
+   * Toggle employee active status
+   */
+  override toggleActive(employee: Employee): void {
+    this.isLoading = true;
+    this.service.activeUpdate(employee.id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.toastService.success(response.message || 'Status updated successfully');
+            this.loadItems();
+          } else {
+            this.toastService.error(response.message || 'Failed to toggle status');
+          }
+        },
+        error: (error) => {
+          const errorMsg = error?.error?.message || 'Failed to toggle status';
+          this.toastService.error(errorMsg);
+          this.handleError('Failed to toggle active status', error);
+        }
+      });
+  }
+
+  /**
+   * Override base class error handling to clear old error messages
+   */
+  override clearError(): void {
+    this.errorMessage = '';
+  }
 }
