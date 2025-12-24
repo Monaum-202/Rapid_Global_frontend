@@ -1,1 +1,866 @@
-<p>bomlist works!</p>
+<div class="loading-overlay-scoped" *ngIf="isLoading">
+    <div class="bouncing-dots-loader">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+</div>
+
+<div class="container my-1 position-relative">
+
+    <div class="row align-items-center justify-content-between gy-2 m-3">
+
+        <!-- Left Section: Show Entries + Columns -->
+        <div class="col-md-4 col-sm-12 d-flex align-items-center gap-3">
+            <!-- Show Entries -->
+            <div class="d-flex align-items-center">
+                <select class="form-select form-select-sm w-auto rounded-pill shadow-sm" [value]="paginator.pageSize"
+                    (change)="onPageSizeChange($event)">
+                    <option *ngFor="let size of PAGE_SIZE_OPTIONS" [value]="size">{{ size }}</option>
+                </select>
+            </div>
+
+            <!-- Column Selector -->
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm rounded-pill shadow-sm dropdown-toggle" type="button"
+                    (click)="toggleColumnDropdown()">
+                    <i class="bi bi-columns-gap me-1"></i> Columns
+                </button>
+                <div class="dropdown-menu p-3 shadow" [class.show]="showColumnDropdown" style="min-width: 200px;">
+                    <div class="form-check" *ngFor="let column of columns">
+                        <input class="form-check-input" type="checkbox" [id]="'column-' + column.key"
+                            [(ngModel)]="column.visible" />
+                        <label class="form-check-label" [for]="'column-' + column.key">
+                            {{ column.label }}
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle Section: Search -->
+        <div class="col-md-4 col-sm-12 d-flex justify-content-center">
+            <div class="w-100" style="max-width: 25rem;">
+                <div class="input-group input-group-sm shadow-sm rounded-pill bg-light border border-dark">
+                    <span class="input-group-text bg-transparent border-0 text-dark">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control border-0 bg-transparent"
+                        placeholder="Search... (Press Enter)" (input)="onSearchInput($event)"
+                        (keypress)="onSearchKeyPress($event)" [value]="currentSearchValue" />
+                    <button *ngIf="currentSearchValue" class="btn btn-sm bg-transparent border-0 text-muted"
+                        type="button" (click)="clearSearch()" title="Clear search">
+                        <i class="bi bi-x-circle"></i>
+                    </button>
+                    <button class="btn btn-sm bg-transparent border-0 text-dark" type="button"
+                        (click)="onSearchButtonClick()" title="Search">
+                        <i class="bi bi-arrow-right-circle"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Section: Add Button -->
+        <div class="col-md-4 col-sm-12 d-flex justify-content-md-end justify-content-center">
+            <button type="button" class="btn rounded-pill shadow-sm px-4" data-bs-toggle="modal"
+                data-bs-target="#bomFormModal" (click)="openAddModal()" [disabled]="isLoading"
+                style="background-color: #000000; color: #ffffff;">
+                <i class="bi bi-plus-lg me-1"></i> Add BOM
+            </button>
+        </div>
+    </div>
+
+    <!-- BOM Table -->
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle text-nowrap">
+            <thead>
+                <tr>
+                    <th *ngIf="isColumnVisible('bomCode')">BOM CODE</th>
+                    <th *ngIf="isColumnVisible('bomName')">BOM NAME</th>
+                    <th *ngIf="isColumnVisible('finishedProductName')">PRODUCT</th>
+                    <th *ngIf="isColumnVisible('outputQuantity')">OUTPUT QTY</th>
+                    <th *ngIf="isColumnVisible('totalCost')">TOTAL COST</th>
+                    <th *ngIf="isColumnVisible('estimatedTimeMinutes')">TIME</th>
+                    <th *ngIf="isColumnVisible('status')">STATUS</th>
+                    <th *ngIf="isColumnVisible('isDefault')">DEFAULT</th>
+                    <th class="text-center">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let bom of filteredBOMs">
+                    <td *ngIf="isColumnVisible('bomCode')">{{ bom.bomCode }}</td>
+                    <td *ngIf="isColumnVisible('bomName')">{{ bom.bomName }}</td>
+                    <td *ngIf="isColumnVisible('finishedProductName')">{{ bom.finishedProductName }}</td>
+                    <td *ngIf="isColumnVisible('outputQuantity')">{{ bom.outputQuantity }} {{ bom.outputUnit }}</td>
+                    <td *ngIf="isColumnVisible('totalCost')">{{ bom.totalCost | number:'1.2-2' }}</td>
+                    <td *ngIf="isColumnVisible('estimatedTimeMinutes')">{{ formatProductionTime(bom.estimatedTimeMinutes) }}</td>
+                    <td *ngIf="isColumnVisible('status')">
+                        <span class="badge" [ngClass]="getStatusBadgeClass(bom.status)">
+                            {{ bom.status }}
+                        </span>
+                    </td>
+                    <td *ngIf="isColumnVisible('isDefault')">
+                        <span *ngIf="bom.isDefault" class="badge bg-primary">
+                            <i class="bi bi-star-fill"></i> Default
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center align-items-center gap-1">
+                            <!-- View button -->
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#bomViewModal" (click)="viewBOM(bom)" title="View Details">
+                                <i class="fa fa-eye"></i>
+                            </button>
+
+                            <!-- Edit button -->
+                            <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#bomFormModal" (click)="editBOM(bom)"
+                                [hidden]="bom.status === 'APPROVED' || bom.status === 'ACTIVE'"
+                                title="Edit">
+                                <i class="fa fa-pen"></i>
+                            </button>
+
+                            <!-- Approve button -->
+                            <button type="button" class="btn btn-outline-info btn-sm"
+                                (click)="approveBOM(bom)"
+                                [hidden]="bom.status !== 'PENDING' || (roleId !== 1 && roleId !== 2)"
+                                title="Approve">
+                                <i class="fa fa-check-circle"></i>
+                            </button>
+
+                            <!-- Set Default button -->
+                            <button type="button" class="btn btn-outline-warning btn-sm"
+                                (click)="setAsDefault(bom)"
+                                [hidden]="bom.isDefault || bom.status !== 'APPROVED'"
+                                title="Set as Default">
+                                <i class="fa fa-star"></i>
+                            </button>
+
+                            <!-- Delete button -->
+                            <button type="button" class="btn btn-outline-danger btn-sm"
+                                (click)="openDeleteModal(bom)"
+                                [hidden]="bom.status === 'ACTIVE' || (roleId !== 1 && roleId !== 2)"
+                                title="Delete">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- No data message -->
+                <tr *ngIf="filteredBOMs.length === 0 && !isLoading">
+                    <td [attr.colspan]="visibleColumnsCount" class="text-center text-muted py-4">
+                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                        {{ searchTerm ? 'No BOMs found matching your search' : 'No BOMs found' }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Info and Controls -->
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <p class="text-muted mb-0">
+            Showing {{ paginator.from }} to {{ paginator.to }} of {{ paginator.totalElements }} entries
+        </p>
+
+        <div class="btn-group">
+            <!-- Previous -->
+            <button class="btn btn-outline-dark btn-sm" (click)="previousPage()"
+                [disabled]="!canGoPrevious || isLoading">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+
+            <!-- Page Numbers -->
+            <button *ngFor="let page of getPageNumbers()" class="btn btn-sm"
+                [class.btn-success]="page === paginator.currentPage"
+                [class.btn-outline-dark]="page !== paginator.currentPage" (click)="goToPage(page)"
+                [disabled]="isLoading">
+                {{ page + 1 }}
+            </button>
+
+            <!-- Next -->
+            <button class="btn btn-outline-dark btn-sm" (click)="nextPage()" [disabled]="!canGoNext || isLoading">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- View BOM Modal -->
+<div class="modal fade" id="bomViewModal" tabindex="-1" aria-labelledby="bomViewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0">
+            <!-- Modal Header -->
+            <div class="modal-header"
+                style="background: linear-gradient(135deg, #000000 0%, #2b2b2b 100%); padding: 0.8rem 1rem;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-list-check fs-5 text-white"></i>
+                    <div>
+                        <h5 class="modal-title text-white mb-0" id="bomViewModalLabel" style="font-size: 1rem;">BOM Details</h5>
+                        <small class="text-white-50" *ngIf="selectedBOM">{{ selectedBOM.bomCode }}</small>
+                        &nbsp;&nbsp;
+                        <span class="badge" *ngIf="selectedBOM" [ngClass]="getStatusBadgeClass(selectedBOM.status)">
+                            {{ selectedBOM.status }}
+                        </span>
+                        &nbsp;&nbsp;
+                        <span class="badge bg-primary" *ngIf="selectedBOM?.isDefault">
+                            <i class="bi bi-star-fill"></i> Default
+                        </span>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body" style="padding: 1rem;">
+                <!-- BOM Information Section -->
+                <div class="card sale-card" *ngIf="selectedBOM">
+                    <div class="card-body sale-card-body">
+
+                        <!-- LEFT COLUMN -->
+                        <div class="column">
+                            <!-- BOM Name -->
+                            <div class="field-row">
+                                <label class="field-label">
+                                    <i class="bi bi-tag"></i> BOM Name
+                                </label>
+                                <div class="field-value">{{ selectedBOM.bomName }}</div>
+                            </div>
+
+                            <!-- Product -->
+                            <div class="field-row">
+                                <label class="field-label">
+                                    <i class="bi bi-box"></i> Product
+                                </label>
+                                <div class="field-value">{{ selectedBOM.finishedProductName }}</div>
+                            </div>
+
+                            <!-- Output -->
+                            <div class="field-row">
+                                <label class="field-label">
+                                    <i class="bi bi-box-arrow-up"></i> Output
+                                </label>
+                                <div class="field-value">{{ selectedBOM.outputQuantity }} {{ selectedBOM.outputUnit }}</div>
+                            </div>
+
+                            <!-- Version -->
+                            <div class="field-row">
+                                <label class="field-label">
+                                    <i class="bi bi-code-slash"></i> Version
+                                </label>
+                                <div class="field-value">{{ selectedBOM.version }}</div>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT COLUMN -->
+                        <div class="column">
+                            <!-- Production Time -->
+                            <div class="field-row">
+                                <label class="field-label">
+                                    <i class="bi bi-clock"></i> Production Time
+                                </label>
+                                <div class="field-value">{{ formatProductionTime(selectedBOM.estimatedTimeMinutes) }}</div>
+                            </div>
+
+                            <!-- Created By -->
+                            <div class="field-row">
+                                <label class="field-label">
+                                    <i class="bi bi-person"></i> Created By
+                                </label>
+                                <div class="field-value">{{ selectedBOM.createdByName || 'N/A' }}</div>
+                            </div>
+
+                            <!-- Created Date -->
+                            <div class="field-row">
+                                <label class="field-label">
+                                    <i class="bi bi-calendar"></i> Created Date
+                                </label>
+                                <div class="field-value">{{ selectedBOM.createdDate | date:'dd MMM, yyyy' }}</div>
+                            </div>
+
+                            <!-- Approved By -->
+                            <div class="field-row" *ngIf="selectedBOM.approvedByName">
+                                <label class="field-label">
+                                    <i class="bi bi-check-circle"></i> Approved By
+                                </label>
+                                <div class="field-value">{{ selectedBOM.approvedByName }}</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Description and Notes -->
+                <div class="row mb-3" *ngIf="selectedBOM">
+                    <div class="col-md-6" *ngIf="selectedBOM.description">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-2">
+                                <h6 class="fw-bold mb-2"><i class="bi bi-info-circle"></i> Description</h6>
+                                <p class="mb-0" style="font-size: 0.9rem;">{{ selectedBOM.description }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6" *ngIf="selectedBOM.productionNotes">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-2">
+                                <h6 class="fw-bold mb-2"><i class="bi bi-journal-text"></i> Production Notes</h6>
+                                <p class="mb-0" style="font-size: 0.9rem; white-space: pre-wrap;">{{ selectedBOM.productionNotes }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Items & Cost Section -->
+                <div class="card border-0 shadow-sm" *ngIf="selectedBOM">
+                    <div class="card-body p-0">
+                        <div class="row g-0">
+                            <!-- Items List -->
+                            <div class="col-lg-7 border-end p-2">
+                                <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+                                    <table class="table table-sm table-hover mb-0" style="font-size: 0.85rem;">
+                                        <thead class="table-light sticky-top">
+                                            <tr>
+                                                <th style="width: 5%; padding: 0.4rem;">Seq</th>
+                                                <th style="width: 35%; padding: 0.4rem;">Raw Material</th>
+                                                <th style="width: 15%; padding: 0.4rem; text-align: center;">Qty</th>
+                                                <th style="width: 10%; padding: 0.4rem; text-align: center;">Unit</th>
+                                                <th style="width: 15%; padding: 0.4rem; text-align: right;">Unit Cost</th>
+                                                <th style="width: 15%; padding: 0.4rem; text-align: right;">Total</th>
+                                                <th style="width: 5%; padding: 0.4rem; text-align: center;">Opt</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let item of selectedBOM.items">
+                                                <td style="padding: 0.4rem;" class="text-muted">{{ item.sequenceOrder }}</td>
+                                                <td style="padding: 0.4rem; font-weight: 500;">
+                                                    {{ item.rawMaterialName }}
+                                                    <small class="text-muted d-block" *ngIf="item.notes">{{ item.notes }}</small>
+                                                </td>
+                                                <td style="padding: 0.4rem; text-align: center;">{{ item.quantity }}</td>
+                                                <td style="padding: 0.4rem; text-align: center;">{{ item.unit }}</td>
+                                                <td style="padding: 0.4rem; text-align: right;">{{ item.unitCost | number:'1.2-2' }}</td>
+                                                <td style="padding: 0.4rem; text-align: right; font-weight: 600;">{{ item.totalCost | number:'1.2-2' }}</td>
+                                                <td style="padding: 0.4rem; text-align: center;">
+                                                    <i class="bi bi-check-circle text-success" *ngIf="!item.isOptional"></i>
+                                                    <i class="bi bi-dash-circle text-warning" *ngIf="item.isOptional"></i>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 0.4rem; background-color: #eeeeee;" colspan="5" class="text-end">
+                                                    <span class="fw-bold">Material Cost:</span>
+                                                </td>
+                                                <td style="padding: 0.4rem; background-color: #eeeeee;" class="text-end">
+                                                    <span class="fw-bold">{{ selectedBOM.estimatedCost | number:'1.2-2' }}</span>
+                                                </td>
+                                                <td style="padding: 0.4rem; background-color: #eeeeee;"></td>
+                                            </tr>
+                                            <tr *ngIf="selectedBOM.items.length === 0">
+                                                <td colspan="7" style="padding: 1rem; text-align: center; color: #000000;">
+                                                    <i class="bi bi-inbox" style="font-size: 1.5rem;"></i><br>
+                                                    <span style="font-size: 0.85rem;">No items found</span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Cost Summary -->
+                            <div class="col-lg-5 p-2">
+                                <div style="background: #f8f9fa; border-radius: 0.5rem; padding: 0.8rem; font-size: 0.85rem;">
+                                    <h6 class="fw-bold mb-3">Cost Breakdown</h6>
+
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #dee2e6;">
+                                        <span style="color: #000000;">Material Cost</span>
+                                        <span style="font-weight: 600;">{{ selectedBOM.estimatedCost | number:'1.2-2' }}</span>
+                                    </div>
+
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #dee2e6;">
+                                        <span style="color: #000000;">Labor Cost</span>
+                                        <span style="font-weight: 600;">{{ selectedBOM.laborCost | number:'1.2-2' }}</span>
+                                    </div>
+
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #dee2e6;">
+                                        <span style="color: #000000;">Overhead Cost</span>
+                                        <span style="font-weight: 600;">{{ selectedBOM.overheadCost | number:'1.2-2' }}</span>
+                                    </div>
+
+                                    <div class="alert alert-success mb-0 py-2 px-3 mt-3">
+                                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                                            <div>
+                                                <small style="display: block; margin-bottom: 0.2rem;">Total Cost</small>
+                                                <div style="font-size: 1.1rem; font-weight: 700;">{{ selectedBOM.totalCost | number:'1.2-2' }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="alert alert-info mb-0 py-2 px-3 mt-2">
+                                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                                            <div>
+                                                <small style="display: block; margin-bottom: 0.2rem;">Cost Per Unit</small>
+                                                <div style="font-size: 1rem; font-weight: 600;">
+                                                    {{ (selectedBOM.totalCost / selectedBOM.outputQuantity) | number:'1.2-2' }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer" style="padding: 0.6rem 1rem; gap: 0.5rem; background: #f8f9fa;">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Close
+                    </button>
+                    <button type="button" class="btn btn-sm btn-success"
+                        (click)="approveBOM(selectedBOM!)"
+                        *ngIf="selectedBOM && selectedBOM.status === 'PENDING' && (roleId === 1 || roleId === 2)"
+                        data-bs-dismiss="modal">
+                        <i class="bi bi-check-circle"></i> Approve BOM
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit BOM Form Modal -->
+<div class="modal fade" id="bomFormModal" tabindex="-1" aria-labelledby="bomFormLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bomFormLabel">
+                    {{ isEditMode ? 'Edit BOM' : 'Add New BOM' }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-1">
+                <form id="bomForm">
+                    <div class="row g-4">
+                        <!-- LEFT SIDE - BOM Details -->
+                        <div class="col-md-5">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <h6 class="fw-bold mb-3 text-dark border-bottom pb-2">
+                                        <i class="bi bi-info-circle me-2"></i>BOM Information
+                                    </h6>
+
+                                    <div class="mb-3">
+                                        <label for="bomName" class="form-label fw-semibold">
+                                            BOM Name <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control"
+                                            [class.is-invalid]="validationErrors['bomName']"
+                                            id="bomName" [(ngModel)]="formData.bomName"
+                                            name="bomName" placeholder="Enter BOM name" required />
+                                        <div class="invalid-feedback" *ngIf="validationErrors['bomName']"
+                                            [style.display]="'block'">
+                                            {{ validationErrors['bomName'][0] }}
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="finishedProduct" class="form-label fw-semibold">
+                                            Finished Product <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="position-relative">
+                                            <input type="text" class="form-control"
+                                                [class.is-invalid]="validationErrors['finishedProductId']"
+                                                [(ngModel)]="formData.finishedProductName"
+                                                name="finishedProductName"
+                                                (input)="onFinishedProductSearchInput($event)"
+                                                (focus)="showFinishedProductDropdown = true"
+                                                (blur)="hideFinishedProductDropdown()"
+                                                placeholder="Search finished product..."
+                                                autocomplete="off" />
+
+                                            <!-- Dropdown for Finished Product Results -->
+                                            <div *ngIf="showFinishedProductDropdown && filteredFinishedProducts.length > 0"
+                                                class="dropdown-menu show w-100 shadow-lg product-dropdown">
+                                                <button type="button"
+                                                    class="dropdown-item d-flex justify-content-between align-items-center"
+                                                    *ngFor="let product of filteredFinishedProducts"
+                                                    (mousedown)="selectFinishedProduct(product)">
+                                                    <div>
+                                                        <strong>{{ product.name }}</strong>
+                                                        <small class="text-muted d-block" *ngIf="product.name">
+                                                            {{ product.name }}
+                                                        </small>
+                                                    </div>
+                                                </button>
+                                            </div>
+
+                                            <div class="invalid-feedback" *ngIf="validationErrors['finishedProductId']"
+                                                [style.display]="'block'">
+                                                {{ validationErrors['finishedProductId'][0] }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="outputQuantity" class="form-label fw-semibold">
+                                                Output Quantity <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="number" class="form-control"
+                                                [class.is-invalid]="validationErrors['outputQuantity']"
+                                                id="outputQuantity" [(ngModel)]="formData.outputQuantity"
+                                                name="outputQuantity" min="0.01" step="0.01"
+                                                (ngModelChange)="calculateTotals()" required />
+                                            <div class="invalid-feedback" *ngIf="validationErrors['outputQuantity']"
+                                                [style.display]="'block'">
+                                                {{ validationErrors['outputQuantity'][0] }}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="outputUnit" class="form-label fw-semibold">
+                                                Unit <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="text" class="form-control"
+                                                [class.is-invalid]="validationErrors['outputUnit']"
+                                                id="outputUnit" [(ngModel)]="formData.outputUnit"
+                                                name="outputUnit" placeholder="pcs, kg, liter" required />
+                                            <div class="invalid-feedback" *ngIf="validationErrors['outputUnit']"
+                                                [style.display]="'block'">
+                                                {{ validationErrors['outputUnit'][0] }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="laborCost" class="form-label fw-semibold">Labor Cost</label>
+                                            <input type="number" class="form-control" id="laborCost"
+                                                [(ngModel)]="formData.laborCost" name="laborCost"
+                                                min="0" step="0.01" (ngModelChange)="calculateTotals()" />
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="overheadCost" class="form-label fw-semibold">Overhead Cost</label>
+                                            <input type="number" class="form-control" id="overheadCost"
+                                                [(ngModel)]="formData.overheadCost" name="overheadCost"
+                                                min="0" step="0.01" (ngModelChange)="calculateTotals()" />
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="estimatedTime" class="form-label fw-semibold">
+                                            Production Time (minutes)
+                                        </label>
+                                        <input type="number" class="form-control" id="estimatedTime"
+                                            [(ngModel)]="formData.estimatedTimeMinutes" name="estimatedTime"
+                                            min="0" step="1" placeholder="Estimated time in minutes" />
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="version" class="form-label fw-semibold">Version</label>
+                                        <input type="text" class="form-control" id="version"
+                                            [(ngModel)]="formData.version" name="version" placeholder="1.0" />
+                                    </div>
+
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="isDefault"
+                                            [(ngModel)]="formData.isDefault" name="isDefault" />
+                                        <label class="form-check-label" for="isDefault">
+                                            Set as default BOM for this product
+                                        </label>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="description" class="form-label fw-semibold">Description</label>
+                                        <textarea class="form-control" id="description" rows="2"
+                                            [(ngModel)]="formData.description" name="description"
+                                            placeholder="Brief description..."></textarea>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="productionNotes" class="form-label fw-semibold">
+                                            Production Notes
+                                        </label>
+                                        <textarea class="form-control" id="productionNotes" rows="3"
+                                            [(ngModel)]="formData.productionNotes" name="productionNotes"
+                                            placeholder="Step-by-step production instructions..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT SIDE - Items & Costing -->
+                        <div class="col-md-7">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <h6 class="fw-bold mb-3 text-dark border-bottom pb-2">
+                                        <i class="bi bi-basket me-2"></i>Raw Materials
+                                    </h6>
+
+                                    <!-- Add Item Section -->
+                                    <div class="bg-light p-3 rounded-3 mb-3">
+                                        <div class="row g-2">
+                                            <!-- Raw Material -->
+                                            <div class="col-md-4">
+                                                <label class="form-label fw-semibold small">
+                                                    Raw Material <span class="text-danger">*</span>
+                                                </label>
+                                                <div class="position-relative">
+                                                    <input type="text" class="form-control form-control-sm"
+                                                        [(ngModel)]="currentItem.rawMaterialName"
+                                                        name="rawMaterialName"
+                                                        (input)="onRawMaterialSearchInput($event)"
+                                                        (focus)="showRawMaterialDropdown = true"
+                                                        (blur)="hideRawMaterialDropdown()"
+                                                        placeholder="Search material..."
+                                                        autocomplete="off" />
+
+                                                    <!-- Dropdown for Raw Material Results -->
+                                                    <div *ngIf="showRawMaterialDropdown && filteredRawMaterials.length > 0"
+                                                        class="dropdown-menu show w-100 shadow-lg product-dropdown">
+                                                        <button type="button"
+                                                            class="dropdown-item d-flex justify-content-between align-items-center"
+                                                            *ngFor="let product of filteredRawMaterials"
+                                                            (mousedown)="selectRawMaterial(product)">
+                                                            <div>
+                                                                <strong>{{ product.name }}</strong>
+                                                                <small class="text-muted d-block" *ngIf="product.unitName">
+                                                                    {{ product.unitName }}
+                                                                </small>
+                                                            </div>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Quantity -->
+                                            <div class="col-md-2">
+                                                <label class="form-label fw-semibold small">Quantity</label>
+                                                <input type="number" class="form-control form-control-sm"
+                                                    [(ngModel)]="currentItem.quantity" name="itemQty"
+                                                    (ngModelChange)="calculateItemTotal()" min="0.01" step="0.01" />
+                                            </div>
+
+                                            <!-- Unit -->
+                                            <div class="col-md-2">
+                                                <label class="form-label fw-semibold small">Unit</label>
+                                                <input type="text" class="form-control form-control-sm"
+                                                    [(ngModel)]="currentItem.unit" name="itemUnit" />
+                                            </div>
+
+                                            <!-- Unit Cost -->
+                                            <div class="col-md-2">
+                                                <label class="form-label fw-semibold small">Unit Cost</label>
+                                                <input type="number" class="form-control form-control-sm"
+                                                    [(ngModel)]="currentItem.unitCost" name="itemCost"
+                                                    (ngModelChange)="calculateItemTotal()" min="0" step="0.01" />
+                                            </div>
+
+                                            <!-- Total -->
+                                            <div class="col-md-2">
+                                                <label class="form-label fw-semibold small">Total</label>
+                                                <input type="text" class="form-control form-control-sm bg-white"
+                                                    [value]="currentItem.totalCost?.toFixed(2)" readonly />
+                                            </div>
+                                        </div>
+
+                                        <div class="row g-2 mt-2">
+                                            <!-- Sequence -->
+                                            <div class="col-md-3">
+                                                <label class="form-label fw-semibold small">Sequence</label>
+                                                <input type="number" class="form-control form-control-sm"
+                                                    [(ngModel)]="currentItem.sequenceOrder" name="itemSequence"
+                                                    min="0" step="1" />
+                                            </div>
+
+                                            <!-- Optional -->
+                                            <div class="col-md-3 d-flex align-items-end">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox"
+                                                        id="itemOptional" [(ngModel)]="currentItem.isOptional"
+                                                        name="itemOptional" />
+                                                    <label class="form-check-label small" for="itemOptional">
+                                                        Optional
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <!-- Notes -->
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold small">Notes</label>
+                                                <input type="text" class="form-control form-control-sm"
+                                                    [(ngModel)]="currentItem.notes" name="itemNotes"
+                                                    placeholder="Special instructions..." />
+                                            </div>
+                                        </div>
+
+                                        <!-- Add Item Button -->
+                                        <button type="button" class="btn btn-success btn-sm mt-2 w-100"
+                                            (click)="addItemToList()">
+                                            <i class="bi bi-plus-circle me-1"></i>
+                                            {{ editIndex !== null ? 'Update Item' : 'Add Item' }}
+                                        </button>
+                                    </div>
+
+                                    <!-- Items List -->
+                                    <div class="table-responsive" style="max-height: 250px; overflow-y: auto">
+                                        <table class="table table-sm table-hover"
+                                            [class.is-invalid]="validationErrors['items']">
+                                            <thead class="table-light sticky-top">
+                                                <tr>
+                                                    <th style="width: 5%;">Seq</th>
+                                                    <th style="width: 30%;">Material</th>
+                                                    <th style="width: 10%; text-align: center;">Qty</th>
+                                                    <th style="width: 10%; text-align: center;">Unit</th>
+                                                    <th style="width: 12%; text-align: right;">Cost</th>
+                                                    <th style="width: 12%; text-align: right;">Total</th>
+                                                    <th style="width: 8%; text-align: center;">Opt</th>
+                                                    <th style="width: 13%; text-align: center;">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr *ngFor="let item of formData.items; let i = index">
+                                                    <td>{{ item.sequenceOrder }}</td>
+                                                    <td>
+                                                        {{ item.rawMaterialName }}
+                                                        <small class="text-muted d-block" *ngIf="item.notes">
+                                                            {{ item.notes }}
+                                                        </small>
+                                                    </td>
+                                                    <td class="text-center">{{ item.quantity }}</td>
+                                                    <td class="text-center">{{ item.unit }}</td>
+                                                    <td class="text-end">{{ item.unitCost | number:'1.2-2' }}</td>
+                                                    <td class="text-end fw-semibold">{{ item.totalCost | number:'1.2-2' }}</td>
+                                                    <td class="text-center">
+                                                        <i class="bi bi-check-circle text-success" *ngIf="!item.isOptional"></i>
+                                                        <i class="bi bi-dash-circle text-warning" *ngIf="item.isOptional"></i>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <button type="button" class="btn btn-primary btn-sm me-1"
+                                                            (click)="editBOMItem(i)">
+                                                            <i class="fa fa-pencil-alt"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-danger btn-sm"
+                                                            (click)="removeItem(i)">
+                                                            <i class="fa fa-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                <tr *ngIf="formData.items.length === 0">
+                                                    <td colspan="8" class="text-center"
+                                                        [class.text-danger]="validationErrors['items']"
+                                                        [class.text-muted]="!validationErrors['items']">
+                                                        <span *ngIf="validationErrors['items']" class="fw-bold">
+                                                            {{ validationErrors['items'][0] }}
+                                                        </span>
+                                                        <span *ngIf="!validationErrors['items']">
+                                                            No items added yet
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                <tr *ngIf="formData.items.length > 0">
+                                                    <td colspan="5" style="background-color: #ececec;"
+                                                        class="text-end fw-bold">Material Cost:</td>
+                                                    <td class="text-end fw-bold" style="background-color: #ececec;">
+                                                        {{ formData.estimatedCost | number:'1.2-2' }}
+                                                    </td>
+                                                    <td colspan="2" style="background-color: #ececec;"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <!-- Cost Summary -->
+                                    <div class="bg-light rounded-3 p-3 mt-3">
+                                        <h6 class="fw-bold mb-2">Cost Summary</h6>
+                                        <div class="row g-2 mb-2">
+                                            <div class="col-6">
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="text-muted">Material Cost:</span>
+                                                    <span class="fw-semibold">{{ formData.estimatedCost | number:'1.2-2' }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="text-muted">Labor Cost:</span>
+                                                    <span class="fw-semibold">{{ formData.laborCost | number:'1.2-2' }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="text-muted">Overhead Cost:</span>
+                                                    <span class="fw-semibold">{{ formData.overheadCost | number:'1.2-2' }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="text-muted">Output Qty:</span>
+                                                    <span class="fw-semibold">{{ formData.outputQuantity }} {{ formData.outputUnit }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="alert alert-success mb-0 py-2">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <small class="d-block">Total Cost</small>
+                                                    <div class="fs-5 fw-bold">{{ formData.totalCost | number:'1.2-2' }}</div>
+                                                </div>
+                                                <div class="text-end">
+                                                    <small class="d-block">Cost Per Unit</small>
+                                                    <div class="fs-6 fw-bold">{{ getCostPerUnit() | number:'1.2-2' }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                                        Close
+                                    </button>
+                                    <button type="button" class="btn btn-success" (click)="saveBOMForm()"
+                                        [disabled]="isLoading">
+                                        <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                                        {{ isEditMode ? 'Update BOM' : 'Save BOM' }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Delete BOM</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body px-4" *ngIf="selectedBOM">
+                <p class="text-muted">
+                    Are you sure you want to delete BOM
+                    <strong>{{ selectedBOM.bomCode }}</strong> - <strong>{{ selectedBOM.bomName }}</strong>?
+                </p>
+                <p class="text-danger small">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    This action cannot be undone.
+                </p>
+            </div>
+
+            <div class="modal-footer border-0 d-flex justify-content-end gap-2 px-4 pb-4">
+                <button class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-danger px-4" (click)="confirmDelete()" [disabled]="isLoading">
+                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

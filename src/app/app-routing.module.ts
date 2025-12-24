@@ -36,6 +36,7 @@ import { ProductComponent } from './inventory/master/product/product.component';
 import { EstimateListComponent } from './inventory/sales/estimate-list/estimate-list.component';
 import { IncomeReportComponent } from './inventory/report/income-report/income-report.component';
 import { FinancialReportComponent } from './inventory/report/financial-report/financial-report.component';
+import { BOMListComponent } from './inventory/production/bomlist/bomlist.component';
 
 const routes: Routes = [
   {
@@ -77,6 +78,9 @@ const routes: Routes = [
       { path: 'supplier', component: SuppliersComponent },
       { path: 'supplier-payment', component: SupplierPaymentComponent },
       { path: 'purchase-return', component: PurchasesReturnsComponent },
+
+      //Production
+      { path: 'bill-of-materials', component: BOMListComponent },
 
       // Reports
       { path: 'inventory-report', component: InventoryReportsComponent },
