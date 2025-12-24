@@ -10,11 +10,8 @@ import { PendingOrdersComponent } from './inventory/orders/pending-orders/pendin
 import { CompleteOrdersComponent } from './inventory/orders/complete-orders/complete-orders.component';
 import { SideNavComponent } from './inventory/side-nav/side-nav.component';
 import { SupplierComponent } from './inventory/supplier/supplier.component';
-// import { SalesListComponent } from './inventory/sales/sales-list/sales-list.component';
 import { CustomerPaymentComponent } from './inventory/sales/customer-payment/customer-payment.component';
 import { SalesReturnComponent } from './inventory/sales/sales-return/sales-return.component';
-// import { CustomersComponent } from './inventory/sales/customers/customers.component';
-// import { CustomerComponent } from './inventory/customer/customer.component';
 import { PurchasesListComponent } from './inventory/purchases/purchases-list/purchases-list.component';
 import { PurchasesReturnsComponent } from './inventory/purchases/purchases-returns/purchases-returns.component';
 import { SupplierPaymentComponent } from './inventory/purchases/supplier-payment/supplier-payment.component';
@@ -26,7 +23,6 @@ import { StockDetailsComponent } from './inventory/inventoryMenu/stock-details/s
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ProfitAndLossComponent } from './inventory/report/profit-and-loss/profit-and-loss.component';
 import { ExpensesComponent } from './inventory/accounts/expenses/expenses.component';
-// import { EstimateComponent } from './inventory/sales/estimate/estimate.component';
 import { SuppliersComponent } from './inventory/purchases/suppliers/suppliers.component';
 import { LoginComponent } from './auth/login/login.component';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
@@ -46,6 +42,7 @@ import { IncomeReportComponent } from './inventory/report/income-report/income-r
 import { FinancialReportComponent } from './inventory/report/financial-report/financial-report.component';
 import { CommonModule } from '@angular/common';
 import { StockListComponent } from './inventory/inventoryMenu/stock-list/stock-list.component';
+import { BOMListComponent } from './inventory/production/bomlist/bomlist.component';
 
 @NgModule({
   declarations: [
@@ -56,12 +53,9 @@ import { StockListComponent } from './inventory/inventoryMenu/stock-list/stock-l
     PendingOrdersComponent,
     CompleteOrdersComponent,
     SideNavComponent,
-    // CustomerComponent,
     SupplierComponent,
-    // SalesListComponent,
     CustomerPaymentComponent,
     SalesReturnComponent,
-    // CustomersComponent,
     PurchasesListComponent,
     PurchasesReturnsComponent,
     SuppliersComponent,
@@ -73,7 +67,6 @@ import { StockListComponent } from './inventory/inventoryMenu/stock-list/stock-l
     StockDetailsComponent,
     ProfitAndLossComponent,
     ExpensesComponent,
-    // EstimateComponent,
     LoginComponent,
     EmployeeComponent,
     PaymentMethodComponent,
@@ -88,7 +81,8 @@ import { StockListComponent } from './inventory/inventoryMenu/stock-list/stock-l
     EstimateListComponent,
     IncomeReportComponent,
     FinancialReportComponent,
-    StockListComponent
+    StockListComponent,
+    BOMListComponent
   ],
   imports: [
     CommonModule,
@@ -99,7 +93,6 @@ import { StockListComponent } from './inventory/inventoryMenu/stock-list/stock-l
     HttpClientModule
   ],
   providers: [
-    // ✅ Register the interceptor
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptorService,
