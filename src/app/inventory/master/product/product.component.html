@@ -326,6 +326,15 @@
                                 placeholder="0" />
                             <small class="text-muted">Used for display ordering</small>
                         </div>
+
+                        <div class="col-md-6">
+                            <label for="alertQuantity" class="form-label">
+                                <i class="bi bi-sort-numeric-down me-1"></i>Alert Quantity<span class="text-danger">*</span>
+                            </label>
+                            <input type="number" class="form-control" id="alertQuantity"
+                                [(ngModel)]="selectedProduct.alertQuantity" name="alertQuantity" min="0"
+                                placeholder="0" />
+                        </div>
                     </div>
                 </form>
             </div>

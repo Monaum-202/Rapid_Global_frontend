@@ -19,6 +19,7 @@ export interface Product {
   unitId: number;
   unitName?: string;
   sortingOrder?: number;
+  alertQuantity?: number;
   pricePerUnit?: number;
   active: boolean;
   createdAt?: string;
@@ -32,6 +33,7 @@ export interface ProductReqDto {
   unitId: number;
   sortingOrder?: number;
   pricePerUnit?: number;
+  alertQuantity?: number;
 }
 
 export interface ProductFilterParams {

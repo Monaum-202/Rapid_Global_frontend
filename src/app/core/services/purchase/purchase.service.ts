@@ -153,8 +153,8 @@ export class PurchaseService extends BaseService {
   /**
    * Receive goods (update inventory)
    */
-  receiveGoods(dto: ReceiveGoodsDto): Observable<BaseApiResponse<Purchase>> {
-    return this.post<Purchase>(`${this.ENDPOINT}/receive-goods`, dto);
+  receiveGoods(id: number, dto: ReceiveGoodsDto): Observable<BaseApiResponse<Purchase>> {
+    return this.put<Purchase>(`${this.ENDPOINT}/${id}/receive-goods`, dto);
   }
 
   /**

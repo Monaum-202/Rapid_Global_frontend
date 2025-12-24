@@ -108,11 +108,8 @@ export class ProductComponent extends BaseCrudComponent<Product, ProductReqDto> 
       )
       .subscribe({
         next: (response) => {
-          console.log('API Response:', response);
           if (response.success && response.data) {
             this.items = response.data || [];
-            console.log('Loaded products:', this.items);
-            console.log('First product:', this.items[0]);
             this.paginator.updateFromResponse(response.data);
           }
         },
@@ -128,6 +125,7 @@ export class ProductComponent extends BaseCrudComponent<Product, ProductReqDto> 
       description: '',
       unitId: 0,
       sortingOrder: 0,
+      alertQuantity: 0,
       pricePerUnit: 0,
       active: true
     };
@@ -150,6 +148,7 @@ export class ProductComponent extends BaseCrudComponent<Product, ProductReqDto> 
       description: product.description,
       unitId: product.unitId,
       sortingOrder: product.sortingOrder,
+      alertQuantity: product.alertQuantity,
       pricePerUnit: product.pricePerUnit
     };
   }
@@ -185,8 +184,6 @@ export class ProductComponent extends BaseCrudComponent<Product, ProductReqDto> 
   }
 
   editProduct(product: Product): void {
-    console.log('Edit Product called with:', product);
-    console.log('Product ID:', product.id);
     this.isEditMode = true;
     // Create a deep copy to avoid modifying the original
     this.selectedProduct = {
@@ -197,14 +194,12 @@ export class ProductComponent extends BaseCrudComponent<Product, ProductReqDto> 
       unitId: product.unitId,
       unitName: product.unitName,
       sortingOrder: product.sortingOrder || 0,
+      alertQuantity: product.alertQuantity ,
       pricePerUnit: product.pricePerUnit || 0,
       active: product.active,
       createdAt: product.createdAt,
       updatedAt: product.updatedAt
     };
-    console.log('After copy - selectedProduct:', this.selectedProduct);
-    console.log('After copy - selectedProduct.id:', this.selectedProduct.id);
-    console.log('isEditMode:', this.isEditMode);
   }
 
   viewProduct(product: Product): void {
@@ -222,11 +217,6 @@ export class ProductComponent extends BaseCrudComponent<Product, ProductReqDto> 
 
     // Check if we're editing (has a valid ID greater than 0)
     const isEditing = this.selectedProduct && this.selectedProduct.id && this.selectedProduct.id > 0;
-
-    console.log('Save Product - isEditMode:', this.isEditMode);
-    console.log('Save Product - selectedProduct.id:', this.selectedProduct?.id);
-    console.log('Save Product - isEditing:', isEditing);
-    console.log('Save Product - DTO:', dto);
 
     const operation = isEditing
       ? this.service.update(this.selectedProduct!.id, dto)
