@@ -37,6 +37,7 @@ import { EstimateListComponent } from './inventory/sales/estimate-list/estimate-
 import { IncomeReportComponent } from './inventory/report/income-report/income-report.component';
 import { FinancialReportComponent } from './inventory/report/financial-report/financial-report.component';
 import { BOMListComponent } from './inventory/production/bomlist/bomlist.component';
+import { ItemUsageComponent } from './inventory/production/item-usage/item-usage.component';
 
 const routes: Routes = [
   {
@@ -81,6 +82,8 @@ const routes: Routes = [
 
       //Production
       { path: 'bill-of-materials', component: BOMListComponent },
+      { path: 'item-usage', component: ItemUsageComponent },
+
 
       // Reports
       { path: 'inventory-report', component: InventoryReportsComponent },

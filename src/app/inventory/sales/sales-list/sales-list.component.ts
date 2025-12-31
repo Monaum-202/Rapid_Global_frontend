@@ -196,105 +196,105 @@ export class SalesListComponent extends simpleCrudComponent<Sales, SalesReqDto> 
   // IMPROVED VALIDATION METHODS
   // ============================================
 
-validateForm(): boolean {
-  this.validationErrors = {};
-  let isValid = true;
+  validateForm(): boolean {
+    this.validationErrors = {};
+    let isValid = true;
 
-  // Phone validation
-  if (!this.formData.phone || this.formData.phone.trim().length < 11) {
-    this.validationErrors['phone'] = ['Phone number must be at least 11 digits'];
-    this.toastService.warning('Phone number must be at least 11 digits');
-    isValid = false;
-  }
-
-  // Customer name validation
-  if (!this.formData.customerName || this.formData.customerName.trim().length < 2) {
-    this.validationErrors['customerName'] = ['Customer name is required (min 2 characters)'];
-    this.toastService.warning('Customer name is required (min 2 characters)');
-    isValid = false;
-  }
-
-  // Email validation (if provided)
-  if (this.formData.email && this.formData.email.trim()) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(this.formData.email)) {
-      this.validationErrors['email'] = ['Please enter a valid email address'];
-      this.toastService.warning('Please enter a valid email address');
+    // Phone validation
+    if (!this.formData.phone || this.formData.phone.trim().length < 11) {
+      this.validationErrors['phone'] = ['Phone number must be at least 11 digits'];
+      this.toastService.warning('Phone number must be at least 11 digits');
       isValid = false;
     }
+
+    // Customer name validation
+    if (!this.formData.customerName || this.formData.customerName.trim().length < 2) {
+      this.validationErrors['customerName'] = ['Customer name is required (min 2 characters)'];
+      this.toastService.warning('Customer name is required (min 2 characters)');
+      isValid = false;
+    }
+
+    // Email validation (if provided)
+    if (this.formData.email && this.formData.email.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(this.formData.email)) {
+        this.validationErrors['email'] = ['Please enter a valid email address'];
+        this.toastService.warning('Please enter a valid email address');
+        isValid = false;
+      }
+    }
+
+    // Date validation
+    if (!this.formData.sellDate) {
+      this.validationErrors['sellDate'] = ['Sale date is required'];
+      this.toastService.warning('Sale date is required');
+      isValid = false;
+    }
+
+    // Items validation
+    if (!this.formData.items || this.formData.items.length === 0) {
+      this.validationErrors['items'] = ['At least one item is required'];
+      this.toastService.warning('At least one item is required');
+      isValid = false;
+    }
+
+    // Payment validation (only in add mode)
+    if (!this.isEditMode) {
+      const totalPayments = this.formData.payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+      if (totalPayments > this.formData.totalPrice) {
+        this.validationErrors['payment'] = ['Total payments cannot exceed total amount'];
+        this.toastService.warning('Total payments cannot exceed total amount');
+        isValid = false;
+      }
+    }
+
+    return isValid;
   }
 
-  // Date validation
-  if (!this.formData.sellDate) {
-    this.validationErrors['sellDate'] = ['Sale date is required'];
-    this.toastService.warning('Sale date is required');
-    isValid = false;
+  validateCurrentItem(): boolean {
+    if (!this.currentItem.itemName || this.currentItem.itemName.trim() === '') {
+      this.toastService.warning('Item name is required');
+      return false;
+    }
+
+    if (this.currentItem.quantity <= 0) {
+      this.toastService.warning('Quantity must be greater than 0');
+      return false;
+    }
+
+    if (this.currentItem.unitPrice < 0) {
+      this.toastService.warning('Unit price cannot be negative');
+      return false;
+    }
+
+    return true;
   }
 
-  // Items validation
-  if (!this.formData.items || this.formData.items.length === 0) {
-    this.validationErrors['items'] = ['At least one item is required'];
-    this.toastService.warning('At least one item is required');
-    isValid = false;
-  }
+  validateCurrentPayment(): boolean {
+    this.validationErrors['payment'] = [];
 
-  // Payment validation (only in add mode)
-  if (!this.isEditMode) {
+    if (!this.currentPayment.amount || this.currentPayment.amount <= 0) {
+      this.toastService.warning('Payment amount must be greater than 0');
+      return false;
+    }
+
+    if (!this.currentPayment.paymentMethodId || this.currentPayment.paymentMethodId === 0) {
+      this.toastService.warning('Payment method is required');
+      return false;
+    }
+
     const totalPayments = this.formData.payments.reduce((sum, p) => sum + (p.amount || 0), 0);
-    if (totalPayments > this.formData.totalPrice) {
-      this.validationErrors['payment'] = ['Total payments cannot exceed total amount'];
-      this.toastService.warning('Total payments cannot exceed total amount');
-      isValid = false;
+    const newTotal = this.paymentEditIndex !== null
+      ? totalPayments - this.formData.payments[this.paymentEditIndex].amount + this.currentPayment.amount
+      : totalPayments + this.currentPayment.amount;
+
+    if (newTotal > this.formData.totalPrice) {
+      this.toastService.warning(`Total payments (${newTotal.toFixed(2)}) cannot exceed total amount (${this.formData.totalPrice.toFixed(2)})`);
+      return false;
     }
+
+    return true;
   }
-
-  return isValid;
-}
-
-validateCurrentItem(): boolean {
-  if (!this.currentItem.itemName || this.currentItem.itemName.trim() === '') {
-    this.toastService.warning('Item name is required');
-    return false;
-  }
-
-  if (this.currentItem.quantity <= 0) {
-    this.toastService.warning('Quantity must be greater than 0');
-    return false;
-  }
-
-  if (this.currentItem.unitPrice < 0) {
-    this.toastService.warning('Unit price cannot be negative');
-    return false;
-  }
-
-  return true;
-}
-
-validateCurrentPayment(): boolean {
-  this.validationErrors['payment'] = [];
-
-  if (!this.currentPayment.amount || this.currentPayment.amount <= 0) {
-    this.toastService.warning('Payment amount must be greater than 0');
-    return false;
-  }
-
-  if (!this.currentPayment.paymentMethodId || this.currentPayment.paymentMethodId === 0) {
-    this.toastService.warning('Payment method is required');
-    return false;
-  }
-
-  const totalPayments = this.formData.payments.reduce((sum, p) => sum + (p.amount || 0), 0);
-  const newTotal = this.paymentEditIndex !== null
-    ? totalPayments - this.formData.payments[this.paymentEditIndex].amount + this.currentPayment.amount
-    : totalPayments + this.currentPayment.amount;
-
-  if (newTotal > this.formData.totalPrice) {
-    this.toastService.warning(`Total payments (${newTotal.toFixed(2)}) cannot exceed total amount (${this.formData.totalPrice.toFixed(2)})`);
-    return false;
-  }
-
-  return true;
-}
 
   // ============================================
   // MODAL MANAGEMENT
@@ -372,35 +372,35 @@ validateCurrentPayment(): boolean {
   }
 
   searchCustomerByPhone(phone: string): void {
-  if (this.isSearchingCustomer) return;
+    if (this.isSearchingCustomer) return;
 
-  this.isSearchingCustomer = true;
-  this.validationErrors['phone'] = [];
+    this.isSearchingCustomer = true;
+    this.validationErrors['phone'] = [];
 
-  this.customerService.getByPhone(phone)
-    .pipe(
-      takeUntil(this.destroy$),
-      finalize(() => this.isSearchingCustomer = false)
-    )
-    .subscribe({
-      next: (response: any) => {
-        if (response.success && response.data) {
-          this.populateCustomerData(response.data);
-          this.customerFound = true;
-          this.toastService.success('Customer found');
-        } else {
+    this.customerService.getByPhone(phone)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isSearchingCustomer = false)
+      )
+      .subscribe({
+        next: (response: any) => {
+          if (response.success && response.data) {
+            this.populateCustomerData(response.data);
+            this.customerFound = true;
+            this.toastService.success('Customer found');
+          } else {
+            this.clearCustomerFields();
+            this.customerFound = false;
+            this.toastService.info(response.message || 'Customer not found. You can add new customer details.');
+          }
+        },
+        error: (err: any) => {
           this.clearCustomerFields();
           this.customerFound = false;
-          this.toastService.info(response.message || 'Customer not found. You can add new customer details.');
+          this.toastService.info('Customer not found. You can add new customer details.');
         }
-      },
-      error: (err: any) => {
-        this.clearCustomerFields();
-        this.customerFound = false;
-        this.toastService.info('Customer not found. You can add new customer details.');
-      }
-    });
-}
+      });
+  }
 
   populateCustomerData(customer: Customer): void {
     this.formData.customerName = customer.name || '';
@@ -651,127 +651,127 @@ validateCurrentPayment(): boolean {
   }
 
   createSale(): void {
-  if (this.isLoading) return;
+    if (this.isLoading) return;
 
-  const sale: Sales = {
-    id: 0,
-    invoiceNo: '',
-    customerName: this.formData.customerName,
-    phone: this.formData.phone,
-    email: this.formData.email,
-    address: this.formData.address,
-    companyName: this.formData.companyName,
-    sellDate: this.formData.sellDate,
-    deliveryDate: this.formData.deliveryDate,
-    notes: this.formData.notes,
-    subTotal: this.formData.subTotal,
-    vat: this.formData.vat,
-    discount: this.formData.discount,
-    totalAmount: this.formData.totalPrice,
-    paidAmount: this.formData.paidAmount,
-    paymentMethodId: 0,
-    dueAmount: this.formData.dueAmount,
-    status: this.formData.status,
-    items: this.formData.items,
-    trackingId: ''
-  };
+    const sale: Sales = {
+      id: 0,
+      invoiceNo: '',
+      customerName: this.formData.customerName,
+      phone: this.formData.phone,
+      email: this.formData.email,
+      address: this.formData.address,
+      companyName: this.formData.companyName,
+      sellDate: this.formData.sellDate,
+      deliveryDate: this.formData.deliveryDate,
+      notes: this.formData.notes,
+      subTotal: this.formData.subTotal,
+      vat: this.formData.vat,
+      discount: this.formData.discount,
+      totalAmount: this.formData.totalPrice,
+      paidAmount: this.formData.paidAmount,
+      paymentMethodId: 0,
+      dueAmount: this.formData.dueAmount,
+      status: this.formData.status,
+      items: this.formData.items,
+      trackingId: ''
+    };
 
-  const dto = this.mapToDto(sale);
-  this.isLoading = true;
-  this.validationErrors = {};
-  this.errorMessage = '';
+    const dto = this.mapToDto(sale);
+    this.isLoading = true;
+    this.validationErrors = {};
+    this.errorMessage = '';
 
-  this.service.create(dto)
-    .pipe(
-      takeUntil(this.destroy$),
-      finalize(() => this.isLoading = false)
-    )
-    .subscribe({
-      next: (response: any) => {
-        if (response.success === false && response.errors) {
-          this.validationErrors = response.errors;
-          this.toastService.error(response.message || 'Validation Failed');
-        } else if (response.success) {
-          const createdSale: Sales = response.data;
-          this.toastService.success(response.message || 'Sale created successfully');
-          this.handleCrudSuccess('Sale created successfully', ModalType.FORM);
-          this.resetFormData();
-          this.submitted = false;
-          this.handlePostSaleActions(createdSale);
+    this.service.create(dto)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response: any) => {
+          if (response.success === false && response.errors) {
+            this.validationErrors = response.errors;
+            this.toastService.error(response.message || 'Validation Failed');
+          } else if (response.success) {
+            const createdSale: Sales = response.data;
+            this.toastService.success(response.message || 'Sale created successfully');
+            this.handleCrudSuccess('Sale created successfully', ModalType.FORM);
+            this.resetFormData();
+            this.submitted = false;
+            this.handlePostSaleActions(createdSale);
+          }
+        },
+        error: (error: any) => {
+          if (error.status === 400 && error.error && error.error.errors) {
+            this.validationErrors = error.error.errors;
+            this.toastService.error(error.error.message || 'Validation Failed');
+          } else {
+            const errorMsg = error?.error?.message || 'Failed to create sale';
+            this.toastService.error(errorMsg);
+            this.handleError('Failed to create sale', error);
+          }
         }
-      },
-      error: (error: any) => {
-        if (error.status === 400 && error.error && error.error.errors) {
-          this.validationErrors = error.error.errors;
-          this.toastService.error(error.error.message || 'Validation Failed');
-        } else {
-          const errorMsg = error?.error?.message || 'Failed to create sale';
-          this.toastService.error(errorMsg);
-          this.handleError('Failed to create sale', error);
+      });
+  }
+
+  updateSale(): void {
+    if (!this.selectedSale?.id || this.isLoading) return;
+
+    const sale: Sales = {
+      id: this.selectedSale.id,
+      invoiceNo: this.selectedSale.invoiceNo,
+      customerName: this.formData.customerName,
+      phone: this.formData.phone,
+      email: this.formData.email,
+      address: this.formData.address,
+      companyName: this.formData.companyName,
+      sellDate: this.formData.sellDate,
+      deliveryDate: this.formData.deliveryDate,
+      notes: this.formData.notes,
+      subTotal: this.formData.subTotal,
+      vat: this.formData.vat,
+      discount: this.formData.discount,
+      totalAmount: this.formData.totalPrice,
+      paidAmount: this.formData.paidAmount,
+      paymentMethodId: 0,
+      dueAmount: this.formData.dueAmount,
+      status: this.formData.status,
+      items: this.formData.items,
+      trackingId: ''
+    };
+
+    const dto = this.mapToDto(sale);
+    this.isLoading = true;
+    this.validationErrors = {};
+    this.errorMessage = '';
+
+    this.service.update(this.selectedSale.id, dto)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response: any) => {
+          if (response.success === false && response.errors) {
+            this.validationErrors = response.errors;
+            this.toastService.error(response.message || 'Validation Failed');
+          } else if (response.success) {
+            this.toastService.success(response.message || 'Sale updated successfully');
+            this.handleCrudSuccess('Sale updated successfully', ModalType.FORM);
+            this.submitted = false;
+          }
+        },
+        error: (error: any) => {
+          if (error.status === 400 && error.error && error.error.errors) {
+            this.validationErrors = error.error.errors;
+            this.toastService.error(error.error.message || 'Validation Failed');
+          } else {
+            const errorMsg = error?.error?.message || 'Failed to update sale';
+            this.toastService.error(errorMsg);
+            this.handleError('Failed to update sale', error);
+          }
         }
-      }
-    });
-}
-
-updateSale(): void {
-  if (!this.selectedSale?.id || this.isLoading) return;
-
-  const sale: Sales = {
-    id: this.selectedSale.id,
-    invoiceNo: this.selectedSale.invoiceNo,
-    customerName: this.formData.customerName,
-    phone: this.formData.phone,
-    email: this.formData.email,
-    address: this.formData.address,
-    companyName: this.formData.companyName,
-    sellDate: this.formData.sellDate,
-    deliveryDate: this.formData.deliveryDate,
-    notes: this.formData.notes,
-    subTotal: this.formData.subTotal,
-    vat: this.formData.vat,
-    discount: this.formData.discount,
-    totalAmount: this.formData.totalPrice,
-    paidAmount: this.formData.paidAmount,
-    paymentMethodId: 0,
-    dueAmount: this.formData.dueAmount,
-    status: this.formData.status,
-    items: this.formData.items,
-    trackingId: ''
-  };
-
-  const dto = this.mapToDto(sale);
-  this.isLoading = true;
-  this.validationErrors = {};
-  this.errorMessage = '';
-
-  this.service.update(this.selectedSale.id, dto)
-    .pipe(
-      takeUntil(this.destroy$),
-      finalize(() => this.isLoading = false)
-    )
-    .subscribe({
-      next: (response: any) => {
-        if (response.success === false && response.errors) {
-          this.validationErrors = response.errors;
-          this.toastService.error(response.message || 'Validation Failed');
-        } else if (response.success) {
-          this.toastService.success(response.message || 'Sale updated successfully');
-          this.handleCrudSuccess('Sale updated successfully', ModalType.FORM);
-          this.submitted = false;
-        }
-      },
-      error: (error: any) => {
-        if (error.status === 400 && error.error && error.error.errors) {
-          this.validationErrors = error.error.errors;
-          this.toastService.error(error.error.message || 'Validation Failed');
-        } else {
-          const errorMsg = error?.error?.message || 'Failed to update sale';
-          this.toastService.error(errorMsg);
-          this.handleError('Failed to update sale', error);
-        }
-      }
-    });
-}
+      });
+  }
 
   // ============================================
   // UPDATE PAYMENT (IMPROVED)
@@ -792,60 +792,60 @@ updateSale(): void {
   }
 
   addPaymentToSale(): void {
-  if (!this.selectedSale || this.isLoading) return;
+    if (!this.selectedSale || this.isLoading) return;
 
-  // Validation
-  this.validationErrors = {};
+    // Validation
+    this.validationErrors = {};
 
-  if (!this.updatePaymentData.date) {
-    this.toastService.warning('Payment date is required');
-    return;
-  }
+    if (!this.updatePaymentData.date) {
+      this.toastService.warning('Payment date is required');
+      return;
+    }
 
-  if (!this.updatePaymentData.paymentMethodId || this.updatePaymentData.paymentMethodId === 0) {
-    this.toastService.warning('Payment method is required');
-    return;
-  }
+    if (!this.updatePaymentData.paymentMethodId || this.updatePaymentData.paymentMethodId === 0) {
+      this.toastService.warning('Payment method is required');
+      return;
+    }
 
-  const paymentDto = {
-    saleId: this.selectedSale.id,
-    amount: Number(this.updatePaymentData.amount),
-    incomeDate: this.updatePaymentData.date,
-    paymentMethodId: Number(this.updatePaymentData.paymentMethodId),
-    trackingId: this.updatePaymentData.trackingId?.trim() || '',
-    description: this.updatePaymentData.description?.trim() || `Payment for Invoice ${this.selectedSale.invoiceNo}`
-  };
+    const paymentDto = {
+      saleId: this.selectedSale.id,
+      amount: Number(this.updatePaymentData.amount),
+      incomeDate: this.updatePaymentData.date,
+      paymentMethodId: Number(this.updatePaymentData.paymentMethodId),
+      trackingId: this.updatePaymentData.trackingId?.trim() || '',
+      description: this.updatePaymentData.description?.trim() || `Payment for Invoice ${this.selectedSale.invoiceNo}`
+    };
 
-  this.isLoading = true;
+    this.isLoading = true;
 
-  this.incomeService.addPayment(paymentDto)
-    .pipe(
-      takeUntil(this.destroy$),
-      finalize(() => this.isLoading = false)
-    )
-    .subscribe({
-      next: (response: any) => {
-        if (response.success === false && response.errors) {
-          this.validationErrors = response.errors;
-          this.toastService.error(response.message || 'Validation Failed');
-        } else if (response.success) {
-          this.toastService.success(response.message || 'Payment added successfully');
-          this.handleCrudSuccess('Payment added successfully', ModalType.UPDATE);
-          this.loadItems();
+    this.incomeService.addPayment(paymentDto)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response: any) => {
+          if (response.success === false && response.errors) {
+            this.validationErrors = response.errors;
+            this.toastService.error(response.message || 'Validation Failed');
+          } else if (response.success) {
+            this.toastService.success(response.message || 'Payment added successfully');
+            this.handleCrudSuccess('Payment added successfully', ModalType.UPDATE);
+            this.loadItems();
+          }
+        },
+        error: (error: any) => {
+          if (error.status === 400 && error.error && error.error.errors) {
+            this.validationErrors = error.error.errors;
+            this.toastService.error(error.error.message || 'Validation Failed');
+          } else {
+            const errorMsg = error?.error?.message || 'Failed to add payment';
+            this.toastService.error(errorMsg);
+            this.handleError('Failed to add payment', error);
+          }
         }
-      },
-      error: (error: any) => {
-        if (error.status === 400 && error.error && error.error.errors) {
-          this.validationErrors = error.error.errors;
-          this.toastService.error(error.error.message || 'Validation Failed');
-        } else {
-          const errorMsg = error?.error?.message || 'Failed to add payment';
-          this.toastService.error(errorMsg);
-          this.handleError('Failed to add payment', error);
-        }
-      }
-    });
-}
+      });
+  }
 
   // ============================================
   // OTHER OPERATIONS
@@ -911,107 +911,107 @@ updateSale(): void {
  * Share invoice via email
  */
   shareInvoice(sale: Sales): void {
-  if (!sale || !sale.id) {
-    this.toastService.error('Invalid sale selected');
-    return;
-  }
+    if (!sale || !sale.id) {
+      this.toastService.error('Invalid sale selected');
+      return;
+    }
 
-  if (!sale.email || sale.email.trim() === '') {
-    this.toastService.warning('Customer email is not available. Please update customer information first.');
-    return;
-  }
+    if (!sale.email || sale.email.trim() === '') {
+      this.toastService.warning('Customer email is not available. Please update customer information first.');
+      return;
+    }
 
-  const confirmMessage = `Send invoice ${sale.invoiceNo} to ${sale.email}?`;
-  if (!confirm(confirmMessage)) {
-    return;
-  }
+    const confirmMessage = `Send invoice ${sale.invoiceNo} to ${sale.email}?`;
+    if (!confirm(confirmMessage)) {
+      return;
+    }
 
-  this.isLoading = true;
+    this.isLoading = true;
 
-  this.service.emailInvoice(sale.id, sale.email)
-    .pipe(
-      takeUntil(this.destroy$),
-      finalize(() => this.isLoading = false)
-    )
-    .subscribe({
-      next: (response: any) => {
-        if (response.success) {
-          this.toastService.success(`Invoice sent successfully to ${sale.email}`);
-        } else {
-          this.toastService.error(response.message || 'Failed to send invoice');
+    this.service.emailInvoice(sale.id, sale.email)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response: any) => {
+          if (response.success) {
+            this.toastService.success(`Invoice sent successfully to ${sale.email}`);
+          } else {
+            this.toastService.error(response.message || 'Failed to send invoice');
+          }
+        },
+        error: (error: any) => {
+          const errorMsg = error?.error?.message || 'Failed to send invoice email';
+          this.toastService.error(errorMsg);
         }
-      },
-      error: (error: any) => {
-        const errorMsg = error?.error?.message || 'Failed to send invoice email';
-        this.toastService.error(errorMsg);
-      }
-    });
-}
-
-submitCancelReason(): void {
-  if (!this.selectedSale || !this.selectedSale.cancelReason?.trim()) {
-    this.toastService.warning('Please provide a cancellation reason');
-    return;
+      });
   }
 
-  if (this.isLoading) return;
+  submitCancelReason(): void {
+    if (!this.selectedSale || !this.selectedSale.cancelReason?.trim()) {
+      this.toastService.warning('Please provide a cancellation reason');
+      return;
+    }
 
-  this.isLoading = true;
-  this.service.cancelExpense(this.selectedSale.id, this.selectedSale.cancelReason.trim())
-    .pipe(
-      takeUntil(this.destroy$),
-      finalize(() => this.isLoading = false)
-    )
-    .subscribe({
-      next: (response: any) => {
-        if (response.success) {
-          this.toastService.success('Sale canceled successfully');
-          this.loadItems();
-          this.closeModal(ModalType.CANCEL);
-        } else {
-          this.toastService.error(response.message || 'Failed to cancel sale');
+    if (this.isLoading) return;
+
+    this.isLoading = true;
+    this.service.cancelExpense(this.selectedSale.id, this.selectedSale.cancelReason.trim())
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response: any) => {
+          if (response.success) {
+            this.toastService.success('Sale canceled successfully');
+            this.loadItems();
+            this.closeModal(ModalType.CANCEL);
+          } else {
+            this.toastService.error(response.message || 'Failed to cancel sale');
+          }
+        },
+        error: (error: any) => {
+          const errorMsg = error?.error?.message || 'Failed to cancel sale';
+          this.toastService.error(errorMsg);
+          this.handleError('Failed to cancel sale', error);
         }
-      },
-      error: (error: any) => {
-        const errorMsg = error?.error?.message || 'Failed to cancel sale';
-        this.toastService.error(errorMsg);
-        this.handleError('Failed to cancel sale', error);
-      }
-    });
-}
-
-confirmDelete(): void {
-  if (!this.selectedSale) {
-    this.toastService.warning('No sale selected');
-    return;
+      });
   }
 
-  const id = this.selectedSale.id;
-  const invoiceNo = this.selectedSale.invoiceNo;
+  confirmDelete(): void {
+    if (!this.selectedSale) {
+      this.toastService.warning('No sale selected');
+      return;
+    }
 
-  this.isLoading = true;
-  this.service.deleteSale(id)
-    .pipe(
-      takeUntil(this.destroy$),
-      finalize(() => this.isLoading = false)
-    )
-    .subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.toastService.success(response.message || `Sale ${invoiceNo} deleted successfully`);
-          this.loadItems();
-          this.closeModal(ModalType.DELETE);
-        } else {
-          this.toastService.error(response.message || 'Failed to delete sale');
+    const id = this.selectedSale.id;
+    const invoiceNo = this.selectedSale.invoiceNo;
+
+    this.isLoading = true;
+    this.service.deleteSale(id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.toastService.success(response.message || `Sale ${invoiceNo} deleted successfully`);
+            this.loadItems();
+            this.closeModal(ModalType.DELETE);
+          } else {
+            this.toastService.error(response.message || 'Failed to delete sale');
+          }
+        },
+        error: (error) => {
+          const errorMsg = error?.error?.message || 'Failed to delete sale';
+          this.toastService.error(errorMsg);
+          this.handleError('Failed to delete sale', error);
         }
-      },
-      error: (error) => {
-        const errorMsg = error?.error?.message || 'Failed to delete sale';
-        this.toastService.error(errorMsg);
-        this.handleError('Failed to delete sale', error);
-      }
-    });
-}
+      });
+  }
 
 
   openCencelModal(sales: Sales): void {
@@ -1064,35 +1064,35 @@ confirmDelete(): void {
   }
 
   loadPaymentMethods(): void {
-  this.paymentMethodService.getAllActive(true).subscribe({
-    next: (res) => {
-      this.paymentMethod = res.data.map(method => ({
-        ...method,
-        id: Number(method.id)
-      }));
-    },
-    error: (err) => {
-      console.error('Failed to load payment methods', err);
-      this.toastService.error('Failed to load payment methods');
-    }
-  });
-}
-
-
-loadProducts(): void {
-  this.productService
-    .getAllProducts('', true, ProductType.FINISHED_GOODS)
-    .subscribe({
+    this.paymentMethodService.getAllActive(true).subscribe({
       next: (res) => {
-        this.products = res.data || [];
-        this.filteredProducts = this.products.slice(0, 10);
+        this.paymentMethod = res.data.map(method => ({
+          ...method,
+          id: Number(method.id)
+        }));
       },
       error: (err) => {
-        console.error('Failed to load raw materials', err);
-        this.toastService.error('Failed to load raw materials');
+        console.error('Failed to load payment methods', err);
+        this.toastService.error('Failed to load payment methods');
       }
     });
-}
+  }
+
+
+  loadProducts(): void {
+    this.productService
+      .getAllProducts('', true, ProductType.FINISHED_GOODS)
+      .subscribe({
+        next: (res) => {
+          this.products = res.data || [];
+          this.filteredProducts = this.products.slice(0, 10);
+        },
+        error: (err) => {
+          console.error('Failed to load raw materials', err);
+          this.toastService.error('Failed to load raw materials');
+        }
+      });
+  }
 
   get sales(): Sales[] {
     return this.items;
@@ -1164,22 +1164,22 @@ loadProducts(): void {
    * Automatically send invoice email
    */
   private emailInvoiceAuto(saleId: number, email: string): void {
-  this.service.emailInvoice(saleId, email)
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (response: any) => {
-        if (response.success) {
-          this.toastService.success(`Invoice sent to ${email}`);
-        } else {
-          this.toastService.error('Failed to send invoice');
+    this.service.emailInvoice(saleId, email)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: any) => {
+          if (response.success) {
+            this.toastService.success(`Invoice sent to ${email}`);
+          } else {
+            this.toastService.error('Failed to send invoice');
+          }
+        },
+        error: (error) => {
+          console.error('Auto-email failed:', error);
+          this.toastService.error('Failed to send invoice email');
         }
-      },
-      error: (error) => {
-        console.error('Auto-email failed:', error);
-        this.toastService.error('Failed to send invoice email');
-      }
-    });
-}
+      });
+  }
 
   /**
    * Show toast notification

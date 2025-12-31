@@ -139,7 +139,7 @@
     </div>
 
     <!-- Production / Manufacturing -->
-    <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
+    <!--<a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
       href="#productionMenu" role="button" aria-expanded="false" aria-controls="productionMenu">
       <span>
         <i class="fa fa-industry" (click)="expandSideBar()"></i>
@@ -152,17 +152,17 @@
         <li>
           <a routerLink="/inventory/bill-of-materials" class="nav-link text-white">Bill of Materials (BOM)</a>
         </li>
-        <!-- <li>
-          <a routerLink="/inventory/production-entry" class="nav-link text-white">Production Entry</a>
-        </li>
         <li>
+          <a routerLink="/inventory/item-usage" class="nav-link text-white">Production Entry</a>
+        </li>
+         <li>
           <a routerLink="/inventory/work-order" class="nav-link text-white">Work Orders</a>
         </li>
         <li>
           <a routerLink="/inventory/wastage" class="nav-link text-white">Wastage Management</a>
-        </li>-->
+        </li>
       </ul>
-    </div>
+    </div>-->
 
     <!-- Inventory Section -->
      <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
@@ -178,6 +178,11 @@
         <li>
           <a routerLink="stock-list" class="nav-link text-white" (click)="onLinkClick()">
             Stock List
+          </a>
+        </li>
+        <li>
+          <a routerLink="item-usage" class="nav-link text-white" (click)="onLinkClick()">
+            Stock Transactions
           </a>
         </li>
         <!--<li>

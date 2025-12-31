@@ -17,7 +17,7 @@ export class BaseService {
   protected readonly BASE_URL = 'http://localhost:9091/api';
   private readonly DEFAULT_RETRY_COUNT = 1;
 
-  constructor(protected http: HttpClient) {}
+  constructor(protected http: HttpClient) { }
 
   // ==================== HTTP Methods ====================
 
@@ -54,10 +54,10 @@ export class BaseService {
   //   );
   // }
 
-    protected post<T>(endpoint: string, body: any, params?: HttpParams): Observable<BaseApiResponse<T>> {
-  return this.http.post<BaseApiResponse<T>>(this.buildUrl(endpoint), body, { params, headers: this.getHeaders() })
-    .pipe(catchError(this.handleError));
-}
+  protected post<T>(endpoint: string, body: any, params?: HttpParams): Observable<BaseApiResponse<T>> {
+    return this.http.post<BaseApiResponse<T>>(this.buildUrl(endpoint), body, { params, headers: this.getHeaders() })
+      .pipe(catchError(this.handleError));
+  }
 
   protected put<T>(
     endpoint: string,
@@ -106,18 +106,18 @@ export class BaseService {
   }
 
   protected getBlob(
-  endpoint: string,
-  config?: RequestConfig
-): Observable<HttpResponse<Blob>> {
-  return this.http.get(
-    this.buildUrl(endpoint),
-    {
-      headers: this.getHeaders(config),
-      responseType: 'blob',
-      observe: 'response'
-    }
-  );
-}
+    endpoint: string,
+    config?: RequestConfig
+  ): Observable<HttpResponse<Blob>> {
+    return this.http.get(
+      this.buildUrl(endpoint),
+      {
+        headers: this.getHeaders(config),
+        responseType: 'blob',
+        observe: 'response'
+      }
+    );
+  }
 
 
   // ==================== Helper Methods ====================

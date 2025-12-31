@@ -43,6 +43,7 @@ import { FinancialReportComponent } from './inventory/report/financial-report/fi
 import { CommonModule } from '@angular/common';
 import { StockListComponent } from './inventory/inventoryMenu/stock-list/stock-list.component';
 import { BOMListComponent } from './inventory/production/bomlist/bomlist.component';
+import { ItemUsageComponent } from './inventory/production/item-usage/item-usage.component';
 
 @NgModule({
   declarations: [
@@ -82,7 +83,8 @@ import { BOMListComponent } from './inventory/production/bomlist/bomlist.compone
     IncomeReportComponent,
     FinancialReportComponent,
     StockListComponent,
-    BOMListComponent
+    BOMListComponent,
+    ItemUsageComponent
   ],
   imports: [
     CommonModule,
