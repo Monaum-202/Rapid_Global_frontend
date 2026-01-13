@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DashboardMetrics, DashboardService } from 'src/app/core/services/dashboard/dashboard.service';
 
 interface MetricCardData {
   title: string;
@@ -11,80 +12,23 @@ interface MetricCardData {
   accentColor: string;
 }
 
-interface SalesData {
-  month: string;
-  sales: number;
-  profit: number;
-  expenses: number;
-}
-
-interface CategoryData {
-  name: string;
-  value: number;
-  color: string;
-}
-
-interface WeeklyData {
-  day: string;
-  orders: number;
-}
-
-interface InventoryItem {
-  label: string;
-  count: number;
-  icon?: string;
-  color?: string;
-}
-
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  timeFilter: string = 'today';
+  timeFilter: string = 'MONTH';
+  timeFilters: string[] = ['TODAY', 'WEEK', 'MONTH', 'YEAR'];
 
-  // Main Metrics Data
-  mainMetrics: MetricCardData[] = [
-    {
-      title: 'Total Revenue',
-      value: '$18,925',
-      change: '12.5%',
-      isPositive: true,
-      icon: 'dollar-sign',
-      bgColor: 'bg-green-100',
-      accentColor: 'text-green-600'
-    },
-    {
-      title: 'Total Expenses',
-      value: '$11,024',
-      change: '8.2%',
-      isPositive: false,
-      icon: 'credit-card',
-      bgColor: 'bg-red-100',
-      accentColor: 'text-red-600'
-    },
-    {
-      title: 'Net Profit',
-      value: '$7,901',
-      change: '18.3%',
-      isPositive: true,
-      icon: 'trending-up',
-      bgColor: 'bg-blue-100',
-      accentColor: 'text-blue-600'
-    },
-    {
-      title: 'Profit Margin',
-      value: '41.7%',
-      change: '4.2%',
-      isPositive: true,
-      icon: 'package',
-      bgColor: 'bg-purple-100',
-      accentColor: 'text-purple-600'
-    }
-  ];
+  isLoading: boolean = false;
+  error: string | null = null;
 
-  // Secondary Metrics Data
+  // Main Metrics Data (will be populated from API)
+  mainMetrics: MetricCardData[] = [];
+  metrics!: DashboardMetrics;
+
+  // Secondary Metrics Data (static for now, can be extended)
   secondaryMetrics: MetricCardData[] = [
     {
       title: 'Due Amount',
@@ -124,8 +68,8 @@ export class DashboardComponent implements OnInit {
     }
   ];
 
-  // Inventory Items
-  inventoryItems: InventoryItem[] = [
+  // Inventory Items (static)
+  inventoryItems = [
     { label: 'Sublimation Paper', count: 6, icon: 'assets/paper-roll.png' },
     { label: 'Supporting Paper', count: 6, icon: 'assets/toilet-roll.png' },
     { label: 'Cyan Ink', count: 14, color: 'cyan' },
@@ -134,348 +78,140 @@ export class DashboardComponent implements OnInit {
     { label: 'Black Ink', count: 9, color: 'black' }
   ];
 
-  // Sales Data for Charts
-  salesData: SalesData[] = [
-    { month: 'Jan', sales: 12000, profit: 4200, expenses: 7800 },
-    { month: 'Feb', sales: 15000, profit: 5500, expenses: 9500 },
-    { month: 'Mar', sales: 13500, profit: 4800, expenses: 8700 },
-    { month: 'Apr', sales: 18000, profit: 6800, expenses: 11200 },
-    { month: 'May', sales: 16500, profit: 6200, expenses: 10300 },
-    { month: 'Jun', sales: 19500, profit: 7800, expenses: 11700 }
-  ];
-
-  // Category Data for Pie Chart
-  categoryData: CategoryData[] = [
-    { name: 'T-Shirts', value: 35, color: '#ff6b6b' },
-    { name: 'Mugs', value: 25, color: '#4ecdc4' },
-    { name: 'Banners', value: 20, color: '#45b7d1' },
-    { name: 'Bags', value: 12, color: '#f7b731' },
-    { name: 'Others', value: 8, color: '#a29bfe' }
-  ];
-
-  // Weekly Orders Data
-  weeklyData: WeeklyData[] = [
-    { day: 'Mon', orders: 45 },
-    { day: 'Tue', orders: 52 },
-    { day: 'Wed', orders: 38 },
-    { day: 'Thu', orders: 65 },
-    { day: 'Fri', orders: 58 },
-    { day: 'Sat', orders: 72 },
-    { day: 'Sun', orders: 48 }
-  ];
-
-  // Time Filters
-  timeFilters: string[] = ['today', 'week', 'month', 'year'];
-charts: any;
+  constructor(private dashboardService: DashboardService) {}
 
   ngOnInit(): void {
-    // Initialize charts after view is ready
-    setTimeout(() => {
-      this.initializeCharts();
-    }, 100);
+    this.loadDashboardData();
   }
 
   /**
-   * Set active time filter
+   * Load dashboard data from backend
+   */
+  loadDashboardData(): void {
+    this.isLoading = true;
+    this.error = null;
+
+    this.dashboardService.getDashboardMetrics(this.timeFilter).subscribe({
+      next: (metrics) => {
+        this.metrics = metrics;
+        this.updateMainMetrics(metrics);
+        this.isLoading = false;
+
+        // Initialize charts after data is loaded
+        setTimeout(() => this.initializeCharts(), 100);
+      },
+      error: (err) => {
+        console.error('Error loading dashboard data:', err);
+        this.error = 'Failed to load dashboard data. Please try again.';
+        this.loadDefaultMetrics();
+        this.isLoading = false;
+      }
+    });
+  }
+
+  /**
+   * Update main metrics with API data
+   */
+  updateMainMetrics(metrics: DashboardMetrics): void {
+    this.mainMetrics = [
+      {
+        title: 'Total Revenue',
+        value: metrics.totalRevenue.formattedValue,
+        change: metrics.totalRevenue.formattedChange,
+        isPositive: metrics.totalRevenue.isPositive,
+        icon: 'dollar-sign',
+        bgColor: 'bg-green-100',
+        accentColor: 'text-green-600'
+      },
+      {
+        title: 'Total Expenses',
+        value: metrics.totalExpenses.formattedValue,
+        change: metrics.totalExpenses.formattedChange,
+        isPositive: !metrics.totalExpenses.isPositive, // Inverted for expenses
+        icon: 'credit-card',
+        bgColor: 'bg-red-100',
+        accentColor: 'text-red-600'
+      },
+      {
+        title: 'Net Profit',
+        value: metrics.netProfit.formattedValue,
+        change: metrics.netProfit.formattedChange,
+        isPositive: metrics.netProfit.isPositive,
+        icon: 'trending-up',
+        bgColor: 'bg-blue-100',
+        accentColor: 'text-blue-600'
+      },
+      {
+        title: 'Profit Margin',
+        value: metrics.profitMargin.formattedValue,
+        change: metrics.profitMargin.formattedChange,
+        isPositive: metrics.profitMargin.isPositive,
+        icon: 'package',
+        bgColor: 'bg-purple-100',
+        accentColor: 'text-purple-600'
+      }
+    ];
+  }
+
+  /**
+   * Load default metrics (fallback)
+   */
+  loadDefaultMetrics(): void {
+    this.mainMetrics = [
+      {
+        title: 'Total Revenue',
+        value: '$0.00',
+        change: '0%',
+        isPositive: true,
+        icon: 'dollar-sign',
+        bgColor: 'bg-green-100',
+        accentColor: 'text-green-600'
+      },
+      {
+        title: 'Total Expenses',
+        value: '$0.00',
+        change: '0%',
+        isPositive: false,
+        icon: 'credit-card',
+        bgColor: 'bg-red-100',
+        accentColor: 'text-red-600'
+      },
+      {
+        title: 'Net Profit',
+        value: '$0.00',
+        change: '0%',
+        isPositive: true,
+        icon: 'trending-up',
+        bgColor: 'bg-blue-100',
+        accentColor: 'text-blue-600'
+      },
+      {
+        title: 'Profit Margin',
+        value: '0%',
+        change: '0%',
+        isPositive: true,
+        icon: 'package',
+        bgColor: 'bg-purple-100',
+        accentColor: 'text-purple-600'
+      }
+    ];
+  }
+
+  /**
+   * Set active time filter and reload data
    */
   setTimeFilter(filter: string): void {
     this.timeFilter = filter;
-    // You can add logic here to update data based on filter
+    this.loadDashboardData();
   }
 
   /**
    * Initialize all charts
    */
   initializeCharts(): void {
-    this.drawSalesChart();
-    this.drawPieChart();
-    this.drawBarChart();
-    this.drawLineChart();
-  }
-
-  /**
-   * Draw Sales & Profit Trend Chart
-   */
-  drawSalesChart(): void {
-    const canvas = document.getElementById('salesChart') as HTMLCanvasElement;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const width = canvas.width;
-    const height = canvas.height;
-    const padding = 40;
-    const chartWidth = width - padding * 2;
-    const chartHeight = height - padding * 2;
-
-    ctx.clearRect(0, 0, width, height);
-
-    const maxValue = Math.max(...this.salesData.map(d => Math.max(d.sales, d.profit)));
-    const scale = chartHeight / maxValue;
-
-    // Draw grid
-    ctx.strokeStyle = '#f0f0f0';
-    ctx.lineWidth = 1;
-    for (let i = 0; i <= 5; i++) {
-      const y = padding + (chartHeight / 5) * i;
-      ctx.beginPath();
-      ctx.moveTo(padding, y);
-      ctx.lineTo(width - padding, y);
-      ctx.stroke();
-    }
-
-    // Draw sales area
-    ctx.fillStyle = 'rgba(78, 205, 196, 0.3)';
-    ctx.beginPath();
-    ctx.moveTo(padding, height - padding);
-
-    this.salesData.forEach((data, index) => {
-      const x = padding + (chartWidth / (this.salesData.length - 1)) * index;
-      const y = height - padding - data.sales * scale;
-      ctx.lineTo(x, y);
-    });
-
-    ctx.lineTo(width - padding, height - padding);
-    ctx.closePath();
-    ctx.fill();
-
-    // Draw sales line
-    ctx.strokeStyle = '#4ecdc4';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-
-    this.salesData.forEach((data, index) => {
-      const x = padding + (chartWidth / (this.salesData.length - 1)) * index;
-      const y = height - padding - data.sales * scale;
-      if (index === 0) {
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
-    });
-    ctx.stroke();
-
-    // Draw profit area
-    ctx.fillStyle = 'rgba(255, 107, 107, 0.3)';
-    ctx.beginPath();
-    ctx.moveTo(padding, height - padding);
-
-    this.salesData.forEach((data, index) => {
-      const x = padding + (chartWidth / (this.salesData.length - 1)) * index;
-      const y = height - padding - data.profit * scale;
-      ctx.lineTo(x, y);
-    });
-
-    ctx.lineTo(width - padding, height - padding);
-    ctx.closePath();
-    ctx.fill();
-
-    // Draw profit line
-    ctx.strokeStyle = '#ff6b6b';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-
-    this.salesData.forEach((data, index) => {
-      const x = padding + (chartWidth / (this.salesData.length - 1)) * index;
-      const y = height - padding - data.profit * scale;
-      if (index === 0) {
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
-    });
-    ctx.stroke();
-
-    // Draw x-axis labels
-    ctx.fillStyle = '#888';
-    ctx.font = '12px Arial';
-    ctx.textAlign = 'center';
-    this.salesData.forEach((data, index) => {
-      const x = padding + (chartWidth / (this.salesData.length - 1)) * index;
-      ctx.fillText(data.month, x, height - padding + 20);
-    });
-  }
-
-  /**
-   * Draw Sales by Category Pie Chart
-   */
-  drawPieChart(): void {
-    const canvas = document.getElementById('pieChart') as HTMLCanvasElement;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    const radius = Math.min(centerX, centerY) - 40;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    const total = this.categoryData.reduce((sum, item) => sum + item.value, 0);
-    let currentAngle = -Math.PI / 2;
-
-    this.categoryData.forEach((item) => {
-      const sliceAngle = (item.value / total) * 2 * Math.PI;
-
-      // Draw slice
-      ctx.fillStyle = item.color;
-      ctx.beginPath();
-      ctx.moveTo(centerX, centerY);
-      ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
-      ctx.closePath();
-      ctx.fill();
-
-      // Draw label
-      const labelAngle = currentAngle + sliceAngle / 2;
-      const labelX = centerX + Math.cos(labelAngle) * (radius + 30);
-      const labelY = centerY + Math.sin(labelAngle) * (radius + 30);
-
-      ctx.fillStyle = '#333';
-      ctx.font = '12px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText(`${item.name}`, labelX, labelY);
-      ctx.fillText(`${item.value}%`, labelX, labelY + 15);
-
-      currentAngle += sliceAngle;
-    });
-  }
-
-  /**
-   * Draw Weekly Orders Bar Chart
-   */
-  drawBarChart(): void {
-    const canvas = document.getElementById('barChart') as HTMLCanvasElement;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const width = canvas.width;
-    const height = canvas.height;
-    const padding = 40;
-    const chartHeight = height - padding * 2;
-    const barWidth = (width - padding * 2) / this.weeklyData.length - 10;
-
-    ctx.clearRect(0, 0, width, height);
-
-    const maxOrders = Math.max(...this.weeklyData.map(d => d.orders));
-    const scale = chartHeight / maxOrders;
-
-    // Draw grid
-    ctx.strokeStyle = '#f0f0f0';
-    ctx.lineWidth = 1;
-    for (let i = 0; i <= 5; i++) {
-      const y = padding + (chartHeight / 5) * i;
-      ctx.beginPath();
-      ctx.moveTo(padding, y);
-      ctx.lineTo(width - padding, y);
-      ctx.stroke();
-    }
-
-    // Draw bars
-    this.weeklyData.forEach((data, index) => {
-      const x = padding + (barWidth + 10) * index + 5;
-      const barHeight = data.orders * scale;
-      const y = height - padding - barHeight;
-
-      // Draw bar with rounded top
-      ctx.fillStyle = '#45b7d1';
-      ctx.beginPath();
-      ctx.roundRect(x, y, barWidth, barHeight, [8, 8, 0, 0]);
-      ctx.fill();
-
-      // Draw label
-      ctx.fillStyle = '#888';
-      ctx.font = '12px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText(data.day, x + barWidth / 2, height - padding + 20);
-    });
-  }
-
-  /**
-   * Draw Revenue vs Expenses Line Chart
-   */
-  drawLineChart(): void {
-    const canvas = document.getElementById('lineChart') as HTMLCanvasElement;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const width = canvas.width;
-    const height = canvas.height;
-    const padding = 40;
-    const chartWidth = width - padding * 2;
-    const chartHeight = height - padding * 2;
-
-    ctx.clearRect(0, 0, width, height);
-
-    const maxValue = Math.max(...this.salesData.map(d => Math.max(d.sales, d.expenses)));
-    const scale = chartHeight / maxValue;
-
-    // Draw grid
-    ctx.strokeStyle = '#f0f0f0';
-    ctx.lineWidth = 1;
-    for (let i = 0; i <= 5; i++) {
-      const y = padding + (chartHeight / 5) * i;
-      ctx.beginPath();
-      ctx.moveTo(padding, y);
-      ctx.lineTo(width - padding, y);
-      ctx.stroke();
-    }
-
-    // Draw sales line
-    ctx.strokeStyle = '#4ecdc4';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-
-    this.salesData.forEach((data, index) => {
-      const x = padding + (chartWidth / (this.salesData.length - 1)) * index;
-      const y = height - padding - data.sales * scale;
-      if (index === 0) {
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
-      // Draw dot
-      ctx.fillStyle = '#4ecdc4';
-      ctx.beginPath();
-      ctx.arc(x, y, 5, 0, 2 * Math.PI);
-      ctx.fill();
-    });
-    ctx.stroke();
-
-    // Draw expenses line
-    ctx.strokeStyle = '#ff6b6b';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-
-    this.salesData.forEach((data, index) => {
-      const x = padding + (chartWidth / (this.salesData.length - 1)) * index;
-      const y = height - padding - data.expenses * scale;
-      if (index === 0) {
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
-      // Draw dot
-      ctx.fillStyle = '#ff6b6b';
-      ctx.beginPath();
-      ctx.arc(x, y, 5, 0, 2 * Math.PI);
-      ctx.fill();
-    });
-    ctx.stroke();
-
-    // Draw x-axis labels
-    ctx.fillStyle = '#888';
-    ctx.font = '12px Arial';
-    ctx.textAlign = 'center';
-    this.salesData.forEach((data, index) => {
-      const x = padding + (chartWidth / (this.salesData.length - 1)) * index;
-      ctx.fillText(data.month, x, height - padding + 20);
-    });
+    // Chart initialization logic here
+    // You can use the existing chart drawing methods
+    // or integrate with a charting library like Chart.js
   }
 
   /**
@@ -489,9 +225,15 @@ charts: any;
       'package': 'M12.89 1.45l8 4A2 2 0 0 1 22 7.24v9.53a2 2 0 0 1-1.11 1.79l-8 4a2 2 0 0 1-1.79 0l-8-4a2 2 0 0 1-1.1-1.8V7.24a2 2 0 0 1 1.11-1.79l8-4a2 2 0 0 1 1.78 0z M2.32 6.16L12 11l9.68-4.84 M12 22.76V11',
       'alert-triangle': 'M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z M12 9v4 M12 17h.01',
       'shopping-cart': 'M9 2L1 4v2h20V4l-8-2-2 2-2-2z M3 8v13a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8 M10 12h4',
-      'users': 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75',
-      'eye': 'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z'
+      'users': 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75'
     };
     return icons[icon] || icons['dollar-sign'];
+  }
+
+  /**
+   * Refresh dashboard data
+   */
+  refreshDashboard(): void {
+    this.loadDashboardData();
   }
 }
