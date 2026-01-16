@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { DashboardMetrics, DashboardService } from 'src/app/core/services/dashboard/dashboard.service';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { DashboardMetrics, DashboardService, RevenueDetails, ExpenseDetails, TrendData } from 'src/app/core/services/dashboard/dashboard.service';
+import { Chart, ChartConfiguration, registerables } from 'chart.js';
+
+Chart.register(...registerables);
 
 interface MetricCardData {
   title: string;
@@ -17,56 +19,27 @@ interface MetricCardData {
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   timeFilter: string = 'MONTH';
   timeFilters: string[] = ['TODAY', 'WEEK', 'MONTH', 'YEAR'];
 
   isLoading: boolean = false;
   error: string | null = null;
 
-  // Main Metrics Data (will be populated from API)
   mainMetrics: MetricCardData[] = [];
+  secondaryMetrics: MetricCardData[] = [];
   metrics!: DashboardMetrics;
 
-  // Secondary Metrics Data (static for now, can be extended)
-  secondaryMetrics: MetricCardData[] = [
-    {
-      title: 'Due Amount',
-      value: '$12,450',
-      change: '3.4%',
-      isPositive: false,
-      icon: 'alert-triangle',
-      bgColor: 'bg-yellow-100',
-      accentColor: 'text-yellow-600'
-    },
-    {
-      title: 'Amount Owed',
-      value: '$7,320',
-      change: '5.1%',
-      isPositive: true,
-      icon: 'dollar-sign',
-      bgColor: 'bg-teal-100',
-      accentColor: 'text-teal-600'
-    },
-    {
-      title: 'Total Orders',
-      value: '2,314',
-      change: '15.8%',
-      isPositive: true,
-      icon: 'shopping-cart',
-      bgColor: 'bg-orange-100',
-      accentColor: 'text-orange-600'
-    },
-    {
-      title: 'Customers',
-      value: '14,208',
-      change: '9.2%',
-      isPositive: true,
-      icon: 'users',
-      bgColor: 'bg-indigo-100',
-      accentColor: 'text-indigo-600'
-    }
-  ];
+  // Chart instances
+  private salesChart?: Chart;
+  private pieChart?: Chart;
+  private barChart?: Chart;
+  private lineChart?: Chart;
+
+  // Chart data
+  revenueDetails?: RevenueDetails;
+  expenseDetails?: ExpenseDetails;
+  trendData?: TrendData;
 
   // Inventory Items (static)
   inventoryItems = [
@@ -81,32 +54,112 @@ export class DashboardComponent implements OnInit {
   constructor(private dashboardService: DashboardService) {}
 
   ngOnInit(): void {
+    this.initializeSecondaryMetrics();
     this.loadDashboardData();
   }
 
+  ngOnDestroy(): void {
+    this.destroyCharts();
+  }
+
   /**
-   * Load dashboard data from backend
+   * Initialize static secondary metrics
+   */
+  initializeSecondaryMetrics(): void {
+    this.secondaryMetrics = [
+      {
+        title: 'Due Amount',
+        value: '12,450',
+        change: '3.4%',
+        isPositive: false,
+        icon: 'alert-triangle',
+        bgColor: 'bg-warning bg-opacity-10',
+        accentColor: 'text-warning'
+      },
+      {
+        title: 'Amount Owed',
+        value: '7,320',
+        change: '5.1%',
+        isPositive: true,
+        icon: 'dollar-sign',
+        bgColor: 'bg-info bg-opacity-10',
+        accentColor: 'text-info'
+      },
+      {
+        title: 'Customers',
+        value: '14,208',
+        change: '9.2%',
+        isPositive: true,
+        icon: 'users',
+        bgColor: 'bg-primary bg-opacity-10',
+        accentColor: 'text-primary'
+      }
+    ];
+  }
+
+  /**
+   * Load all dashboard data
    */
   loadDashboardData(): void {
     this.isLoading = true;
     this.error = null;
 
+    // Load main metrics
     this.dashboardService.getDashboardMetrics(this.timeFilter).subscribe({
       next: (metrics) => {
         this.metrics = metrics;
         this.updateMainMetrics(metrics);
-        this.isLoading = false;
-
-        // Initialize charts after data is loaded
-        setTimeout(() => this.initializeCharts(), 100);
+        this.loadChartsData();
       },
       error: (err) => {
-        console.error('Error loading dashboard data:', err);
+        console.error('Error loading dashboard metrics:', err);
         this.error = 'Failed to load dashboard data. Please try again.';
         this.loadDefaultMetrics();
         this.isLoading = false;
       }
     });
+  }
+
+  /**
+   * Load data for charts
+   */
+  loadChartsData(): void {
+    // Load revenue details
+    this.dashboardService.getRevenueDetails(this.timeFilter).subscribe({
+      next: (response) => {
+        this.revenueDetails = response.data;
+        this.checkAndRenderCharts();
+      },
+      error: (err) => console.error('Error loading revenue details:', err)
+    });
+
+    // Load expense details
+    this.dashboardService.getExpenseDetails(this.timeFilter).subscribe({
+      next: (response) => {
+        this.expenseDetails = response.data;
+        this.checkAndRenderCharts();
+      },
+      error: (err) => console.error('Error loading expense details:', err)
+    });
+
+    // Load trend data
+    this.dashboardService.getTrendData(this.timeFilter).subscribe({
+      next: (response) => {
+        this.trendData = response.data;
+        this.checkAndRenderCharts();
+      },
+      error: (err) => console.error('Error loading trend data:', err)
+    });
+  }
+
+  /**
+   * Check if all data is loaded and render charts
+   */
+  checkAndRenderCharts(): void {
+    if (this.revenueDetails && this.expenseDetails && this.trendData) {
+      this.isLoading = false;
+      setTimeout(() => this.initializeCharts(), 100);
+    }
   }
 
   /**
@@ -120,17 +173,17 @@ export class DashboardComponent implements OnInit {
         change: metrics.totalRevenue.formattedChange,
         isPositive: metrics.totalRevenue.isPositive,
         icon: 'dollar-sign',
-        bgColor: 'bg-green-100',
-        accentColor: 'text-green-600'
+        bgColor: 'bg-success bg-opacity-10',
+        accentColor: 'text-success'
       },
       {
         title: 'Total Expenses',
         value: metrics.totalExpenses.formattedValue,
         change: metrics.totalExpenses.formattedChange,
-        isPositive: !metrics.totalExpenses.isPositive, // Inverted for expenses
+        isPositive: metrics.totalExpenses.isPositive,
         icon: 'credit-card',
-        bgColor: 'bg-red-100',
-        accentColor: 'text-red-600'
+        bgColor: 'bg-danger bg-opacity-10',
+        accentColor: 'text-danger'
       },
       {
         title: 'Net Profit',
@@ -138,8 +191,8 @@ export class DashboardComponent implements OnInit {
         change: metrics.netProfit.formattedChange,
         isPositive: metrics.netProfit.isPositive,
         icon: 'trending-up',
-        bgColor: 'bg-blue-100',
-        accentColor: 'text-blue-600'
+        bgColor: 'bg-primary bg-opacity-10',
+        accentColor: 'text-primary'
       },
       {
         title: 'Profit Margin',
@@ -147,9 +200,18 @@ export class DashboardComponent implements OnInit {
         change: metrics.profitMargin.formattedChange,
         isPositive: metrics.profitMargin.isPositive,
         icon: 'package',
-        bgColor: 'bg-purple-100',
-        accentColor: 'text-purple-600'
-      }
+        bgColor: 'bg-secondary bg-opacity-10',
+        accentColor: 'text-secondary'
+      },
+      {
+        title: 'Total Orders',
+        value: metrics.totalOrders.formattedValue,
+        change: metrics.totalOrders.formattedChange,
+        isPositive: metrics.totalOrders.isPositive,
+        icon: 'shopping-cart',
+        bgColor: 'bg-secondary bg-opacity-10',
+        accentColor: 'text-secondary'
+      },
     ];
   }
 
@@ -160,30 +222,30 @@ export class DashboardComponent implements OnInit {
     this.mainMetrics = [
       {
         title: 'Total Revenue',
-        value: '$0.00',
+        value: '0.00',
         change: '0%',
         isPositive: true,
         icon: 'dollar-sign',
-        bgColor: 'bg-green-100',
-        accentColor: 'text-green-600'
+        bgColor: 'bg-success bg-opacity-10',
+        accentColor: 'text-success'
       },
       {
         title: 'Total Expenses',
-        value: '$0.00',
+        value: '0.00',
         change: '0%',
         isPositive: false,
         icon: 'credit-card',
-        bgColor: 'bg-red-100',
-        accentColor: 'text-red-600'
+        bgColor: 'bg-danger bg-opacity-10',
+        accentColor: 'text-danger'
       },
       {
         title: 'Net Profit',
-        value: '$0.00',
+        value: '0.00',
         change: '0%',
         isPositive: true,
         icon: 'trending-up',
-        bgColor: 'bg-blue-100',
-        accentColor: 'text-blue-600'
+        bgColor: 'bg-primary bg-opacity-10',
+        accentColor: 'text-primary'
       },
       {
         title: 'Profit Margin',
@@ -191,8 +253,8 @@ export class DashboardComponent implements OnInit {
         change: '0%',
         isPositive: true,
         icon: 'package',
-        bgColor: 'bg-purple-100',
-        accentColor: 'text-purple-600'
+        bgColor: 'bg-secondary bg-opacity-10',
+        accentColor: 'text-secondary'
       }
     ];
   }
@@ -202,6 +264,7 @@ export class DashboardComponent implements OnInit {
    */
   setTimeFilter(filter: string): void {
     this.timeFilter = filter;
+    this.destroyCharts();
     this.loadDashboardData();
   }
 
@@ -209,9 +272,241 @@ export class DashboardComponent implements OnInit {
    * Initialize all charts
    */
   initializeCharts(): void {
-    // Chart initialization logic here
-    // You can use the existing chart drawing methods
-    // or integrate with a charting library like Chart.js
+    this.destroyCharts();
+
+    this.createSalesChart();
+    this.createPieChart();
+    this.createBarChart();
+    this.createLineChart();
+  }
+
+  /**
+   * Create Sales & Profit Trend Chart
+   */
+  createSalesChart(): void {
+    const canvas = document.getElementById('salesChart') as HTMLCanvasElement;
+    if (!canvas || !this.trendData) return;
+
+    const dates = this.trendData.revenueTrend.map(t => new Date(t.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+    const revenueData = this.trendData.revenueTrend.map(t => t.amount);
+    const expenseData = this.trendData.expenseTrend.map(t => t.amount);
+
+    const config: ChartConfiguration = {
+      type: 'line',
+      data: {
+        labels: dates,
+        datasets: [
+          {
+            label: 'Revenue',
+            data: revenueData,
+            borderColor: 'rgb(34, 197, 94)',
+            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+            tension: 0.4,
+            fill: true
+          },
+          {
+            label: 'Expenses',
+            data: expenseData,
+            borderColor: 'rgb(239, 68, 68)',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            tension: 0.4,
+            fill: true
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: (value) => '' + value.toLocaleString()
+            }
+          }
+        }
+      }
+    };
+
+    this.salesChart = new Chart(canvas, config);
+  }
+
+  /**
+   * Create Sales by Category Pie Chart
+   */
+  createPieChart(): void {
+    const canvas = document.getElementById('pieChart') as HTMLCanvasElement;
+    if (!canvas || !this.revenueDetails) return;
+
+    const categories = this.revenueDetails.categoryBreakdown.map(c => c.categoryName);
+    const amounts = this.revenueDetails.categoryBreakdown.map(c => c.amount);
+
+    const colors = [
+      'rgb(59, 130, 246)',
+      'rgb(34, 197, 94)',
+      'rgb(251, 146, 60)',
+      'rgb(168, 85, 247)',
+      'rgb(236, 72, 153)',
+      'rgb(14, 165, 233)'
+    ];
+
+    const config: ChartConfiguration = {
+      type: 'pie',
+      data: {
+        labels: categories,
+        datasets: [{
+          data: amounts,
+          backgroundColor: colors,
+          borderWidth: 2,
+          borderColor: '#fff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const label = context.label || '';
+                const value = context.parsed || 0;
+                return `{label}: {value.toLocaleString()}`;
+              }
+            }
+          }
+        }
+      }
+    };
+
+    this.pieChart = new Chart(canvas, config);
+  }
+
+  /**
+   * Create Weekly Orders Bar Chart
+   */
+  createBarChart(): void {
+    const canvas = document.getElementById('barChart') as HTMLCanvasElement;
+    if (!canvas || !this.trendData) return;
+
+    const dates = this.trendData.revenueTrend.map(t => new Date(t.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+    const orderCounts = this.trendData.revenueTrend.map(t => t.count);
+
+    const config: ChartConfiguration = {
+      type: 'bar',
+      data: {
+        labels: dates,
+        datasets: [{
+          label: 'Orders',
+          data: orderCounts,
+          backgroundColor: 'rgba(59, 130, 246, 0.8)',
+          borderColor: 'rgb(59, 130, 246)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        }
+      }
+    };
+
+    this.barChart = new Chart(canvas, config);
+  }
+
+  /**
+   * Create Revenue vs Expenses Line Chart
+   */
+  createLineChart(): void {
+    const canvas = document.getElementById('lineChart') as HTMLCanvasElement;
+    if (!canvas || !this.trendData) return;
+
+    const dates = this.trendData.revenueTrend.map(t => new Date(t.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+    const revenueData = this.trendData.revenueTrend.map(t => t.amount);
+    const expenseData = this.trendData.expenseTrend.map(t => t.amount);
+
+    const config: ChartConfiguration = {
+      type: 'line',
+      data: {
+        labels: dates,
+        datasets: [
+          {
+            label: 'Revenue',
+            data: revenueData,
+            borderColor: 'rgb(34, 197, 94)',
+            backgroundColor: 'rgb(34, 197, 94)',
+            tension: 0.1
+          },
+          {
+            label: 'Expenses',
+            data: expenseData,
+            borderColor: 'rgb(239, 68, 68)',
+            backgroundColor: 'rgb(239, 68, 68)',
+            tension: 0.1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: (value) => '' + value.toLocaleString()
+            }
+          }
+        }
+      }
+    };
+
+    this.lineChart = new Chart(canvas, config);
+  }
+
+  /**
+   * Destroy all chart instances
+   */
+  destroyCharts(): void {
+    if (this.salesChart) {
+      this.salesChart.destroy();
+      this.salesChart = undefined;
+    }
+    if (this.pieChart) {
+      this.pieChart.destroy();
+      this.pieChart = undefined;
+    }
+    if (this.barChart) {
+      this.barChart.destroy();
+      this.barChart = undefined;
+    }
+    if (this.lineChart) {
+      this.lineChart.destroy();
+      this.lineChart = undefined;
+    }
   }
 
   /**

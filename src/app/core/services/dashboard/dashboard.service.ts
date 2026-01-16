@@ -6,13 +6,13 @@ import { BaseApiResponse } from '../../models/api-response.model';
 
 /* ==================== Backend Response Interfaces ==================== */
 
-// Backend returns 'positive' (lowercase)
+// Backend returns 'positive' (lowercase) from Jackson serialization
 interface BackendMetricData {
   value: number;
   formattedValue: string;
   change: number;
   formattedChange: string;
-  positive: boolean; // Backend uses 'positive'
+  positive: boolean; // Backend uses 'positive' (not 'isPositive')
 }
 
 interface BackendDashboardMetrics {
@@ -20,6 +20,7 @@ interface BackendDashboardMetrics {
   totalExpenses: BackendMetricData;
   netProfit: BackendMetricData;
   profitMargin: BackendMetricData;
+  totalOrders: BackendMetricData;
   period: string;
   startDate: string;
   endDate: string;
@@ -40,6 +41,7 @@ export interface DashboardMetrics {
   totalExpenses: MetricData;
   netProfit: MetricData;
   profitMargin: MetricData;
+  totalOrders:MetricData;
   period: string;
   startDate: string;
   endDate: string;
@@ -95,6 +97,7 @@ export class DashboardService extends BaseService {
 
   /**
    * Transform backend metric to frontend format
+   * Maps 'positive' field from backend to 'isPositive' in frontend
    */
   private transformMetric(backendMetric: BackendMetricData): MetricData {
     return {
@@ -115,6 +118,7 @@ export class DashboardService extends BaseService {
       totalExpenses: this.transformMetric(backendMetrics.totalExpenses),
       netProfit: this.transformMetric(backendMetrics.netProfit),
       profitMargin: this.transformMetric(backendMetrics.profitMargin),
+      totalOrders: this.transformMetric(backendMetrics.totalOrders),
       period: backendMetrics.period,
       startDate: backendMetrics.startDate,
       endDate: backendMetrics.endDate
