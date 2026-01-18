@@ -51,10 +51,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     { label: 'Black Ink', count: 9, color: 'black' }
   ];
 
-  constructor(private dashboardService: DashboardService) {}
+  constructor(private dashboardService: DashboardService) { }
 
   ngOnInit(): void {
-    this.initializeSecondaryMetrics();
     this.loadDashboardData();
   }
 
@@ -62,40 +61,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.destroyCharts();
   }
 
-  /**
-   * Initialize static secondary metrics
-   */
-  initializeSecondaryMetrics(): void {
-    this.secondaryMetrics = [
-      {
-        title: 'Due Amount',
-        value: '12,450',
-        change: '3.4%',
-        isPositive: false,
-        icon: 'alert-triangle',
-        bgColor: 'bg-warning bg-opacity-10',
-        accentColor: 'text-warning'
-      },
-      {
-        title: 'Amount Owed',
-        value: '7,320',
-        change: '5.1%',
-        isPositive: true,
-        icon: 'dollar-sign',
-        bgColor: 'bg-info bg-opacity-10',
-        accentColor: 'text-info'
-      },
-      {
-        title: 'Customers',
-        value: '14,208',
-        change: '9.2%',
-        isPositive: true,
-        icon: 'users',
-        bgColor: 'bg-primary bg-opacity-10',
-        accentColor: 'text-primary'
-      }
-    ];
-  }
 
   /**
    * Load all dashboard data
@@ -211,6 +176,33 @@ export class DashboardComponent implements OnInit, OnDestroy {
         icon: 'shopping-cart',
         bgColor: 'bg-secondary bg-opacity-10',
         accentColor: 'text-secondary'
+      },
+      {
+        title: 'Total Customers',
+        value: metrics.totalCustomers.formattedValue,
+        change: metrics.totalCustomers.formattedChange,
+        isPositive: metrics.totalCustomers.isPositive,
+        icon: 'users',
+        bgColor: 'bg-primary bg-opacity-10',
+        accentColor: 'text-primary'
+      },
+      {
+        title: 'Total Due',
+        value: metrics.totalDue.formattedValue,
+        change: metrics.totalDue.formattedChange,
+        isPositive: metrics.totalDue.isPositive,
+        icon: 'alert-triangle',
+        bgColor: 'bg-warning bg-opacity-10',
+        accentColor: 'text-warning'
+      },
+      {
+        title: 'Total Owed',
+        value: metrics.totalOwed.formattedValue,
+        change: metrics.totalOwed.formattedChange,
+        isPositive: metrics.totalOwed.isPositive,
+        icon: 'dollar-sign',
+        bgColor: 'bg-info bg-opacity-10',
+        accentColor: 'text-info'
       },
     ];
   }

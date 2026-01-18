@@ -21,6 +21,9 @@ interface BackendDashboardMetrics {
   netProfit: BackendMetricData;
   profitMargin: BackendMetricData;
   totalOrders: BackendMetricData;
+  totalCustomers:BackendMetricData;
+  totalDue:BackendMetricData;
+  totalOwed:BackendMetricData;
   period: string;
   startDate: string;
   endDate: string;
@@ -42,6 +45,9 @@ export interface DashboardMetrics {
   netProfit: MetricData;
   profitMargin: MetricData;
   totalOrders:MetricData;
+  totalCustomers:MetricData;
+  totalDue:MetricData;
+  totalOwed:MetricData;
   period: string;
   startDate: string;
   endDate: string;
@@ -119,6 +125,9 @@ export class DashboardService extends BaseService {
       netProfit: this.transformMetric(backendMetrics.netProfit),
       profitMargin: this.transformMetric(backendMetrics.profitMargin),
       totalOrders: this.transformMetric(backendMetrics.totalOrders),
+      totalCustomers: this.transformMetric(backendMetrics.totalCustomers),
+      totalDue: this.transformMetric(backendMetrics.totalDue),
+      totalOwed: this.transformMetric(backendMetrics.totalOwed),
       period: backendMetrics.period,
       startDate: backendMetrics.startDate,
       endDate: backendMetrics.endDate
