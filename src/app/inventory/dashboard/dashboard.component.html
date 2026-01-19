@@ -166,15 +166,15 @@
             <h2 class="h5 fw-bold mb-4">Inventory Status</h2>
             <div class="row g-3">
               <div *ngFor="let item of inventoryItems" class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                <div class="card h-100 border">
+                <div [style.background-color]="item.color" class="card h-100 border">
                   <div class="card-body text-center">
                     <div *ngIf="item.icon" class="mb-2">
                       <img [src]="item.icon" [alt]="item.label" style="width: 40px; height: 40px;" />
                     </div>
-                    <div *ngIf="item.color" class="mb-2">
+                    <!-- <div *ngIf="item.color" class="mb-2">
                       <div [style.background-color]="item.color" style="width: 40px; height: 40px; margin: 0 auto; border-radius: 8px; border: 1px solid #ddd;"></div>
-                    </div>
-                    <p class="small text-secondary mb-1">{{ item.label }}</p>
+                    </div> -->
+                    <p class="fw-bold mb-1" style="font-weight: bold;">{{ item.label }}</p>
                     <h4 class="fw-bold mb-0">{{ item.count }}</h4>
                   </div>
                 </div>

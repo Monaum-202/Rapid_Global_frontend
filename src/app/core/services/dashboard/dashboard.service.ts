@@ -21,9 +21,9 @@ interface BackendDashboardMetrics {
   netProfit: BackendMetricData;
   profitMargin: BackendMetricData;
   totalOrders: BackendMetricData;
-  totalCustomers:BackendMetricData;
-  totalDue:BackendMetricData;
-  totalOwed:BackendMetricData;
+  totalCustomers: BackendMetricData;
+  totalDue: BackendMetricData;
+  totalOwed: BackendMetricData;
   period: string;
   startDate: string;
   endDate: string;
@@ -44,10 +44,10 @@ export interface DashboardMetrics {
   totalExpenses: MetricData;
   netProfit: MetricData;
   profitMargin: MetricData;
-  totalOrders:MetricData;
-  totalCustomers:MetricData;
-  totalDue:MetricData;
-  totalOwed:MetricData;
+  totalOrders: MetricData;
+  totalCustomers: MetricData;
+  totalDue: MetricData;
+  totalOwed: MetricData;
   period: string;
   startDate: string;
   endDate: string;
@@ -71,6 +71,11 @@ export interface RevenueDetails {
   categoryBreakdown: CategoryBreakdown[];
   paymentMethodBreakdown: PaymentMethodBreakdown[];
   period: string;
+}
+
+export interface DashboardStockResponseDto {
+  productName: string;
+  stockAmount: number;
 }
 
 export interface ExpenseDetails {
@@ -176,6 +181,12 @@ export class DashboardService extends BaseService {
     return this.get<RevenueDetails>(
       `${this.ENDPOINT}/revenue-details`,
       params
+    );
+  }
+
+  getStockDetails(): Observable<BaseApiResponse<DashboardStockResponseDto[]>> {
+    return this.get<DashboardStockResponseDto[]>(
+      `${this.ENDPOINT}/stock`
     );
   }
 

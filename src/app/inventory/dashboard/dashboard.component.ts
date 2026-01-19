@@ -14,6 +14,13 @@ interface MetricCardData {
   accentColor: string;
 }
 
+interface InventoryItem {
+  label: string;
+  count: number;
+  icon?: string;
+  color?: string;
+}
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -42,19 +49,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
   trendData?: TrendData;
 
   // Inventory Items (static)
-  inventoryItems = [
-    { label: 'Sublimation Paper', count: 6, icon: 'assets/paper-roll.png' },
-    { label: 'Supporting Paper', count: 6, icon: 'assets/toilet-roll.png' },
-    { label: 'Cyan Ink', count: 14, color: 'cyan' },
-    { label: 'Magenta Ink', count: 6, color: 'magenta' },
-    { label: 'Yellow Ink', count: 7, color: 'yellow' },
-    { label: 'Black Ink', count: 9, color: 'black' }
-  ];
+  inventoryItems: InventoryItem[] = [];
+  loading = false;
 
   constructor(private dashboardService: DashboardService) { }
 
   ngOnInit(): void {
     this.loadDashboardData();
+    this.loadStockData();
   }
 
   ngOnDestroy(): void {
@@ -83,6 +85,32 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       }
     });
+  }
+
+  loadStockData(): void {
+    this.loading = true;
+
+    this.dashboardService.getStockDetails().subscribe({
+      next: (res) => {
+        this.inventoryItems = res.data.map(item => ({
+          label: item.productName,
+          count: item.stockAmount,
+          // optional UI helpers
+          color: this.getColorByStock(item.stockAmount),
+          // icon: this.getIconByProduct(item.productName)
+        }));
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      }
+    });
+  }
+
+  private getColorByStock(stock: number): string {
+    if (stock <= 10) return '#ff4d5028';     // low stock
+    if (stock <= 30) return '#faad142c';     // medium
+    return '#53c41a21';                      // healthy
   }
 
   /**
