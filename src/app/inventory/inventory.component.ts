@@ -39,9 +39,9 @@ export class InventoryComponent implements AfterViewInit, OnInit {
     );
   }
 
-  toggleMenu() {
-    this.sideNav.toggleSidebar();
-  }
+  // toggleMenu() {
+  //   this.sideNav.toggleSidebar();
+  // }
 
   confirmLogout() {
     localStorage.removeItem('access_token');

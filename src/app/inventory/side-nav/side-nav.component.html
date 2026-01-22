@@ -1,306 +1,37 @@
-<!-- side-nav.component.html -->
+<div class="sidebar">
 
-<!-- Mobile Menu Button -->
-<button class="mobile-menu-btn" (click)="toggleSidebar()" *ngIf="isMobileView">
-  <i class="fa fa-bars"></i>
-</button>
-
-<!-- Sidebar Overlay for Mobile -->
-<div class="sidebar-overlay" [class.active]="isMobileMenuOpen" (click)="closeMobileMenu()"></div>
-
-<!-- Sidebar -->
-<div class="sidebar" [class.collapsed]="isSidebarCollapsed && !isMobileView" [class.mobile-open]="isMobileMenuOpen">
   <h2 class="text-center text-white mb-4">Rapid Global</h2>
 
-  <div id="sidebarAccordion" class="nav flex-column">
-    <!-- Dashboard -->
-    <a routerLink="/inventory/dashboard" routerLinkActive="active" class="nav-link text-white" (click)="onLinkClick()">
-      <i class="fa fa-house"></i>
-      <span>Dashboard</span>
-    </a>
+  <div id="sidebarAccordion">
 
-    <!-- Configuration Section -->
-    <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
-      href="#masterMenu" role="button" aria-expanded="false" aria-controls="masterMenu">
+    <div *ngFor="let module of sidebarData">
 
-      <span>
-        <i class="fa fa-cog" (click)="expandSideBar()"></i>
-        <span> Configuration</span>
-      </span>
-      <i class="fa fa-chevron-down"></i>
-    </a>
-    <div class="collapse" id="masterMenu" data-bs-parent="#sidebarAccordion">
-      <ul class="nav flex-column">
-        <li>
-          <a routerLink="/inventory/employee" class="nav-link text-white" (click)="onLinkClick()">
-            Employee
-          </a>
-        </li>
-        <li>
-          <a routerLink="/inventory/payment-method" class="nav-link text-white" (click)="onLinkClick()">
-            Payment Method
-          </a>
-        </li>
-        <li>
-          <a routerLink="/inventory/transection-catregory" class="nav-link text-white" (click)="onLinkClick()">
-            Transection Category
-          </a>
-        </li>
-        <li>
-          <a routerLink="/inventory/unit" class="nav-link text-white" (click)="onLinkClick()">
-            Unit
-          </a>
-        </li>
-        <li>
-          <a routerLink="/inventory/product" class="nav-link text-white" (click)="onLinkClick()">
-            Product
-          </a>
-        </li>
-        <li *ngIf="roleId === 1 || roleId === 2">
-          <a routerLink="/inventory/user" class="nav-link text-white" (click)="onLinkClick()">
-            User
-          </a>
-        </li>
-      </ul>
+      <!-- Module -->
+      <a class="nav-link text-white d-flex justify-content-between align-items-center"
+         data-bs-toggle="collapse"
+         [attr.href]="'#module-' + module.id">
+
+        <span>
+          <i class="fa" [ngClass]="module.icon"></i>
+          {{ module.name }}
+        </span>
+
+        <i class="fa fa-chevron-down"></i>
+      </a>
+
+      <!-- Menus -->
+      <div class="collapse" [id]="'module-' + module.id">
+        <ul class="nav flex-column">
+          <li *ngFor="let menu of module.menus">
+            <a [routerLink]="menu.route"
+               class="nav-link text-white">
+              {{ menu.name }}
+            </a>
+          </li>
+        </ul>
+      </div>
+
     </div>
 
-    <!-- Sales Section -->
-    <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
-      href="#salesMenu" role="button" aria-expanded="false" aria-controls="salesMenu">
-
-      <span>
-        <i class="fa fa-shopping-cart" (click)="expandSideBar()"></i>
-        <span> Sales</span>
-      </span>
-      <i class="fa fa-chevron-down"></i>
-    </a>
-    <div class="collapse" id="salesMenu" data-bs-parent="#sidebarAccordion">
-      <ul class="nav flex-column">
-        <li>
-          <a routerLink="/inventory/sales-list" class="nav-link text-white" (click)="onLinkClick()">
-            Sales List
-          </a>
-        </li>
-         <li>
-          <a routerLink="/inventory/customer" class="nav-link text-white" (click)="onLinkClick()">
-            Customers List
-          </a>
-        </li>
-       <!-- <li>
-          <a routerLink="/inventory/customer-payment" class="nav-link text-white" (click)="onLinkClick()">
-            Customer Payments
-          </a>
-        </li>
-        <li>
-          <a routerLink="/inventory/sales-return" class="nav-link text-white" (click)="onLinkClick()">
-            Sales Returns
-          </a>
-        </li>-->
-        <li>
-          <a routerLink="/inventory/estimate" class="nav-link text-white" (click)="onLinkClick()">
-            Estimates
-          </a>
-        </li>
-      </ul>
-    </div>
-
-    <!-- Purchases Section -->
-    <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
-      href="#purchasesMenu" role="button" aria-expanded="false" aria-controls="purchasesMenu">
-      <span>
-        <i class="fa fa-receipt" (click)="expandSideBar()"></i>
-        <span> Purchases</span>
-      </span>
-      <i class="fa fa-chevron-down"></i>
-    </a>
-    <div class="collapse" id="purchasesMenu" data-bs-parent="#sidebarAccordion">
-      <ul class="nav flex-column">
-        <li>
-          <a routerLink="/inventory/purchase-list" class="nav-link text-white" (click)="onLinkClick()">
-            Purchase List
-          </a>
-        </li>
-         <li>
-          <a routerLink="/inventory/supplier" class="nav-link text-white" (click)="onLinkClick()">
-            Suppliers List
-          </a>
-        </li>
-        <!--<li>
-          <a routerLink="/inventory/supplier-payment" class="nav-link text-white" (click)="onLinkClick()">
-            Supplier Payments
-          </a>
-        </li>
-        <li>
-          <a routerLink="/inventory/purchase-return" class="nav-link text-white" (click)="onLinkClick()">
-            Purchase Returns
-          </a>
-        </li> -->
-      </ul>
-    </div>
-
-    <!-- Production / Manufacturing -->
-    <!--<a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
-      href="#productionMenu" role="button" aria-expanded="false" aria-controls="productionMenu">
-      <span>
-        <i class="fa fa-industry" (click)="expandSideBar()"></i>
-        <span> Production</span>
-      </span>
-      <i class="fa fa-chevron-down"></i>
-    </a>
-    <div class="collapse" id="productionMenu" data-bs-parent="#sidebarAccordion">
-      <ul class="nav flex-column ms-3">
-        <li>
-          <a routerLink="/inventory/bill-of-materials" class="nav-link text-white">Bill of Materials (BOM)</a>
-        </li>
-        <li>
-          <a routerLink="/inventory/item-usage" class="nav-link text-white">Production Entry</a>
-        </li>
-         <li>
-          <a routerLink="/inventory/work-order" class="nav-link text-white">Work Orders</a>
-        </li>
-        <li>
-          <a routerLink="/inventory/wastage" class="nav-link text-white">Wastage Management</a>
-        </li>
-      </ul>
-    </div>-->
-
-    <!-- Inventory Section -->
-     <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
-      href="#inventoryMenu" role="button" aria-expanded="false" aria-controls="inventoryMenu">
-      <span>
-        <i class="fa fa-chart-line" (click)="expandSideBar()"></i>
-        <span> Inventory</span>
-      </span>
-      <i class="fa fa-chevron-down"></i>
-    </a>
-    <div class="collapse" id="inventoryMenu" data-bs-parent="#sidebarAccordion">
-      <ul class="nav flex-column">
-        <li>
-          <a routerLink="stock-list" class="nav-link text-white" (click)="onLinkClick()">
-            Stock List
-          </a>
-        </li>
-        <li>
-          <a routerLink="item-usage" class="nav-link text-white" (click)="onLinkClick()">
-            Stock Transactions
-          </a>
-        </li>
-        <!--<li>
-          <a routerLink="stock-details" class="nav-link text-white" (click)="onLinkClick()">
-            Stock Details
-          </a>
-        </li>
-        <li>
-          <a routerLink="#" class="nav-link text-white" (click)="onLinkClick()">
-            Stock In
-          </a>
-        </li>
-        <li>
-          <a routerLink="#" class="nav-link text-white" (click)="onLinkClick()">
-            Stock Out
-          </a>
-        </li>
-        <li>
-          <a routerLink="#" class="nav-link text-white" (click)="onLinkClick()">
-            Wastage Management
-          </a>
-        </li>-->
-      </ul>
-    </div>
-
-    <!-- Accounts Section -->
-    <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
-      href="#accountsMenu" role="button" aria-expanded="false" aria-controls="accountsMenu">
-      <span>
-        <i class="fa fa-wallet" (click)="expandSideBar()"></i>
-        <span> Accounts</span>
-      </span>
-      <i class="fa fa-chevron-down"></i>
-    </a>
-    <div class="collapse" id="accountsMenu" data-bs-parent="#sidebarAccordion">
-      <ul class="nav flex-column">
-        <li>
-          <a routerLink="incomes" class="nav-link text-white" (click)="onLinkClick()">
-            Incomes
-          </a>
-        </li>
-        <li>
-          <a routerLink="expenses" class="nav-link text-white" (click)="onLinkClick()">
-            Expenses
-          </a>
-        </li>
-        <!-- <li>
-          <a routerLink="#" class="nav-link text-white" (click)="onLinkClick()">
-            Vendor Ledger
-          </a>
-        </li>
-        <li>
-          <a routerLink="#" class="nav-link text-white" (click)="onLinkClick()">
-            Customer Ledger
-          </a>
-        </li>
-        <li>
-          <a routerLink="profit-loss-statement" class="nav-link text-white" (click)="onLinkClick()">
-            Profit &amp; Loss
-          </a>
-        </li> -->
-      </ul>
-    </div>
-
-    <!-- Reports Section -->
-    <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
-      href="#reportsMenu" role="button" aria-expanded="false" aria-controls="reportsMenu">
-      <span>
-        <i class="fa fa-chart-bar" (click)="expandSideBar()"></i>
-        <span> Reports</span>
-      </span>
-      <i class="fa fa-chevron-down"></i>
-    </a>
-    <div class="collapse" id="reportsMenu" data-bs-parent="#sidebarAccordion">
-      <ul class="nav flex-column">
-        <!-- <li>
-          <a routerLink="inventory-report" class="nav-link text-white" (click)="onLinkClick()">
-            Inventory Reports
-          </a>
-        </li>
-        <li>
-          <a routerLink="purchase-report" class="nav-link text-white" (click)="onLinkClick()">
-            Purchase Reports
-          </a>
-        </li>
-        <li>
-          <a routerLink="sales-report" class="nav-link text-white" (click)="onLinkClick()">
-            Sales Reports
-          </a>
-        </li> -->
-        <!-- <li>
-          <a routerLink="income-report" class="nav-link text-white" (click)="onLinkClick()">
-            Payment Reports
-          </a>
-        </li> -->
-        <li>
-          <a routerLink="financial-report" class="nav-link text-white" (click)="onLinkClick()">
-            Financial Reports
-          </a>
-        </li>
-      </ul>
-    </div>
   </div>
-
-  <hr style="background-color: white" />
-
-  <!-- Settings & Support -->
-  <a routerLink="#" class="nav-link text-white" (click)="onLinkClick()">
-    <i class="fa fa-cog" (click)="expandSideBar()"></i>
-    <span>Settings</span>
-  </a>
-  <a routerLink="#" class="nav-link text-white" (click)="onLinkClick()">
-    <i class="fa fa-circle-info" (click)="expandSideBar()"></i>
-    <span>Support</span>
-  </a>
 </div>
-
-<!-- Desktop Toggle Button (only visible on desktop)
-<button class="toggle-btn" (click)="toggleSidebar()" *ngIf="!isMobileView">
-  <i class="fa" [class.fa-chevron-left]="!isSidebarCollapsed" [class.fa-chevron-right]="isSidebarCollapsed"></i>
-</button> -->

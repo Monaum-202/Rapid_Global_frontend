@@ -79,7 +79,7 @@ export class UnitComponent extends BaseCrudComponent<Unit, UnitReqDto> implement
 
   override isValid(unit: Unit | null): boolean {
     if (!unit) return false;
-    return !!(unit.name && unit.fullName && unit.sqn !== undefined && unit.sqn !== null);
+    return !!(unit.name && unit.sqn !== undefined && unit.sqn !== null);
   }
 
   override mapToDto(unit: Unit): UnitReqDto {

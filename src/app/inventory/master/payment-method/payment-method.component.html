@@ -74,7 +74,7 @@
             <button type="button" class="btn rounded-pill shadow-sm px-4" data-bs-toggle="modal"
                 data-bs-target="#paymentMethodAddModal" (click)="openAddModal()" [disabled]="isLoading"
                 style="background-color: #000000; color: #ffffff;">
-                <i class="bi bi-plus-lg me-1"></i> Add PaymentMethod
+                <i class="bi bi-plus-lg me-1"></i> Add Payment Method
             </button>
         </div>
     </div>
@@ -160,7 +160,7 @@
                 <div class="compact-view">
                     <div class="compact-item">
                         <div class="compact-label">ID</div>
-                        <div class="compact-value">#{{ selectedPaymentMethod.id }}</div>
+                        <div class="compact-value">{{ selectedPaymentMethod.id }}</div>
                     </div>
                     <div class="compact-item">
                         <div class="compact-label">Name</div>
@@ -205,7 +205,7 @@
                         <div class="col-md-6">
                             <label for="paymentMethodId" class="form-label">PaymentMethod ID</label>
                             <input type="text" class="form-control" id="paymentMethodId"
-                                [value]="'#' + selectedPaymentMethod.id" name="paymentMethodId" readonly />
+                                [value]="selectedPaymentMethod.id" name="paymentMethodId" readonly />
                         </div>
                         <div class="col-md-6">
                             <label for="paymentMethodName" class="form-label">Name <span

@@ -1,4 +1,4 @@
-<div class="app-container" [class.sidebar-collapsed]="sideNav.isSidebarCollapsed">
+<div class="app-container">
   <!-- Sidebar -->
   <app-side-nav #sideNav></app-side-nav>
 
@@ -8,7 +8,7 @@
     <!-- 🧭 Top Bar -->
     <div class="top-bar">
       <div class="left-section">
-        <button class="menu-btn" (click)="sideNav.toggleSidebar()">
+        <button class="menu-btn" >
           <i class="fa fa-bars"></i>
         </button>
         <h3 *ngIf="title">{{ title }}</h3>

@@ -76,7 +76,7 @@ export class UnitService extends BaseService {
    * Create a new unit
    */
   create(dto: UnitReqDto): Observable<BaseApiResponse<Unit>> {
-    this.validateUnitDto(dto);
+    // this.validateUnitDto(dto);
     return this.post<Unit>(this.ENDPOINT, dto).pipe(
       catchError(error => {
         return throwError(() => error);
@@ -88,7 +88,7 @@ export class UnitService extends BaseService {
    * Update an existing unit
    */
   update(id: number, dto: UnitReqDto): Observable<BaseApiResponse<Unit>> {
-    this.validateUnitDto(dto);
+    // this.validateUnitDto(dto);
     return this.put<Unit>(`${this.ENDPOINT}/${id}`, dto).pipe(
       catchError(error => {
         return throwError(() => error);
@@ -118,17 +118,17 @@ export class UnitService extends BaseService {
     );
   }
 
-  // ==================== Helper Methods ====================
+  // // ==================== Helper Methods ====================
 
-  /**
-   * Validate unit DTO before sending to backend
-   */
-  private validateUnitDto(dto: UnitReqDto): void {
-    if (!dto.name?.trim()) {
-      throw new Error('Unit name is required');
-    }
-    if (!dto.fullName?.trim()) {
-      throw new Error('Unit full name is required');
-    }
-  }
+  // /**
+  //  * Validate unit DTO before sending to backend
+  //  */
+  // private validateUnitDto(dto: UnitReqDto): void {
+  //   if (!dto.name?.trim()) {
+  //     throw new Error('Unit name is required');
+  //   }
+  //   if (!dto.fullName?.trim()) {
+  //     throw new Error('Unit full name is required');
+  //   }
+  // }
 }

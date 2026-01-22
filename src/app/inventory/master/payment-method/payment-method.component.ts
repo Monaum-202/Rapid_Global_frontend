@@ -71,7 +71,7 @@ export class PaymentMethodComponent extends BaseCrudComponent<PaymentMethod, Pay
 
   override isValid(paymentMethod: PaymentMethod | null): boolean {
     if (!paymentMethod) return false;
-    return !!(paymentMethod.name && paymentMethod.description && paymentMethod.sqn);
+    return !!(paymentMethod.name && paymentMethod.sqn);
   }
 
   override mapToDto(paymentMethod: PaymentMethod): PaymentMethodReqDto {
