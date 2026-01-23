@@ -38,6 +38,8 @@ import { IncomeReportComponent } from './inventory/report/income-report/income-r
 import { FinancialReportComponent } from './inventory/report/financial-report/financial-report.component';
 import { BOMListComponent } from './inventory/production/bomlist/bomlist.component';
 import { ItemUsageComponent } from './inventory/production/item-usage/item-usage.component';
+import { RoleComponent } from './inventory/master/role/role.component';
+import { RolePermissionComponent } from './inventory/master/role-permission/role-permission.component';
 
 const routes: Routes = [
   {
@@ -63,6 +65,8 @@ const routes: Routes = [
       { path: 'payment-method', component: PaymentMethodComponent },
       { path: 'transection-catregory', component: TransectionCategoryComponent},
       { path: 'user', component: UserComponent},
+      { path: 'role', component: RoleComponent},
+      { path: 'role-permission', component: RolePermissionComponent},
       { path: 'unit', component: UnitComponent},
       { path: 'product', component: ProductComponent},
 

@@ -1,0 +1,11 @@
+<div class="roles">
+  <button *ngFor="let role of roles"
+          (click)="selectRole(role)">
+    {{ role.name }}
+  </button>
+</div>
+
+<!-- <app-role-permission
+  *ngIf="selectedRole"
+  [role]="selectedRole">
+</app-role-permission> -->

@@ -1,0 +1,182 @@
+<div class="loading-overlay-scoped" *ngIf="isLoading">
+    <div class="bouncing-dots-loader">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+</div>
+
+<div class="container my-1 position-relative">
+
+    <!-- Toast container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1200">
+        <div *ngIf="errorMessage" class="toast align-items-center text-bg-danger border-0 show" role="alert"
+            aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    {{ errorMessage }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="clearError()"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Role Selection Card -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row align-items-center g-3">
+                <div class="col-md-6">
+                    <label for="roleSelect" class="form-label fw-bold mb-2">
+                        <i class="bi bi-person-badge me-2"></i>Select Role
+                    </label>
+                    <select id="roleSelect"
+                            class="form-select form-select-lg"
+                            [(ngModel)]="selectedRole"
+                            (change)="onRoleSelect()"
+                            [disabled]="isLoading">
+                        <option [ngValue]="null">-- Choose a role --</option>
+                        <option *ngFor="let role of roles" [ngValue]="role">{{ role.name }}</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6" *ngIf="selectedRole && modules.length > 0">
+                    <div class="d-flex flex-column">
+                        <label class="form-label fw-bold mb-2">
+                            <i class="bi bi-check2-square me-2"></i>Quick Actions
+                        </label>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-success btn-sm flex-fill"
+                                    (click)="selectAll()"
+                                    [disabled]="isLoadingModules || isSaving">
+                                <i class="bi bi-check-all me-1"></i>Select All
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm flex-fill"
+                                    (click)="clearAll()"
+                                    [disabled]="isLoadingModules || isSaving">
+                                <i class="bi bi-x-circle me-1"></i>Clear All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Permission Counter -->
+            <div *ngIf="selectedRole && modules.length > 0" class="mt-3 pt-3 border-top">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-muted">
+                        <i class="bi bi-list-check me-2"></i>Selected Permissions
+                    </span>
+                    <span class="badge bg-primary fs-6">
+                        {{ selectedCount }} / {{ totalMenuCount }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Modules -->
+    <div *ngIf="isLoadingModules" class="text-center py-5">
+        <div class="spinner-border text-primary mb-3" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="text-muted">Loading modules & menus...</p>
+    </div>
+
+    <!-- No Role Selected Message -->
+    <div *ngIf="!selectedRole && !isLoading" class="text-center py-5">
+        <i class="bi bi-shield-lock fs-1 text-muted d-block mb-3"></i>
+        <h5 class="text-muted">Select a role to manage permissions</h5>
+    </div>
+
+    <!-- Modules & Menus Grid -->
+    <div *ngIf="selectedRole && !isLoadingModules && modules.length > 0" class="row g-3">
+        <div *ngFor="let module of modules" class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm border-0 module-card">
+                <!-- Module Header -->
+                <div class="card-header bg-light border-0 cursor-pointer"
+                     (click)="toggleModuleExpansion(module.id)">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="form-check" (click)="$event.stopPropagation()">
+                                <input class="form-check-input module-checkbox"
+                                       type="checkbox"
+                                       [id]="'module-' + module.id"
+                                       [checked]="isModuleChecked(module)"
+                                       [indeterminate]="isModuleIndeterminate(module)"
+                                       (change)="toggleModule(module, $event)">
+                            </div>
+                            <h6 class="mb-0 fw-bold">
+                                <i class="bi bi-folder2-open me-2 text-primary"></i>
+                                {{ module.name }}
+                            </h6>
+                        </div>
+                        <i class="bi transition-all"
+                           [class.bi-chevron-down]="isModuleExpanded(module.id)"
+                           [class.bi-chevron-right]="!isModuleExpanded(module.id)"></i>
+                    </div>
+                    <small class="text-muted ms-4">
+                        {{ module.menus?.length || 0 }} menu(s)
+                    </small>
+                </div>
+
+                <!-- Module Body (Menus) -->
+                <div class="card-body p-0" *ngIf="isModuleExpanded(module.id)">
+                    <div class="list-group list-group-flush">
+                        <div *ngFor="let menu of module.menus"
+                             class="list-group-item border-0 py-2 px-3">
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       [id]="'menu-' + menu.id"
+                                       [checked]="selectedMenuIds.includes(menu.id)"
+                                       (change)="toggleMenu(menu.id, $event)">
+                                <label class="form-check-label d-flex align-items-center"
+                                       [for]="'menu-' + menu.id">
+                                    <i class="bi bi-menu-button-wide me-2 text-secondary"></i>
+                                    <span>{{ menu.name }}</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- No Menus Message -->
+                        <div *ngIf="!module.menus || module.menus.length === 0"
+                             class="list-group-item border-0 text-center text-muted py-3">
+                            <small>No menus available</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- No Modules Message -->
+    <div *ngIf="selectedRole && !isLoadingModules && modules.length === 0" class="text-center py-5">
+        <i class="bi bi-inbox fs-1 text-muted d-block mb-3"></i>
+        <h5 class="text-muted">No modules found</h5>
+    </div>
+
+    <!-- Save Button (Sticky Footer) -->
+    <div *ngIf="selectedRole && modules.length > 0"
+         class="position-sticky bottom-0 bg-white border-top shadow-lg p-3 mt-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="text-muted">
+                <i class="bi bi-info-circle me-2"></i>
+                <span class="d-none d-md-inline">Make sure to save your changes</span>
+                <span class="d-md-none">Save changes</span>
+            </div>
+            <button class="btn btn-lg px-5 shadow-sm"
+                    (click)="savePermissions()"
+                    [disabled]="isSaving"
+                    style="background-color: #000000; color: #ffffff;">
+                <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-2"></span>
+                <i *ngIf="!isSaving" class="bi bi-save me-2"></i>
+                {{ isSaving ? 'Saving...' : 'Save Permissions' }}
+            </button>
+        </div>
+    </div>
+
+</div>

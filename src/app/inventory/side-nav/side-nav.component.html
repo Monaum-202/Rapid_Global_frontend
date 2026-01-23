@@ -1,37 +1,37 @@
 <div class="sidebar">
-
   <h2 class="text-center text-white mb-4">Rapid Global</h2>
 
-  <div id="sidebarAccordion">
+  <div *ngFor="let module of sidebarData">
 
-    <div *ngFor="let module of sidebarData">
+    <!-- Module -->
+    <div class="nav-link text-white d-flex justify-content-between align-items-center"
+         (click)="toggleModule(module.id)"
+         [class.active-module]="activeModuleId === module.id">
 
-      <!-- Module -->
-      <a class="nav-link text-white d-flex justify-content-between align-items-center"
-         data-bs-toggle="collapse"
-         [attr.href]="'#module-' + module.id">
+      <span style="font-size: large;">
+        <i class="fa fa-folder me-2"></i>
+        <b>{{ module.name }}</b>
+      </span>
 
-        <span>
-          <i class="fa" [ngClass]="module.icon"></i>
-          {{ module.name }}
-        </span>
-
-        <i class="fa fa-chevron-down"></i>
-      </a>
-
-      <!-- Menus -->
-      <div class="collapse" [id]="'module-' + module.id">
-        <ul class="nav flex-column">
-          <li *ngFor="let menu of module.menus">
-            <a [routerLink]="menu.route"
-               class="nav-link text-white">
-              {{ menu.name }}
-            </a>
-          </li>
-        </ul>
-      </div>
-
+      <i class="fa"
+         [class.fa-chevron-down]="activeModuleId === module.id"
+         [class.fa-chevron-right]="activeModuleId !== module.id">
+      </i>
     </div>
+
+    <!-- Menus -->
+    <ul class="nav flex-column ps-3"
+        *ngIf="activeModuleId === module.id">
+
+      <li *ngFor="let menu of module.menus">
+        <a class="nav-link text-white"
+           [routerLink]="menu.route"
+           routerLinkActive="active-menu">
+          {{ menu.name }}
+        </a>
+      </li>
+
+    </ul>
 
   </div>
 </div>

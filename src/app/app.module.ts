@@ -44,6 +44,8 @@ import { CommonModule } from '@angular/common';
 import { StockListComponent } from './inventory/inventoryMenu/stock-list/stock-list.component';
 import { BOMListComponent } from './inventory/production/bomlist/bomlist.component';
 import { ItemUsageComponent } from './inventory/production/item-usage/item-usage.component';
+import { RoleComponent } from './inventory/master/role/role.component';
+import { RolePermissionComponent } from './inventory/master/role-permission/role-permission.component';
 
 @NgModule({
   declarations: [
@@ -84,7 +86,9 @@ import { ItemUsageComponent } from './inventory/production/item-usage/item-usage
     FinancialReportComponent,
     StockListComponent,
     BOMListComponent,
-    ItemUsageComponent
+    ItemUsageComponent,
+    RoleComponent,
+    RolePermissionComponent
   ],
   imports: [
     CommonModule,
