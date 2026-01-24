@@ -14,6 +14,7 @@ export interface SidebarModule {
   id: number;
   name: string;
   icon: string;
+  route?: string;
   menus: SidebarMenu[];
 }
 

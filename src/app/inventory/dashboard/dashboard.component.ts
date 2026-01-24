@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { DashboardMetrics, DashboardService, RevenueDetails, ExpenseDetails, TrendData } from 'src/app/core/services/dashboard/dashboard.service';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import { PageHeaderService } from 'src/app/core/services/page-header/page-header.service';
 
 Chart.register(...registerables);
 
@@ -27,6 +28,7 @@ interface InventoryItem {
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
+  entityName = 'Dashboard';
   timeFilter: string = 'MONTH';
   timeFilters: string[] = ['TODAY', 'WEEK', 'MONTH', 'YEAR'];
 
@@ -52,9 +54,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   inventoryItems: InventoryItem[] = [];
   loading = false;
 
-  constructor(private dashboardService: DashboardService) { }
+  constructor(private dashboardService: DashboardService,
+    public pageHeaderService: PageHeaderService,
+  ) { }
 
   ngOnInit(): void {
+    this.pageHeaderService.setTitle('Dashboard');
     this.loadDashboardData();
     this.loadStockData();
   }

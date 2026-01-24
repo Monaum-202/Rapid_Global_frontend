@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router } from '@angular/router';
 import { SidebarService, SidebarModule } from 'src/app/core/services/sidebar/sidebar.service';
 
 @Component({
@@ -19,35 +19,30 @@ export class SideNavComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadSidebar();
-
-    this.router.events.subscribe(event => {
-      if (event instanceof NavigationEnd) {
-        this.detectActiveModule(event.urlAfterRedirects);
-      }
-    });
   }
 
   loadSidebar() {
     this.sidebarService.getSidebar().subscribe({
       next: (res) => {
         this.sidebarData = res.data;
-        this.detectActiveModule(this.router.url);
+        // ❌ DO NOT auto-expand anything on load
       },
       error: (err) => console.error(err)
     });
   }
 
-  toggleModule(id: number) {
-    this.activeModuleId = this.activeModuleId === id ? null : id;
-  }
+  onModuleClick(module: SidebarModule) {
 
-  detectActiveModule(route: string) {
-    for (const module of this.sidebarData) {
-      if (module.menus?.some(menu => route.startsWith(menu.route))) {
-        this.activeModuleId = module.id;
-        return;
-      }
+    // Module with menus → toggle only by click
+    if (module.menus && module.menus.length > 0) {
+      this.activeModuleId =
+        this.activeModuleId === module.id ? null : module.id;
     }
-    this.activeModuleId = null;
+
+    // Single route module (Dashboard)
+    else if (module.route) {
+      this.router.navigate([module.route]);
+      this.activeModuleId = module.id;
+    }
   }
 }

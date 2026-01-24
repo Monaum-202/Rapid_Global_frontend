@@ -244,7 +244,7 @@ export class UserComponent extends simpleCrudComponent<User, UserReqDto> impleme
   }
 
   loadRoles(): void {
-    this.roleService.getAll(0, 100).subscribe({
+    this.roleService.getAll().subscribe({
       next: (res) => {
         this.roles = res.data.data.map(role => ({
           ...role,

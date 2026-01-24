@@ -5,23 +5,26 @@
 
     <!-- Module -->
     <div class="nav-link text-white d-flex justify-content-between align-items-center"
-         (click)="toggleModule(module.id)"
+         (click)="onModuleClick(module)"
          [class.active-module]="activeModuleId === module.id">
 
       <span style="font-size: large;">
-        <i class="fa fa-folder me-2"></i>
+        <i class="fa me-2" [ngClass]="module.icon || 'fa-gauge'"></i>
         <b>{{ module.name }}</b>
       </span>
 
-      <i class="fa"
+      <!-- Show arrow ONLY if module has menus -->
+      <i *ngIf="module.menus.length"
+         class="fa"
          [class.fa-chevron-down]="activeModuleId === module.id"
          [class.fa-chevron-right]="activeModuleId !== module.id">
       </i>
+
     </div>
 
     <!-- Menus -->
     <ul class="nav flex-column ps-3"
-        *ngIf="activeModuleId === module.id">
+        *ngIf="activeModuleId === module.id && module.menus.length">
 
       <li *ngFor="let menu of module.menus">
         <a class="nav-link text-white"

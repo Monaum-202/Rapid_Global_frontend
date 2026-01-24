@@ -248,3 +248,7 @@ body {
 *, *::before, *::after {
   box-sizing: border-box;
 }
+.active-menu {
+  background-color: #ff5252;
+  color: #ffffff !important;
+}
