@@ -40,6 +40,7 @@ import { BOMListComponent } from './inventory/production/bomlist/bomlist.compone
 import { ItemUsageComponent } from './inventory/production/item-usage/item-usage.component';
 import { RoleComponent } from './inventory/master/role/role.component';
 import { RolePermissionComponent } from './inventory/master/role-permission/role-permission.component';
+import { SalesReportNewComponent } from './inventory/report/sales-report-new/sales-report-new.component';
 
 const routes: Routes = [
   {
@@ -93,6 +94,7 @@ const routes: Routes = [
       { path: 'inventory-report', component: InventoryReportsComponent },
       { path: 'purchase-report', component: PurchaseReportsComponent },
       { path: 'sales-report', component: SalesReportsComponent },
+      { path: 'sales-report-new', component: SalesReportNewComponent },
       { path: 'income-report', component: IncomeReportComponent },
       { path: 'financial-report', component: FinancialReportComponent },
       { path: 'profit-loss-statement', component: ProfitAndLossComponent },

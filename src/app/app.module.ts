@@ -46,6 +46,7 @@ import { BOMListComponent } from './inventory/production/bomlist/bomlist.compone
 import { ItemUsageComponent } from './inventory/production/item-usage/item-usage.component';
 import { RoleComponent } from './inventory/master/role/role.component';
 import { RolePermissionComponent } from './inventory/master/role-permission/role-permission.component';
+import { SalesReportNewComponent } from './inventory/report/sales-report-new/sales-report-new.component';
 
 @NgModule({
   declarations: [
@@ -88,7 +89,8 @@ import { RolePermissionComponent } from './inventory/master/role-permission/role
     BOMListComponent,
     ItemUsageComponent,
     RoleComponent,
-    RolePermissionComponent
+    RolePermissionComponent,
+    SalesReportNewComponent
   ],
   imports: [
     CommonModule,
