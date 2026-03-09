@@ -1,23 +1,13 @@
-
+<!-- sales-report.component.html -->
 <div class="rg-report-page">
 
   <!-- ========================================================
        PAGE HEADER
   ======================================================== -->
   <div class="rg-page-header">
-    <div class="rg-page-header__left">
+    <div>
       <h1 class="rg-page-title">Sales Report</h1>
       <p class="rg-page-sub">Overview of all sales transactions</p>
-    </div>
-    <div class="rg-page-header__right">
-      <button class="rg-btn rg-btn--outline" (click)="exportPdf()" [disabled]="pdfExporting || tableLoading">
-        <span *ngIf="!pdfExporting">⬇ PDF</span>
-        <span *ngIf="pdfExporting" class="rg-spinner-xs"></span>
-      </button>
-      <button class="rg-btn rg-btn--primary" (click)="exportExcel()" [disabled]="excelExporting || tableLoading">
-        <span *ngIf="!excelExporting">⬇ Excel</span>
-        <span *ngIf="excelExporting" class="rg-spinner-xs"></span>
-      </button>
     </div>
   </div>
 
@@ -33,7 +23,7 @@
        FILTERS
   ======================================================== -->
   <div class="rg-card rg-filter-card" [formGroup]="filterForm">
-    <div class="rg-filter-grid">
+    <div class="rg-filter-row">
 
       <div class="rg-field">
         <label class="rg-label">From Date</label>
@@ -53,18 +43,25 @@
         </select>
       </div>
 
-      <div class="rg-field">
+      <div class="rg-field rg-field--grow">
         <label class="rg-label">Customer Name</label>
         <input class="rg-input" type="text" formControlName="customerName" placeholder="Search customer..." />
       </div>
 
-      <div class="rg-field rg-field--actions">
-        <button class="rg-btn rg-btn--primary rg-btn--full" (click)="loadAll()">
-          🔍 Search
-        </button>
-        <button class="rg-btn rg-btn--ghost rg-btn--full" (click)="resetFilters()">
-          ↺ Reset
-        </button>
+      <div class="rg-field rg-field--btns">
+        <label class="rg-label">&nbsp;</label>
+        <div class="rg-btn-group">
+          <button class="rg-btn rg-btn--ghost" title="Reset" (click)="resetFilters()">↺</button>
+          <button class="rg-btn rg-btn--primary" (click)="loadAll()">🔍 Search</button>
+          <button class="rg-btn rg-btn--outline" (click)="exportPdf()" [disabled]="pdfExporting || tableLoading" title="Export PDF">
+            <span *ngIf="!pdfExporting">PDF</span>
+            <span *ngIf="pdfExporting" class="rg-spinner-xs"></span>
+          </button>
+          <button class="rg-btn rg-btn--success" (click)="exportExcel()" [disabled]="excelExporting || tableLoading" title="Export Excel">
+            <span *ngIf="!excelExporting">Excel</span>
+            <span *ngIf="excelExporting" class="rg-spinner-xs"></span>
+          </button>
+        </div>
       </div>
 
     </div>
@@ -189,16 +186,16 @@
           </tr>
         </tbody>
 
-        <!-- Totals footer -->
+        <!-- Totals footer — *ngIf guards existence, but strict mode still needs ?. -->
         <tfoot *ngIf="summary && rows.length > 0">
           <tr class="rg-totals-row">
             <td colspan="7" class="rg-fw-bold">Page Totals</td>
-            <td class="rg-text-right rg-fw-bold">{{ money(summary.totalSubAmount) }}</td>
-            <td class="rg-text-right rg-fw-bold rg-text-danger">{{ money(summary.totalDiscount) }}</td>
-            <td class="rg-text-right rg-fw-bold">{{ money(summary.totalVat) }}</td>
-            <td class="rg-text-right rg-fw-bold">{{ money(summary.totalAmount) }}</td>
-            <td class="rg-text-right rg-fw-bold rg-text-success">{{ money(summary.totalPaid) }}</td>
-            <td class="rg-text-right rg-fw-bold rg-text-danger">{{ money(summary.totalDue) }}</td>
+            <td class="rg-text-right rg-fw-bold">{{ money(summary?.totalSubAmount ?? 0) }}</td>
+            <td class="rg-text-right rg-fw-bold rg-text-danger">{{ money(summary?.totalDiscount ?? 0) }}</td>
+            <td class="rg-text-right rg-fw-bold">{{ money(summary?.totalVat ?? 0) }}</td>
+            <td class="rg-text-right rg-fw-bold">{{ money(summary?.totalAmount ?? 0) }}</td>
+            <td class="rg-text-right rg-fw-bold rg-text-success">{{ money(summary?.totalPaid ?? 0) }}</td>
+            <td class="rg-text-right rg-fw-bold rg-text-danger">{{ money(summary?.totalDue ?? 0) }}</td>
             <td></td>
           </tr>
         </tfoot>

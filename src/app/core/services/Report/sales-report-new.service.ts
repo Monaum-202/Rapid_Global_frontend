@@ -93,14 +93,17 @@ export class SalesReportNewService extends BaseService {
   /**
    * Summary totals (stat cards) — wrapped in BaseApiResponse.
    */
-  getSummary(filter: Partial<SalesReportFilter>): Observable<BaseApiResponse<SalesReportSummaryDTO>> {
+  getSummary(filter: Partial<SalesReportFilter>): Observable<SalesReportSummaryDTO> {
     const params = this.buildParams({
       dateFrom:     filter.dateFrom     || '',
       dateTo:       filter.dateTo       || '',
       status:       filter.status       || '',
       customerName: filter.customerName || '',
     });
-    return this.get<SalesReportSummaryDTO>(`${this.ENDPOINT}/summary`, params);
+    return this.http.get<SalesReportSummaryDTO>(
+      `${this.BASE_URL}/${this.ENDPOINT}/summary`,
+      { headers: this.getHeaders(), params }
+    );
   }
 
   /** Download Excel */

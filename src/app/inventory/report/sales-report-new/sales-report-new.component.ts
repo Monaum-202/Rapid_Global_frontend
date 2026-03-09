@@ -106,8 +106,8 @@ export class SalesReportNewComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: res => {
-          this.summary = res.data;
-          this.buildStatCards(res.data);
+          this.summary = res;
+          this.buildStatCards(res);
           this.summaryLoading = false;
         },
         error: err => {
