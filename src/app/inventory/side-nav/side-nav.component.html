@@ -1,39 +1,38 @@
-<div class="sidebar">
-  <h2 class="text-center text-white mb-4">Rapid Global</h2>
+<div class="sidebar" [class.collapsed]="isCollapsed">
+  <div class="sidebar-header">
+    <span class="brand-icon">RG </span>
+    <span class="brand-full">Rapid Global</span>
+  </div>
 
   <div *ngFor="let module of sidebarData">
 
-    <!-- Module -->
     <div class="nav-link text-white d-flex justify-content-between align-items-center"
          (click)="onModuleClick(module)"
          [class.active-module]="activeModuleId === module.id">
 
-      <span style="font-size: large;">
-        <i class="fa me-2" [ngClass]="module.icon || 'fa-gauge'"></i>
-        <b>{{ module.name }}</b>
+      <span class="nav-link-content">
+        <i class="fa" [ngClass]="module.icon || 'fa-gauge'"></i>
+        <b class="nav-text">{{ module.name }}</b>  <!-- ← separated -->
       </span>
 
-      <!-- Show arrow ONLY if module has menus -->
+      <!-- Chevron also hidden when collapsed -->
       <i *ngIf="module.menus.length"
-         class="fa"
+         class="fa nav-chevron"
          [class.fa-chevron-down]="activeModuleId === module.id"
          [class.fa-chevron-right]="activeModuleId !== module.id">
       </i>
 
     </div>
 
-    <!-- Menus -->
     <ul class="nav flex-column ps-3"
         *ngIf="activeModuleId === module.id && module.menus.length">
-
       <li *ngFor="let menu of module.menus">
-        <a class="nav-link text-white"
+        <a class="nav-link text-white nav-menu-item"
            [routerLink]="menu.route"
            routerLinkActive="active-menu">
-          {{ menu.name }}
+          <span class="nav-text">{{ menu.name }}</span>  <!-- ← wrap menu text too -->
         </a>
       </li>
-
     </ul>
 
   </div>

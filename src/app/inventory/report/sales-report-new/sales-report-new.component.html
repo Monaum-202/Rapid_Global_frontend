@@ -22,82 +22,101 @@
   <!-- ========================================================
        FILTERS
   ======================================================== -->
-  <div class="rg-card rg-filter-card" [formGroup]="filterForm">
-    <div class="rg-filter-row">
+<div class="rg-filter-card rg-card">
+  <div class="rg-filter-row" [formGroup]="filterForm">
 
-      <div class="rg-field">
-        <label class="rg-label">From Date</label>
+    <!-- Date Range -->
+    <div class="rg-filter-group">
+      <span class="rg-filter-group__label">
+        <i class="fa fa-calendar-alt"></i> Date Range
+      </span>
+      <div class="rg-date-range">
         <input class="rg-input" type="date" formControlName="dateFrom" />
-      </div>
-
-      <div class="rg-field">
-        <label class="rg-label">To Date</label>
+        <span class="rg-date-sep">–</span>
         <input class="rg-input" type="date" formControlName="dateTo" />
       </div>
-
-      <div class="rg-field">
-        <label class="rg-label">Status</label>
-        <select class="rg-input" formControlName="status">
-          <option value="">All Status</option>
-          <option *ngFor="let s of statusOptions.slice(1)" [value]="s">{{ s }}</option>
-        </select>
-      </div>
-
-      <div class="rg-field rg-field--grow">
-        <label class="rg-label">Customer Name</label>
-        <input class="rg-input" type="text" formControlName="customerName" placeholder="Search customer..." />
-      </div>
-
-      <div class="rg-field rg-field--btns">
-        <label class="rg-label">&nbsp;</label>
-        <div class="rg-btn-group">
-          <button class="rg-btn rg-btn--ghost" title="Reset" (click)="resetFilters()">↺</button>
-          <button class="rg-btn rg-btn--primary" (click)="loadAll()">🔍 Search</button>
-          <button class="rg-btn rg-btn--outline" (click)="exportPdf()" [disabled]="pdfExporting || tableLoading" title="Export PDF">
-            <span *ngIf="!pdfExporting">PDF</span>
-            <span *ngIf="pdfExporting" class="rg-spinner-xs"></span>
-          </button>
-          <button class="rg-btn rg-btn--success" (click)="exportExcel()" [disabled]="excelExporting || tableLoading" title="Export Excel">
-            <span *ngIf="!excelExporting">Excel</span>
-            <span *ngIf="excelExporting" class="rg-spinner-xs"></span>
-          </button>
-        </div>
-      </div>
-
     </div>
-  </div>
 
-  <!-- ========================================================
-       STAT CARDS
-  ======================================================== -->
-  <div class="rg-stat-grid" *ngIf="!summaryLoading; else statSkeleton">
-    <div
-      class="rg-stat-card"
-      *ngFor="let card of statCards"
-      [ngClass]="'rg-stat-card--' + card.variant">
-      <div class="rg-stat-card__icon">{{ card.icon }}</div>
-      <div class="rg-stat-card__body">
-        <div class="rg-stat-card__label">{{ card.label }}</div>
-        <div class="rg-stat-card__value">{{ card.value }}</div>
+    <div class="rg-filter-divider"></div>
+
+    <!-- Status -->
+    <div class="rg-filter-group rg-filter-group--sm">
+      <span class="rg-filter-group__label">
+        <i class="fa fa-tag"></i> Status
+      </span>
+      <select class="rg-input" formControlName="status">
+        <option value="">All Status</option>
+        <option *ngFor="let s of statusOptions.slice(1)" [value]="s">{{ s }}</option>
+      </select>
+    </div>
+
+    <div class="rg-filter-divider"></div>
+
+    <!-- Customer -->
+    <div class="rg-filter-group rg-filter-group--grow">
+      <span class="rg-filter-group__label">
+        <i class="fa fa-user"></i> Customer
+      </span>
+      <div class="rg-search-input-wrap">
+        <i class="fa fa-search rg-search-icon"></i>
+        <input class="rg-input rg-input--search" type="text"
+               formControlName="customerName"
+               placeholder="Search by name..." />
       </div>
     </div>
-  </div>
 
-  <ng-template #statSkeleton>
-    <div class="rg-stat-grid">
-      <div class="rg-stat-card rg-skeleton" *ngFor="let i of [1,2,3,4,5,6]"></div>
+    <div class="rg-filter-divider"></div>
+
+    <!-- Actions -->
+    <div class="rg-filter-actions">
+      <button class="rg-btn rg-btn--ghost" title="Reset" (click)="resetFilters()">
+        <i class="fa fa-rotate-left"></i>
+      </button>
+      <button class="rg-btn rg-btn--primary" (click)="loadAll()">
+        <i class="fa fa-search"></i> Search
+      </button>
+      <button class="rg-btn rg-btn--outline" (click)="exportPdf()"
+              [disabled]="pdfExporting || tableLoading">
+        <i class="fa fa-file-pdf"></i>
+        <span *ngIf="!pdfExporting">PDF</span>
+        <span *ngIf="pdfExporting" class="rg-spinner-xs"></span>
+      </button>
+      <button class="rg-btn rg-btn--success" (click)="exportExcel()"
+              [disabled]="excelExporting || tableLoading">
+        <i class="fa fa-file-excel"></i>
+        <span *ngIf="!excelExporting">Excel</span>
+        <span *ngIf="excelExporting" class="rg-spinner-xs"></span>
+      </button>
     </div>
-  </ng-template>
 
-  <!-- Status breakdown pills -->
-  <div class="rg-status-pills" *ngIf="countByStatus.length">
-    <span
-      class="rg-pill"
-      *ngFor="let s of countByStatus"
-      [ngClass]="'rg-pill--' + s.label.toLowerCase()">
-      {{ s.label }}: <strong>{{ s.count }}</strong>
-    </span>
   </div>
+</div>
+
+<!-- STAT CARDS -->
+<div class="rg-stat-grid" *ngIf="!summaryLoading; else statSkeleton">
+  <div class="rg-stat-card" *ngFor="let card of statCards"
+       [ngClass]="'rg-stat-card--' + card.variant">
+    <!-- <div class="rg-stat-card__icon">{{ card.icon }}</div> -->
+    <div class="rg-stat-card__body">
+      <div class="rg-stat-card__label"><b>{{ card.label }}</b></div>
+      <div class="rg-stat-card__value">{{ card.value }}</div>
+    </div>
+  </div>
+</div>
+
+<ng-template #statSkeleton>
+  <div class="rg-stat-grid">
+    <div class="rg-stat-card rg-skeleton" *ngFor="let i of [1,2,3,4,5,6]"></div>
+  </div>
+</ng-template>
+
+<!-- Status pills -->
+<div class="rg-status-pills" *ngIf="countByStatus.length">
+  <span class="rg-pill" *ngFor="let s of countByStatus"
+        [ngClass]="'rg-pill--' + s.label.toLowerCase()">
+    {{ s.label }}: <strong>{{ s.count }}</strong>
+  </span>
+</div>
 
   <!-- ========================================================
        TABLE
@@ -159,7 +178,6 @@
             </td>
             <td>
               <div class="rg-customer">
-                <span class="rg-avatar">{{ row.customerName.charAt(0).toUpperCase() }}</span>
                 <span>{{ row.customerName }}</span>
               </div>
             </td>
@@ -177,7 +195,8 @@
             <td class="rg-text-right rg-text-muted">{{ row.vat > 0 ? money(row.vat) : '—' }}</td>
             <td class="rg-text-right rg-fw-bold">{{ money(row.totalAmount) }}</td>
             <td class="rg-text-right rg-text-success">{{ money(row.paidAmount) }}</td>
-            <td class="rg-text-right" [class.rg-text-danger]="row.dueAmount > 0" [class.rg-text-muted]="row.dueAmount === 0">
+            <td class="rg-text-right" [class.rg-text-danger]="row.dueAmount > 0"
+              [class.rg-text-muted]="row.dueAmount === 0">
               {{ row.dueAmount > 0 ? money(row.dueAmount) : '—' }}
             </td>
             <td class="rg-text-center">
@@ -205,18 +224,18 @@
     <!-- ---- Pagination ---- -->
     <div class="rg-pagination" *ngIf="totalPages > 1">
       <button class="rg-pg-btn" (click)="goToPage(0)" [disabled]="currentPage === 0" title="First">«</button>
-      <button class="rg-pg-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 0" title="Prev">‹</button>
+      <button class="rg-pg-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 0"
+        title="Prev">‹</button>
 
-      <button
-        class="rg-pg-btn"
-        *ngFor="let p of pages"
-        [class.rg-pg-btn--active]="p === currentPage"
+      <button class="rg-pg-btn" *ngFor="let p of pages" [class.rg-pg-btn--active]="p === currentPage"
         (click)="goToPage(p)">
         {{ p + 1 }}
       </button>
 
-      <button class="rg-pg-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage >= totalPages - 1" title="Next">›</button>
-      <button class="rg-pg-btn" (click)="goToPage(totalPages - 1)" [disabled]="currentPage >= totalPages - 1" title="Last">»</button>
+      <button class="rg-pg-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage >= totalPages - 1"
+        title="Next">›</button>
+      <button class="rg-pg-btn" (click)="goToPage(totalPages - 1)" [disabled]="currentPage >= totalPages - 1"
+        title="Last">»</button>
 
       <span class="rg-pg-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
     </div>

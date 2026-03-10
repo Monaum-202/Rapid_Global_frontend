@@ -39,7 +39,7 @@ export class SalesReportNewComponent implements OnInit, OnDestroy {
 
   // ---- Export ----
   excelExporting = false;
-  pdfExporting   = false;
+  pdfExporting = false;
 
   // ---- Error ----
   errorMessage: string | null = null;
@@ -49,16 +49,15 @@ export class SalesReportNewComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private reportService: SalesReportNewService,
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.buildForm();
     this.loadAll();
 
-    // Auto-refresh summary when filters change (debounced)
     this.filterForm.valueChanges.pipe(
       debounceTime(500),
-      distinctUntilChanged(),
+      distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
       takeUntil(this.destroy$)
     ).subscribe(() => {
       this.currentPage = 0;
@@ -80,9 +79,9 @@ export class SalesReportNewComponent implements OnInit, OnDestroy {
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
 
     this.filterForm = this.fb.group({
-      dateFrom:     [this.formatDate(firstDay)],
-      dateTo:       [this.formatDate(now)],
-      status:       [''],
+      dateFrom: [this.formatDate(firstDay)],
+      dateTo: [this.formatDate(now)],
+      status: [''],
       customerName: [''],
     });
   }
@@ -127,10 +126,10 @@ export class SalesReportNewComponent implements OnInit, OnDestroy {
     }).pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (page: SpringPage<SalesReportRowDTO>) => {
-          this.rows          = page.content;
-          this.totalPages    = page.totalPages;
+          this.rows = page.content;
+          this.totalPages = page.totalPages;
           this.totalElements = page.totalElements;
-          this.tableLoading  = false;
+          this.tableLoading = false;
         },
         error: err => {
           this.errorMessage = err.message;
@@ -145,12 +144,12 @@ export class SalesReportNewComponent implements OnInit, OnDestroy {
 
   private buildStatCards(s: SalesReportSummaryDTO): void {
     this.statCards = [
-      { label: 'Total Orders',   value: s.totalOrders,                     variant: 'default', icon: '📦' },
-      { label: 'Total Revenue',  value: this.money(s.totalAmount),          variant: 'default', icon: '💰' },
-      { label: 'Total Paid',     value: this.money(s.totalPaid),            variant: 'success', icon: '✅' },
-      { label: 'Total Due',      value: this.money(s.totalDue),             variant: 'danger',  icon: '⚠️' },
-      { label: 'Total Discount', value: this.money(s.totalDiscount),        variant: 'warning', icon: '🏷️' },
-      { label: 'Total VAT',      value: this.money(s.totalVat),             variant: 'default', icon: '🧾' },
+      { label: 'Total Orders', value: s.totalOrders, variant: 'default', icon: '📦' },
+      { label: 'Total Revenue', value: this.money(s.totalAmount), variant: 'default', icon: '💰' },
+      { label: 'Total Paid', value: this.money(s.totalPaid), variant: 'success', icon: '✅' },
+      { label: 'Total Due', value: this.money(s.totalDue), variant: 'danger', icon: '⚠️' },
+      { label: 'Total Discount', value: this.money(s.totalDiscount), variant: 'warning', icon: '🏷️' },
+      { label: 'Total VAT', value: this.money(s.totalVat), variant: 'default', icon: '🧾' },
     ];
   }
 
@@ -239,9 +238,9 @@ export class SalesReportNewComponent implements OnInit, OnDestroy {
 
   statusClass(status: OrderStatus): string {
     const map: Record<OrderStatus, string> = {
-      COMPLETED:  'badge-success',
-      CANCELLED:  'badge-danger',
-      PENDING:    'badge-warning',
+      COMPLETED: 'badge-success',
+      CANCELLED: 'badge-danger',
+      PENDING: 'badge-warning',
       PROCESSING: 'badge-info',
     };
     return map[status] ?? 'badge-secondary';

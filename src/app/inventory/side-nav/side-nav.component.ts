@@ -11,11 +11,12 @@ export class SideNavComponent implements OnInit {
 
   sidebarData: SidebarModule[] = [];
   activeModuleId: number | null = null;
+  isCollapsed = false;
 
   constructor(
     private sidebarService: SidebarService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadSidebar();
@@ -32,17 +33,28 @@ export class SideNavComponent implements OnInit {
   }
 
   onModuleClick(module: SidebarModule) {
+    // If collapsed → expand first, then activate the module
+    if (this.isCollapsed) {
+      this.isCollapsed = false;
+      this.activeModuleId = module.menus?.length ? module.id : null;
 
-    // Module with menus → toggle only by click
+      if (!module.menus?.length && module.route) {
+        this.router.navigate([module.route]);
+      }
+      return;
+    }
+
+    // Normal behaviour when expanded
     if (module.menus && module.menus.length > 0) {
       this.activeModuleId =
         this.activeModuleId === module.id ? null : module.id;
-    }
-
-    // Single route module (Dashboard)
-    else if (module.route) {
+    } else if (module.route) {
       this.router.navigate([module.route]);
       this.activeModuleId = module.id;
     }
+  }
+
+  toggleSidebar() {
+    this.isCollapsed = !this.isCollapsed;
   }
 }

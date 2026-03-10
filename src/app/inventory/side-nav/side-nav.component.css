@@ -252,3 +252,77 @@ body {
   background-color: #ff5252;
   color: #ffffff !important;
 }
+
+/* Hide text and chevron when collapsed */
+.sidebar.collapsed .nav-text,
+.sidebar.collapsed .nav-chevron,
+.sidebar.collapsed h2 {
+  display: none;
+}
+
+/* Center the icon when collapsed */
+.sidebar.collapsed .nav-link {
+  justify-content: center;
+  padding: 0.625rem;
+}
+
+.sidebar.collapsed .nav-link-content {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.sidebar.collapsed .nav-link i {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+/* Hide submenu entirely when collapsed */
+.sidebar.collapsed ul.nav {
+  display: none;
+}
+
+/* Sidebar Header */
+.sidebar-header {
+  height: 4rem;                  /* fixed height — same collapsed or expanded */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.brand-full {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+}
+
+.brand-icon {
+  display: none;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #ff6b6b;
+  background: rgba(255,255,255,0.1);
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.5rem;
+}
+
+/* Collapsed state */
+.sidebar.collapsed .brand-full {
+  display: none;
+}
+
+.sidebar.collapsed .brand-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Remove old h2 rule if present */
+.sidebar.collapsed h2,
+.sidebar h2 {
+  display: none;
+}

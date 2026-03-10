@@ -1,5 +1,4 @@
-<div class="app-container">
-  <!-- Sidebar -->
+<div class="app-container" [class.sidebar-collapsed]="sideNav.isCollapsed">  <!-- Sidebar -->
   <app-side-nav #sideNav></app-side-nav>
 
   <!-- Main Content -->
@@ -8,7 +7,7 @@
     <!-- 🧭 Top Bar -->
     <div class="top-bar">
       <div class="left-section">
-        <button class="menu-btn" >
+        <button class="menu-btn" (click)="sideNav.toggleSidebar()">
           <i class="fa fa-bars"></i>
         </button>
         <h3 *ngIf="title">{{ title }}</h3>
@@ -19,10 +18,7 @@
 
         <!-- 👤 Profile Dropdown -->
         <div class="profile dropdown">
-          <img src="assets/images.png"
-               alt="User"
-               class="profile-pic dropdown-toggle"
-               data-bs-toggle="dropdown" />
+          <img src="assets/images.png" alt="User" class="profile-pic dropdown-toggle" data-bs-toggle="dropdown" />
 
           <ul class="dropdown-menu dropdown-menu-end shadow-sm rounded-3">
             <li>
@@ -30,12 +26,12 @@
                 <i class="fa fa-user me-2"></i> Profile
               </a>
             </li>
-            <li><hr class="dropdown-divider"></li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
 
             <li>
-              <a class="dropdown-item text-danger"
-                 data-bs-toggle="modal"
-                 data-bs-target="#confirmLogoutModal">
+              <a class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#confirmLogoutModal">
                 <i class="fa fa-sign-out me-2"></i> Logout
               </a>
             </li>
@@ -63,9 +59,7 @@
         <div class="d-flex justify-content-center gap-3">
           <button class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
 
-          <button class="btn btn-danger px-4"
-                  (click)="confirmLogout()"
-                  data-bs-dismiss="modal">
+          <button class="btn btn-danger px-4" (click)="confirmLogout()" data-bs-dismiss="modal">
             Logout
           </button>
         </div>
