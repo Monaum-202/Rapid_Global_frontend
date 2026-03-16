@@ -1,102 +1,245 @@
-<div class="container mt-1">
-  <h2 class="text-center mb-3">📅 Purchase Report</h2>
+<!-- purchase-report.component.html -->
+<div class="rg-report-page">
 
-  <!-- Date Filters -->
-  <div class="row g-3 justify-content-between mb-3">
-    <div class="col-md-3">
-      <label class="form-label fw-semibold">Report Type</label>
-      <select class="form-select" [(ngModel)]="viewType" (change)="onViewTypeChange()">
-        <option value="item">Item Wise</option>
-        <option value="date">Date Wise</option>
-      </select>
-    </div>
-    <div class="col-md-3">
-      <label class="form-label fw-semibold">Start Date</label>
-      <input type="date" class="form-control" [(ngModel)]="startDate" (change)="filterByDate()">
-    </div>
-    <div class="col-md-3">
-      <label class="form-label fw-semibold">End Date</label>
-      <input type="date" class="form-control" [(ngModel)]="endDate" (change)="filterByDate()">
+  <!-- ========================================================
+       ERROR BANNER
+  ======================================================== -->
+  <div class="rg-alert rg-alert--danger" *ngIf="errorMessage">
+    <span>{{ errorMessage }}</span>
+    <button class="rg-alert__close" (click)="errorMessage = null">✕</button>
+  </div>
+
+  <!-- ========================================================
+       FILTERS
+  ======================================================== -->
+  <div class="rg-filter-card rg-card">
+    <div class="rg-filter-row" [formGroup]="filterForm">
+
+      <!-- Date Range -->
+      <div class="rg-filter-group">
+        <span class="rg-filter-group__label">
+          <i class="fa fa-calendar-alt"></i> Date Range
+        </span>
+        <div class="rg-date-range">
+          <input class="rg-input" type="date" formControlName="dateFrom" />
+          <span class="rg-date-sep">–</span>
+          <input class="rg-input" type="date" formControlName="dateTo" />
+        </div>
+      </div>
+
+      <div class="rg-filter-divider"></div>
+
+      <!-- Status -->
+      <div class="rg-filter-group rg-filter-group--sm">
+        <span class="rg-filter-group__label">
+          <i class="fa fa-tag"></i> Status
+        </span>
+        <select class="rg-input" formControlName="status">
+          <option value="">All Status</option>
+          <option *ngFor="let s of statusOptions.slice(1)" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+
+      <div class="rg-filter-divider"></div>
+
+      <!-- Supplier -->
+      <div class="rg-filter-group rg-filter-group--grow">
+        <span class="rg-filter-group__label">
+          <i class="fa fa-truck"></i> Supplier
+        </span>
+        <div class="rg-search-input-wrap">
+          <i class="fa fa-search rg-search-icon"></i>
+          <input class="rg-input rg-input--search" type="text"
+                 formControlName="supplierName"
+                 placeholder="Search by supplier..." />
+        </div>
+      </div>
+
+      <div class="rg-filter-divider"></div>
+
+      <!-- Actions -->
+      <div class="rg-filter-actions">
+        <button class="rg-btn rg-btn--ghost" title="Reset" (click)="resetFilters()">
+          <i class="fa fa-rotate-left"></i>
+        </button>
+        <button class="rg-btn rg-btn--primary" (click)="loadAll()">
+          <i class="fa fa-search"></i> Search
+        </button>
+        <button class="rg-btn rg-btn--outline" (click)="exportPdf()"
+                [disabled]="pdfExporting || tableLoading">
+          <i class="fa fa-file-pdf"></i>
+          <span *ngIf="!pdfExporting">PDF</span>
+          <span *ngIf="pdfExporting" class="rg-spinner-xs"></span>
+        </button>
+        <button class="rg-btn rg-btn--success" (click)="exportExcel()"
+                [disabled]="excelExporting || tableLoading">
+          <i class="fa fa-file-excel"></i>
+          <span *ngIf="!excelExporting">Excel</span>
+          <span *ngIf="excelExporting" class="rg-spinner-xs"></span>
+        </button>
+      </div>
+
     </div>
   </div>
 
-  <!-- Export Buttons -->
-  <div class="row mb-3">
-    <div class="col-12 d-flex gap-2 justify-content-end">
-      <button class="btn btn-danger btn-sm" (click)="exportToPDF()" title="Export to PDF">
-        <i class="bi bi-file-pdf"></i> PDF
+  <!-- ========================================================
+       STAT CARDS
+  ======================================================== -->
+  <div class="rg-stat-grid" *ngIf="!summaryLoading; else statSkeleton">
+    <div class="rg-stat-card" *ngFor="let card of statCards"
+         [ngClass]="'rg-stat-card--' + card.variant">
+      <div class="rg-stat-card__body">
+        <div class="rg-stat-card__label"><b>{{ card.label }}</b></div>
+        <div class="rg-stat-card__value">{{ card.value }}</div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #statSkeleton>
+    <div class="rg-stat-grid">
+      <div class="rg-stat-card rg-skeleton" *ngFor="let i of [1,2,3,4,5,6]"></div>
+    </div>
+  </ng-template>
+
+  <!-- Status pills -->
+  <div class="rg-status-pills" *ngIf="countByStatus.length">
+    <span class="rg-pill" *ngFor="let s of countByStatus"
+          [ngClass]="'rg-pill--' + s.label.toLowerCase()">
+      {{ s.label }}: <strong>{{ s.count }}</strong>
+    </span>
+  </div>
+
+  <!-- ========================================================
+       TABLE
+  ======================================================== -->
+  <div class="rg-card rg-table-card">
+
+    <!-- Table toolbar -->
+    <div class="rg-table-toolbar">
+      <span class="rg-table-count" *ngIf="!tableLoading">
+        {{ totalElements | number }} records found
+      </span>
+      <div class="rg-page-size">
+        <label class="rg-label">Rows per page</label>
+        <select class="rg-input rg-input--sm"
+                (change)="onPageSizeChange(+$any($event.target).value)">
+          <option *ngFor="let s of [25, 50, 100, 200]" [value]="s"
+                  [selected]="s === pageSize">{{ s }}</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="rg-table-wrapper" [class.rg-loading]="tableLoading">
+      <div class="rg-spinner-overlay" *ngIf="tableLoading">
+        <div class="rg-spinner"></div>
+      </div>
+
+      <table class="rg-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Invoice No</th>
+            <th>Supplier</th>
+            <th>Phone</th>
+            <th>Purchase Date</th>
+            <th>Delivery</th>
+            <th class="rg-text-center">Items</th>
+            <th class="rg-text-right">Sub Total</th>
+            <th class="rg-text-right">Discount</th>
+            <th class="rg-text-right">VAT</th>
+            <th class="rg-text-right">Total</th>
+            <th class="rg-text-right">Paid</th>
+            <th class="rg-text-right">Due</th>
+            <th class="rg-text-center">Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <!-- Empty state -->
+          <tr *ngIf="!tableLoading && rows.length === 0">
+            <td colspan="14" class="rg-empty-state">
+              <div class="rg-empty-icon">📭</div>
+              <p>No purchase records found for the selected filters.</p>
+            </td>
+          </tr>
+
+          <!-- Data rows -->
+          <tr *ngFor="let row of rows; let i = index; trackBy: trackById">
+            <td class="rg-text-muted">{{ currentPage * pageSize + i + 1 }}</td>
+            <td>
+              <span class="rg-invoice-no">{{ row.invoiceNo }}</span>
+            </td>
+            <td>
+              <div class="rg-customer">
+                <span>{{ row.supplierName }}</span>
+              </div>
+            </td>
+            <td class="rg-text-muted">{{ row.phone }}</td>
+            <td>{{ row.purchaseDate | date:'dd MMM yyyy' }}</td>
+            <td class="rg-text-muted">
+              {{ row.deliveryDate ? (row.deliveryDate | date:'dd MMM yyyy') : '—' }}
+            </td>
+            <td class="rg-text-center">
+              <span class="rg-badge rg-badge--count">{{ row.itemCount }}</span>
+            </td>
+            <td class="rg-text-right">{{ money(row.subTotal) }}</td>
+            <td class="rg-text-right rg-text-danger" *ngIf="row.discount > 0">
+              -{{ money(row.discount) }}
+            </td>
+            <td class="rg-text-right rg-text-muted" *ngIf="!row.discount">—</td>
+            <td class="rg-text-right rg-text-muted">
+              {{ row.vat > 0 ? money(row.vat) : '—' }}
+            </td>
+            <td class="rg-text-right rg-fw-bold">{{ money(row.totalAmount) }}</td>
+            <td class="rg-text-right rg-text-success">{{ money(row.paidAmount) }}</td>
+            <td class="rg-text-right"
+                [class.rg-text-danger]="row.dueAmount > 0"
+                [class.rg-text-muted]="row.dueAmount === 0">
+              {{ row.dueAmount > 0 ? money(row.dueAmount) : '—' }}
+            </td>
+            <td class="rg-text-center">
+              <span class="rg-badge" [ngClass]="statusClass(row.status)">{{ row.status }}</span>
+            </td>
+          </tr>
+        </tbody>
+
+        <!-- Totals footer -->
+        <tfoot *ngIf="summary && rows.length > 0">
+          <tr class="rg-totals-row">
+            <td colspan="7" class="rg-fw-bold">Page Totals</td>
+            <td class="rg-text-right rg-fw-bold">{{ money(summary?.totalSubAmount ?? 0) }}</td>
+            <td class="rg-text-right rg-fw-bold rg-text-danger">{{ money(summary?.totalDiscount ?? 0) }}</td>
+            <td class="rg-text-right rg-fw-bold">{{ money(summary?.totalVat ?? 0) }}</td>
+            <td class="rg-text-right rg-fw-bold">{{ money(summary?.totalAmount ?? 0) }}</td>
+            <td class="rg-text-right rg-fw-bold rg-text-success">{{ money(summary?.totalPaid ?? 0) }}</td>
+            <td class="rg-text-right rg-fw-bold rg-text-danger">{{ money(summary?.totalDue ?? 0) }}</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="rg-pagination" *ngIf="totalPages > 1">
+      <button class="rg-pg-btn" (click)="goToPage(0)"
+              [disabled]="currentPage === 0" title="First">«</button>
+      <button class="rg-pg-btn" (click)="goToPage(currentPage - 1)"
+              [disabled]="currentPage === 0" title="Prev">‹</button>
+
+      <button class="rg-pg-btn" *ngFor="let p of pages"
+              [class.rg-pg-btn--active]="p === currentPage"
+              (click)="goToPage(p)">
+        {{ p + 1 }}
       </button>
-      <button class="btn btn-primary btn-sm" (click)="exportToWord()" title="Export to Word">
-        <i class="bi bi-file-word"></i> Word
-      </button>
-      <button class="btn btn-success btn-sm" (click)="exportToExcel()" title="Export to Excel">
-        <i class="bi bi-file-excel"></i> Excel
-      </button>
+
+      <button class="rg-pg-btn" (click)="goToPage(currentPage + 1)"
+              [disabled]="currentPage >= totalPages - 1" title="Next">›</button>
+      <button class="rg-pg-btn" (click)="goToPage(totalPages - 1)"
+              [disabled]="currentPage >= totalPages - 1" title="Last">»</button>
+
+      <span class="rg-pg-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
     </div>
-  </div>
 
-  <!-- Item-Wise Table -->
-  <div class="table-responsive mt-4" *ngIf="viewType === 'item' && filteredPurchases.length">
-    <table class="table table-striped table-hover text-center align-middle shadow-sm">
-      <thead class="table-dark">
-        <tr>
-          <th>Date</th>
-          <th>Supplier</th>
-          <th>Item</th>
-          <th>Qty</th>
-          <th>Unit Price</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let p of filteredPurchases">
-          <td>{{ p.date }}</td>
-          <td>{{ p.supplier }}</td>
-          <td>{{ p.item }}</td>
-          <td>{{ p.quantity }}</td>
-          <td>{{ p.unitPrice | number:'1.2-2' }}</td>
-          <td>{{ p.total | number:'1.2-2' }}</td>
-        </tr>
-      </tbody>
-      <tfoot>
-        <tr class="fw-bold text-end">
-          <td colspan="5">Total:</td>
-          <td>{{ totalAmount | number:'1.2-2' }}</td>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
-
-  <!-- Date-Wise Table -->
-  <div class="table-responsive mt-4" *ngIf="viewType === 'date' && dateWiseData.length">
-    <table class="table table-striped table-hover text-center align-middle shadow-sm">
-      <thead class="table-dark">
-        <tr>
-          <th>Day</th>
-          <th>Date</th>
-          <th>Number of Purchases</th>
-          <th>Total Amount</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let d of dateWiseData">
-          <td>{{ d.day }}</td>
-          <td>{{ d.date }}</td>
-          <td>{{ d.purchaseCount }}</td>
-          <td>{{ d.totalAmount | number:'1.2-2' }}</td>
-        </tr>
-      </tbody>
-      <tfoot>
-        <tr class="fw-bold text-end">
-          <td colspan="3">Total:</td>
-          <td>{{ totalAmount | number:'1.2-2' }}</td>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
-
-  <!-- No Data Message -->
-  <div class="text-center mt-4 text-muted" *ngIf="(viewType === 'item' && !filteredPurchases.length) || (viewType === 'date' && !dateWiseData.length)">
-    No purchase data found for the selected date range.
   </div>
 </div>
