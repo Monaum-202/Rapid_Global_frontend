@@ -193,6 +193,11 @@ body {
 /* ===== Top Bar ===== */
 .top-bar {
   height: 60px;
+  min-height: 60px;      /* ← locks the height */
+  flex-shrink: 0;        /* ← never shrink in flex column */
+  position: sticky;      /* ← stays visible when scrolling */
+  top: 0;
+  z-index: 100;
   background-color: #ffffff;
   border-bottom: 1px solid #ddd;
   display: flex;
@@ -213,7 +218,10 @@ body {
   font-size: 20px;
   cursor: pointer;
 }
-
+router-outlet + * {
+  flex: 1;
+  overflow-y: auto;
+}
 .page-title {
   font-size: 18px;
   font-weight: 500;

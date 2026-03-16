@@ -3,6 +3,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { PaginationHandlerService } from 'src/app/core/services/base/pagination-handler.service';
+import { PageHeaderService } from 'src/app/core/services/page-header/page-header.service';
 import { SalesReportSummaryDTO, SalesReportRowDTO, OrderStatus, SalesReportNewService, SpringPage } from 'src/app/core/services/Report/sales-report-new.service';
 
 interface StatCard {
@@ -49,9 +50,11 @@ export class SalesReportNewComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private reportService: SalesReportNewService,
+    public pageHeaderService: PageHeaderService,
   ) { }
 
   ngOnInit(): void {
+    this.pageHeaderService.setTitle('Sales Report');
     this.buildForm();
     this.loadAll();
 

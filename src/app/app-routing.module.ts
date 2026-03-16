@@ -16,7 +16,6 @@ import { SuppliersComponent } from './inventory/purchases/suppliers/suppliers.co
 import { InventoryReportsComponent } from './inventory/report/inventory-reports/inventory-reports.component';
 import { StockListComponent } from './inventory/inventoryMenu/stock-list/stock-list.component';
 import { StockDetailsComponent } from './inventory/inventoryMenu/stock-details/stock-details.component';
-import { PurchaseReportsComponent } from './inventory/report/purchase-reports/purchase-reports.component';
 import { SalesReportsComponent } from './inventory/report/sales-reports/sales-reports.component';
 import { ProfitAndLossComponent } from './inventory/report/profit-and-loss/profit-and-loss.component';
 import { ExpensesComponent } from './inventory/accounts/expenses/expenses.component';
@@ -41,6 +40,7 @@ import { ItemUsageComponent } from './inventory/production/item-usage/item-usage
 import { RoleComponent } from './inventory/master/role/role.component';
 import { RolePermissionComponent } from './inventory/master/role-permission/role-permission.component';
 import { SalesReportNewComponent } from './inventory/report/sales-report-new/sales-report-new.component';
+import { PurchaseReportsComponent } from './inventory/report/purchase-reports/purchase-reports.component';
 
 const routes: Routes = [
   {
