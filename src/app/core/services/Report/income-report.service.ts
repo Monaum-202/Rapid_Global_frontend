@@ -1,279 +1,146 @@
+// income-report.service.ts
 import { Injectable } from '@angular/core';
-import { HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { BaseApiResponse, PaginatedData } from '../../models/api-response.model';
 import { BaseService } from '../base/base.service';
 
-export interface IncomeReportFilter {
-  startDate?: string;
-  endDate?: string;
-  categoryId?: number;
-  paymentMethodId?: number;
-  status?: string;
-  paidFrom?: string;
-  minAmount?: number;
-  maxAmount?: number;
-  salesId?: number;
-}
+export type IncomeStatus = 'PENDING' | 'APPROVED' | 'CANCELLED';
 
-export interface IncomeReportItem {
+export interface IncomeReportRowDTO {
+  id: number;
   incomeId: string;
   categoryName: string;
-  amount: number;
-  paymentMethodName: string;
+  paymentMethod: string;
   paidFrom: string;
   paidFromCompany: string;
+  invoiceNo: string | null;
+  amount: number;
   incomeDate: string;
   description: string;
-  active: string;
-  approvedByName: string;
-  createdByName: string;
-  salesInvoiceNo: string;
-  cancelReason: string;
+  status: IncomeStatus;
+  approvedAt: string | null;
+  approvedBy: string | null;
 }
 
-export interface CategoryBreakdown {
-  categoryName: string;
+export interface IncomeReportSummaryDTO {
+  dateFrom: string;
+  dateTo: string;
+  statusFilter: string;
+  totalRecords: number;
   totalAmount: number;
-  transactionCount: number;
-  percentage: number;
+  totalApproved: number;
+  totalPending: number;
+  countByStatus: Record<string, number>;
+  countByCategory: Record<string, number>;
+  rows: IncomeReportRowDTO[] | null;
 }
 
-export interface PaymentMethodBreakdown {
-  paymentMethodName: string;
-  totalAmount: number;
-  transactionCount: number;
-  percentage: number;
+export interface IncomeReportFilter {
+  dateFrom: string;
+  dateTo: string;
+  status?: string;
+  paidFrom?: string;
+  categoryName?: string;
+  page: number;
+  size: number;
 }
 
-export interface IncomeReportSummary {
-  totalIncome: number;
-  approvedIncome: number;
-  pendingIncome: number;
-  cancelledIncome: number;
-  totalTransactions: number;
-  approvedTransactions: number;
-  pendingTransactions: number;
-  cancelledTransactions: number;
-  averageTransactionAmount: number;
-  categoryBreakdowns: CategoryBreakdown[];
-  paymentMethodBreakdowns: PaymentMethodBreakdown[];
-  startDate: string;
-  endDate: string;
+export interface SpringPage<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+  first: boolean;
+  last: boolean;
+  empty: boolean;
 }
 
-export interface IncomeTrend {
-  date: string;
-  totalAmount: number;
-  transactionCount: number;
-}
-
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class IncomeReportService extends BaseService {
-  private readonly ENDPOINT = 'income-reports';
 
-  /**
-   * Get income report with filters and pagination
-   */
-  getReport(
-    filters: IncomeReportFilter,
-    page = 0,
-    size = 50
-  ): Observable<BaseApiResponse<PaginatedData<IncomeReportItem>>> {
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('size', size.toString());
+  private readonly ENDPOINT = 'reports/incomes';
 
-    if (filters.startDate) {
-      params = params.set('startDate', filters.startDate);
-    }
-    if (filters.endDate) {
-      params = params.set('endDate', filters.endDate);
-    }
-    if (filters.categoryId) {
-      params = params.set('categoryId', filters.categoryId.toString());
-    }
-    if (filters.paymentMethodId) {
-      params = params.set('paymentMethodId', filters.paymentMethodId.toString());
-    }
-    if (filters.status) {
-      params = params.set('status', filters.status);
-    }
-    if (filters.paidFrom) {
-      params = params.set('paidFrom', filters.paidFrom);
-    }
-    if (filters.minAmount !== undefined) {
-      params = params.set('minAmount', filters.minAmount.toString());
-    }
-    if (filters.maxAmount !== undefined) {
-      params = params.set('maxAmount', filters.maxAmount.toString());
-    }
-    if (filters.salesId) {
-      params = params.set('salesId', filters.salesId.toString());
-    }
-
-    return this.get<PaginatedData<IncomeReportItem>>(this.ENDPOINT, params);
+  constructor(http: HttpClient) {
+    super(http);
   }
 
-  /**
-   * Get income report summary/analytics
-   */
-  getSummary(
-    startDate?: string,
-    endDate?: string
-  ): Observable<BaseApiResponse<IncomeReportSummary>> {
-    let params = new HttpParams();
-
-    if (startDate) {
-      params = params.set('startDate', startDate);
-    }
-    if (endDate) {
-      params = params.set('endDate', endDate);
-    }
-
-    return this.get<IncomeReportSummary>(`${this.ENDPOINT}/summary`, params);
+  /** Paginated detail rows */
+  getReportPage(filter: IncomeReportFilter): Observable<SpringPage<IncomeReportRowDTO>> {
+    const params = this.buildParams({
+      dateFrom:     filter.dateFrom     || '',
+      dateTo:       filter.dateTo       || '',
+      status:       filter.status       || '',
+      paidFrom:     filter.paidFrom     || '',
+      categoryName: filter.categoryName || '',
+      page:         filter.page,
+      size:         filter.size,
+    });
+    return this.http.get<SpringPage<IncomeReportRowDTO>>(
+      `${this.BASE_URL}/${this.ENDPOINT}`,
+      { headers: this.getHeaders(), params }
+    );
   }
 
-  /**
-   * Get daily income trend
-   */
-  getTrend(
-    startDate: string,
-    endDate: string
-  ): Observable<BaseApiResponse<IncomeTrend[]>> {
-    const params = new HttpParams()
-      .set('startDate', startDate)
-      .set('endDate', endDate);
-
-    return this.get<IncomeTrend[]>(`${this.ENDPOINT}/trend`, params);
+  /** Summary totals for stat cards */
+  getSummary(filter: Partial<IncomeReportFilter>): Observable<IncomeReportSummaryDTO> {
+    const params = this.buildParams({
+      dateFrom:     filter.dateFrom     || '',
+      dateTo:       filter.dateTo       || '',
+      status:       filter.status       || '',
+      paidFrom:     filter.paidFrom     || '',
+      categoryName: filter.categoryName || '',
+    });
+    return this.http.get<IncomeReportSummaryDTO>(
+      `${this.BASE_URL}/${this.ENDPOINT}/summary`,
+      { headers: this.getHeaders(), params }
+    );
   }
 
-  /**
-   * Export report as CSV
-   */
-  exportReport(filters: IncomeReportFilter, format = 'csv'): Observable<Blob> {
-    let params = new HttpParams().set('format', format);
-
-    if (filters.startDate) {
-      params = params.set('startDate', filters.startDate);
-    }
-    if (filters.endDate) {
-      params = params.set('endDate', filters.endDate);
-    }
-    if (filters.categoryId) {
-      params = params.set('categoryId', filters.categoryId.toString());
-    }
-    if (filters.paymentMethodId) {
-      params = params.set('paymentMethodId', filters.paymentMethodId.toString());
-    }
-    if (filters.status) {
-      params = params.set('status', filters.status);
-    }
-    if (filters.paidFrom) {
-      params = params.set('paidFrom', filters.paidFrom);
-    }
-    if (filters.minAmount !== undefined) {
-      params = params.set('minAmount', filters.minAmount.toString());
-    }
-    if (filters.maxAmount !== undefined) {
-      params = params.set('maxAmount', filters.maxAmount.toString());
-    }
-    if (filters.salesId) {
-      params = params.set('salesId', filters.salesId.toString());
-    }
-
-    // Build URL with query params
-    const urlWithParams = `${this.ENDPOINT}/export?${params.toString()}`;
-    return this.downloadFile(urlWithParams, `income-report.${format}`);
+  /** Download Excel */
+  downloadExcel(filter: Partial<IncomeReportFilter>): void {
+    const params = new URLSearchParams({
+      dateFrom:     filter.dateFrom     || '',
+      dateTo:       filter.dateTo       || '',
+      status:       filter.status       || '',
+      paidFrom:     filter.paidFrom     || '',
+      categoryName: filter.categoryName || '',
+    });
+    this.triggerBlobDownload(
+      `${this.BASE_URL}/${this.ENDPOINT}/excel?${params}`,
+      `Income_Report_${filter.dateFrom}_${filter.dateTo}.xlsx`
+    );
   }
 
-  /**
-   * Get quick date ranges
-   */
-  getQuickDateRanges(): { label: string; startDate: string; endDate: string }[] {
-    const today = new Date();
-    const ranges = [];
-
-    // Today
-    ranges.push({
-      label: 'Today',
-      startDate: this.formatDate(today),
-      endDate: this.formatDate(today)
+  /** Download PDF */
+  downloadPdf(filter: Partial<IncomeReportFilter>): void {
+    const params = new URLSearchParams({
+      dateFrom:     filter.dateFrom     || '',
+      dateTo:       filter.dateTo       || '',
+      status:       filter.status       || '',
+      paidFrom:     filter.paidFrom     || '',
+      categoryName: filter.categoryName || '',
     });
-
-    // Yesterday
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    ranges.push({
-      label: 'Yesterday',
-      startDate: this.formatDate(yesterday),
-      endDate: this.formatDate(yesterday)
-    });
-
-    // This Week
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay());
-    ranges.push({
-      label: 'This Week',
-      startDate: this.formatDate(startOfWeek),
-      endDate: this.formatDate(today)
-    });
-
-    // This Month
-    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    ranges.push({
-      label: 'This Month',
-      startDate: this.formatDate(startOfMonth),
-      endDate: this.formatDate(today)
-    });
-
-    // Last Month
-    const startOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-    const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-    ranges.push({
-      label: 'Last Month',
-      startDate: this.formatDate(startOfLastMonth),
-      endDate: this.formatDate(endOfLastMonth)
-    });
-
-    // This Quarter
-    const quarter = Math.floor(today.getMonth() / 3);
-    const startOfQuarter = new Date(today.getFullYear(), quarter * 3, 1);
-    ranges.push({
-      label: 'This Quarter',
-      startDate: this.formatDate(startOfQuarter),
-      endDate: this.formatDate(today)
-    });
-
-    // This Year
-    const startOfYear = new Date(today.getFullYear(), 0, 1);
-    ranges.push({
-      label: 'This Year',
-      startDate: this.formatDate(startOfYear),
-      endDate: this.formatDate(today)
-    });
-
-    // Last Year
-    const startOfLastYear = new Date(today.getFullYear() - 1, 0, 1);
-    const endOfLastYear = new Date(today.getFullYear() - 1, 11, 31);
-    ranges.push({
-      label: 'Last Year',
-      startDate: this.formatDate(startOfLastYear),
-      endDate: this.formatDate(endOfLastYear)
-    });
-
-    return ranges;
+    this.triggerBlobDownload(
+      `${this.BASE_URL}/${this.ENDPOINT}/pdf?${params}`,
+      `Income_Report_${filter.dateFrom}_${filter.dateTo}.pdf`
+    );
   }
 
-  /**
-   * Format date to YYYY-MM-DD
-   */
-  private formatDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+  private triggerBlobDownload(url: string, filename: string): void {
+    const token = this.getAuthToken();
+    fetch(url, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+      .then(res => {
+        if (!res.ok) throw new Error(`Export failed: ${res.status} ${res.statusText}`);
+        return res.blob();
+      })
+      .then(blob => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      })
+      .catch(err => console.error('Download error:', err));
   }
 }

@@ -1,282 +1,255 @@
-<div class="loading-overlay-scoped" *ngIf="isLoading || isLoadingSummary || isLoadingTrend">
-  <div class="bouncing-dots-loader">
-    <div></div>
-    <div></div>
-    <div></div>
-    <div></div>
-    <div></div>
-    <div></div>
+<!-- income-report.component.html -->
+<div class="rg-report-page">
+
+  <!-- ========================================================
+       ERROR BANNER
+  ======================================================== -->
+  <div class="rg-alert rg-alert--danger" *ngIf="errorMessage">
+    <span>{{ errorMessage }}</span>
+    <button class="rg-alert__close" (click)="errorMessage = null">✕</button>
   </div>
-</div>
 
-<div class="container-fluid my-3">
-  <!-- Header with View Toggle -->
-  <div class="row mb-3">
-    <div class="col-12">
-      <div class="d-flex justify-content-between align-items-center">
-        <h4 class="mb-0">Income Report</h4>
+  <!-- ========================================================
+       FILTERS
+  ======================================================== -->
+  <div class="rg-filter-card rg-card">
+    <div class="rg-filter-row" [formGroup]="filterForm">
 
-        <!-- View Toggle Buttons -->
-        <div class="btn-group" role="group">
-          <button type="button" class="btn btn-sm" [class.btn-primary]="activeView === 'summary'"
-            [class.btn-outline-primary]="activeView !== 'summary'" (click)="switchView('summary')">
-            <i class="bi bi-bar-chart-fill me-1"></i> Summary
-          </button>
-          <button type="button" class="btn btn-sm" [class.btn-primary]="activeView === 'table'"
-            [class.btn-outline-primary]="activeView !== 'table'" (click)="switchView('table')">
-            <i class="bi bi-table me-1"></i> Details
-          </button>
-          <button type="button" class="btn btn-sm" [class.btn-primary]="activeView === 'trend'"
-            [class.btn-outline-primary]="activeView !== 'trend'" (click)="switchView('trend')">
-            <i class="bi bi-graph-up me-1"></i> Trend
-          </button>
+      <!-- Date Range -->
+      <div class="rg-filter-group">
+        <span class="rg-filter-group__label">
+          <i class="fa fa-calendar-alt"></i> Date Range
+        </span>
+        <div class="rg-date-range">
+          <input class="rg-input" type="date" formControlName="dateFrom" />
+          <span class="rg-date-sep">–</span>
+          <input class="rg-input" type="date" formControlName="dateTo" />
         </div>
+      </div>
+
+      <div class="rg-filter-divider"></div>
+
+      <!-- Status -->
+      <div class="rg-filter-group rg-filter-group--sm">
+        <span class="rg-filter-group__label">
+          <i class="fa fa-tag"></i> Status
+        </span>
+        <select class="rg-input" formControlName="status">
+          <option value="">All Status</option>
+          <option *ngFor="let s of statusOptions.slice(1)" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+
+      <div class="rg-filter-divider"></div>
+
+      <!-- Category -->
+      <div class="rg-filter-group rg-filter-group--sm">
+        <span class="rg-filter-group__label">
+          <i class="fa fa-layer-group"></i> Category
+        </span>
+        <div class="rg-search-input-wrap">
+          <i class="fa fa-search rg-search-icon"></i>
+          <input class="rg-input rg-input--search" type="text"
+                 formControlName="categoryName"
+                 placeholder="Filter category..." />
+        </div>
+      </div>
+
+      <div class="rg-filter-divider"></div>
+
+      <!-- Paid From -->
+      <div class="rg-filter-group rg-filter-group--grow">
+        <span class="rg-filter-group__label">
+          <i class="fa fa-user"></i> Paid From
+        </span>
+        <div class="rg-search-input-wrap">
+          <i class="fa fa-search rg-search-icon"></i>
+          <input class="rg-input rg-input--search" type="text"
+                 formControlName="paidFrom"
+                 placeholder="Search by name / company..." />
+        </div>
+      </div>
+
+      <div class="rg-filter-divider"></div>
+
+      <!-- Actions -->
+      <div class="rg-filter-actions">
+        <button class="rg-btn rg-btn--ghost" title="Reset" (click)="resetFilters()">
+          <i class="fa fa-rotate-left"></i>
+        </button>
+        <button class="rg-btn rg-btn--primary" (click)="loadAll()">
+          <i class="fa fa-search"></i> Search
+        </button>
+        <button class="rg-btn rg-btn--outline" (click)="exportPdf()"
+                [disabled]="pdfExporting || tableLoading">
+          <i class="fa fa-file-pdf"></i>
+          <span *ngIf="!pdfExporting">PDF</span>
+          <span *ngIf="pdfExporting" class="rg-spinner-xs"></span>
+        </button>
+        <button class="rg-btn rg-btn--success" (click)="exportExcel()"
+                [disabled]="excelExporting || tableLoading">
+          <i class="fa fa-file-excel"></i>
+          <span *ngIf="!excelExporting">Excel</span>
+          <span *ngIf="excelExporting" class="rg-spinner-xs"></span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================
+       STAT CARDS
+  ======================================================== -->
+  <div class="rg-stat-grid" *ngIf="!summaryLoading; else statSkeleton">
+    <div class="rg-stat-card" *ngFor="let card of statCards"
+         [ngClass]="'rg-stat-card--' + card.variant">
+      <div class="rg-stat-card__body">
+        <div class="rg-stat-card__label"><b>{{ card.label }}</b></div>
+        <div class="rg-stat-card__value">{{ card.value }}</div>
       </div>
     </div>
   </div>
 
-  <!-- Filters Section -->
-  <div class="card mb-3">
-    <div class="card-body">
-      <div class="row g-3">
-        <!-- Date Range -->
-        <div class="col-md-3">
-          <label class="form-label fw-semibold small">Start Date</label>
-          <input type="date" class="form-control form-control-sm" [(ngModel)]="filters.startDate" name="startDate" />
-        </div>
-        <div class="col-md-3">
-          <label class="form-label fw-semibold small">End Date</label>
-          <input type="date" class="form-control form-control-sm" [(ngModel)]="filters.endDate" name="endDate" />
-        </div>
-
-        <!-- Quick Date Ranges -->
-        <div class="col-md-6">
-          <label class="form-label fw-semibold small">Quick Ranges</label>
-          <div class="d-flex flex-wrap gap-1">
-            <button type="button" class="btn btn-sm btn-outline-secondary"
-              *ngFor="let range of quickDateRanges.slice(0, 4)" (click)="applyQuickDateRange(range)">
-              {{ range.label }}
-            </button>
-          </div>
-        </div>
-
-        <!-- Category -->
-        <div class="col-md-3">
-          <label class="form-label fw-semibold small">Category</label>
-          <select class="form-select form-select-sm" [(ngModel)]="filters.categoryId" name="categoryId">
-            <option [ngValue]="undefined">All Categories</option>
-            <option *ngFor="let cat of categories" [ngValue]="cat.id">{{ cat.name }}</option>
-          </select>
-        </div>
-
-        <!-- Payment Method -->
-        <div class="col-md-3">
-          <label class="form-label fw-semibold small">Payment Method</label>
-          <select class="form-select form-select-sm" [(ngModel)]="filters.paymentMethodId" name="paymentMethodId">
-            <option [ngValue]="undefined">All Methods</option>
-            <option *ngFor="let method of paymentMethods" [ngValue]="method.id">{{ method.name }}</option>
-          </select>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="col-md-8">
-          <label class="form-label fw-semibold small d-block">&nbsp;</label>
-          <button type="button" class="btn btn-sm btn-primary me-2" (click)="applyFilters()">
-            <i class="bi bi-filter me-1"></i> Apply Filters
-          </button>
-          <button type="button" class="btn btn-sm btn-secondary me-2" (click)="resetFilters()">
-            <i class="bi bi-arrow-clockwise me-1"></i> Reset
-          </button>
-          <button type="button" class="btn btn-sm btn-success" (click)="exportReport('csv')" [disabled]="isExporting">
-            <span *ngIf="isExporting" class="spinner-border spinner-border-sm me-1"></span>
-            <i class="bi bi-download me-1" *ngIf="!isExporting"></i> Export CSV
-          </button>
-        </div>
-      </div>
-
-      <!-- Error Message -->
-      <div class="alert alert-danger alert-sm mt-2" *ngIf="errorMessage">
-        <i class="bi bi-exclamation-triangle me-2"></i>{{ errorMessage }}
-      </div>
+  <ng-template #statSkeleton>
+    <div class="rg-stat-grid">
+      <div class="rg-stat-card rg-skeleton" *ngFor="let i of [1,2,3,4]"></div>
     </div>
+  </ng-template>
+
+  <!-- Status pills -->
+  <div class="rg-status-pills" *ngIf="countByStatus.length">
+    <span class="rg-pill" *ngFor="let s of countByStatus"
+          [ngClass]="'rg-pill--' + s.label.toLowerCase()">
+      {{ s.label }}: <strong>{{ s.count }}</strong>
+    </span>
   </div>
 
-  <!-- SUMMARY VIEW -->
-  <div *ngIf="activeView === 'summary' && summary">
-    <!-- Category Breakdown -->
-    <div class="row mb-3">
-      <div class="col-md-6">
-        <div class="card">
-          <div class="card-header bg-light">
-            <h6 class="mb-0">Income by Category</h6>
-          </div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-sm table-hover mb-0">
-                <thead>
-                  <tr>
-                    <th>Category</th>
-                    <th class="text-end">Amount</th>
-                    <th class="text-center">Transactions</th>
-                    <th class="text-end">%</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let cat of summary.categoryBreakdowns">
-                    <td>{{ cat.categoryName }}</td>
-                    <td class="text-end fw-semibold">{{ cat.totalAmount | number:'1.2-2' }}</td>
-                    <td class="text-center">{{ cat.transactionCount }}</td>
-                    <td class="text-end">{{ cat.percentage | number:'1.1-1' }}%</td>
-                  </tr>
-                  <tr *ngIf="summary.categoryBreakdowns.length === 0">
-                    <td colspan="4" class="text-center text-muted">No data available</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Payment Method Breakdown -->
-      <div class="col-md-6">
-        <div class="card">
-          <div class="card-header bg-light">
-            <h6 class="mb-0">Income by Payment Method</h6>
-          </div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-sm table-hover mb-0">
-                <thead>
-                  <tr>
-                    <th>Payment Method</th>
-                    <th class="text-end">Amount</th>
-                    <th class="text-center">Transactions</th>
-                    <th class="text-end">%</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let method of summary.paymentMethodBreakdowns">
-                    <td>{{ method.paymentMethodName }}</td>
-                    <td class="text-end fw-semibold">{{ method.totalAmount | number:'1.2-2' }}</td>
-                    <td class="text-center">{{ method.transactionCount }}</td>
-                    <td class="text-end">{{ method.percentage | number:'1.1-1' }}%</td>
-                  </tr>
-                  <tr *ngIf="summary.paymentMethodBreakdowns.length === 0">
-                    <td colspan="4" class="text-center text-muted">No data available</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+  <!-- Category pills -->
+  <div class="rg-status-pills" *ngIf="countByCategory.length">
+    <span class="rg-pill rg-pill--category" *ngFor="let c of countByCategory">
+      {{ c.label }}: <strong>{{ c.count }}</strong>
+    </span>
   </div>
 
-  <!-- TABLE VIEW -->
-  <div *ngIf="activeView === 'table'">
-    <div class="card">
-      <div class="card-body p-0">
-        <div class="table-responsive">
-          <table class="table table-hover mb-0">
-            <thead class="table-light">
-              <tr>
-                <th>Income ID</th>
-                <th>Date</th>
-                <th>Category</th>
-                <th>Customer</th>
-                <th>Payment Method</th>
-                <th class="text-end">Amount</th>
-                <th>Invoice</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let item of reportItems">
-                <td>{{ item.incomeId }}</td>
-                <td>{{ item.incomeDate | date:'dd/MM/yyyy' }}</td>
-                <td>{{ item.categoryName }}</td>
-                <td>
-                  <div>{{ item.paidFrom }}</div>
-                  <small class="text-muted" *ngIf="item.paidFromCompany">{{ item.paidFromCompany }}</small>
-                </td>
-                <td>{{ item.paymentMethodName }}</td>
-                <td class="text-end fw-semibold">{{ item.amount | number:'1.2-2' }}</td>
-                <td>{{ item.salesInvoiceNo || '-' }}</td>
-              </tr>
-              <tr *ngIf="reportItems.length === 0">
-                <td colspan="8" class="text-center text-muted py-4">
-                  <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                  No income records found
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+  <!-- ========================================================
+       TABLE
+  ======================================================== -->
+  <div class="rg-card rg-table-card">
 
-        <!-- Pagination -->
-        <div class="d-flex justify-content-between align-items-center p-3 border-top" *ngIf="reportItems.length > 0">
-          <div>
-            <select class="form-select form-select-sm" [(ngModel)]="pageSize" (change)="onPageSizeChange($event)">
-              <option [value]="25">25</option>
-              <option [value]="50">50</option>
-              <option [value]="100">100</option>
-            </select>
-          </div>
-
-          <div class="btn-group">
-            <button class="btn btn-outline-dark btn-sm" (click)="previousPage()" [disabled]="!canGoPrevious">
-              <i class="bi bi-chevron-left"></i>
-            </button>
-
-            <button *ngFor="let page of getPageNumbers()" class="btn btn-sm" [class.btn-success]="page === currentPage"
-              [class.btn-outline-dark]="page !== currentPage" (click)="goToPage(page)">
-              {{ page + 1 }}
-            </button>
-
-            <button class="btn btn-outline-dark btn-sm" (click)="nextPage()" [disabled]="!canGoNext">
-              <i class="bi bi-chevron-right"></i>
-            </button>
-          </div>
-        </div>
+    <!-- Toolbar -->
+    <div class="rg-table-toolbar">
+      <span class="rg-table-count" *ngIf="!tableLoading">
+        {{ totalElements | number }} records found
+      </span>
+      <div class="rg-page-size">
+        <label class="rg-label">Rows per page</label>
+        <select class="rg-input rg-input--sm"
+                (change)="onPageSizeChange(+$any($event.target).value)">
+          <option *ngFor="let s of [25, 50, 100, 200]" [value]="s"
+                  [selected]="s === pageSize">{{ s }}</option>
+        </select>
       </div>
     </div>
-  </div>
 
-  <!-- TREND VIEW -->
-  <div *ngIf="activeView === 'trend'">
-    <div class="card">
-      <div class="card-header bg-light">
-        <h6 class="mb-0">Daily Income Trend</h6>
+    <!-- Loading overlay -->
+    <div class="rg-table-wrapper" [class.rg-loading]="tableLoading">
+      <div class="rg-spinner-overlay" *ngIf="tableLoading">
+        <div class="rg-spinner"></div>
       </div>
-      <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-sm table-hover">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th class="text-end">Total Amount</th>
-                <th class="text-center">Transactions</th>
-                <th class="text-end">Avg per Transaction</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let trend of trends">
-                <td>{{ trend.date | date:'dd MMM, yyyy' }}</td>
-                <td class="text-end fw-semibold">{{ trend.totalAmount | number:'1.2-2' }}</td>
-                <td class="text-center">{{ trend.transactionCount }}</td>
-                <td class="text-end">{{ (trend.totalAmount / trend.transactionCount) | number:'1.2-2' }}</td>
-              </tr>
-              <tr *ngIf="trends.length === 0">
-                <td colspan="4" class="text-center text-muted py-4">
-                  <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                  No trend data available
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+
+      <table class="rg-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Income ID</th>
+            <th>Category</th>
+            <th>Payment Method</th>
+            <th>Paid From</th>
+            <th>Company</th>
+            <th>Invoice No</th>
+            <th class="rg-text-right">Amount</th>
+            <th>Income Date</th>
+            <th>Description</th>
+            <th class="rg-text-center">Status</th>
+            <th>Approved At</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <!-- Empty state -->
+          <tr *ngIf="!tableLoading && rows.length === 0">
+            <td colspan="12" class="rg-empty-state">
+              <div class="rg-empty-icon">📭</div>
+              <p>No income records found for the selected filters.</p>
+            </td>
+          </tr>
+
+          <!-- Data rows -->
+          <tr *ngFor="let row of rows; let i = index; trackBy: trackById">
+            <td class="rg-text-muted">{{ currentPage * pageSize + i + 1 }}</td>
+            <td>
+              <span class="rg-invoice-no">{{ row.incomeId }}</span>
+            </td>
+            <td>{{ row.categoryName || '—' }}</td>
+            <td class="rg-text-muted">{{ row.paymentMethod || '—' }}</td>
+            <td>
+              <div class="rg-customer">{{ row.paidFrom || '—' }}</div>
+            </td>
+            <td class="rg-text-muted">{{ row.paidFromCompany || '—' }}</td>
+            <td>
+              <span *ngIf="row.invoiceNo" class="rg-invoice-no">{{ row.invoiceNo }}</span>
+              <span *ngIf="!row.invoiceNo" class="rg-text-muted">—</span>
+            </td>
+            <td class="rg-text-right rg-fw-bold rg-text-success">
+              {{ money(row.amount) }}
+            </td>
+            <td>{{ row.incomeDate | date:'dd MMM yyyy' }}</td>
+            <td class="rg-text-muted" style="max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                [title]="row.description">
+              {{ row.description || '—' }}
+            </td>
+            <td class="rg-text-center">
+              <span class="rg-badge" [ngClass]="statusClass(row.status)">{{ row.status }}</span>
+            </td>
+            <td class="rg-text-muted">
+              {{ row.approvedAt ? (row.approvedAt | date:'dd MMM yyyy HH:mm') : '—' }}
+            </td>
+          </tr>
+        </tbody>
+
+        <!-- Totals footer -->
+        <tfoot *ngIf="summary && rows.length > 0">
+          <tr class="rg-totals-row">
+            <td colspan="7" class="rg-fw-bold">Overall Totals</td>
+            <td class="rg-text-right rg-fw-bold rg-text-success">
+              {{ money(summary?.totalAmount ?? 0) }}
+            </td>
+            <td colspan="4"></td>
+          </tr>
+        </tfoot>
+      </table>
     </div>
+
+    <!-- Pagination -->
+    <div class="rg-pagination" *ngIf="totalPages > 1">
+      <button class="rg-pg-btn" (click)="goToPage(0)"
+              [disabled]="currentPage === 0" title="First">«</button>
+      <button class="rg-pg-btn" (click)="goToPage(currentPage - 1)"
+              [disabled]="currentPage === 0" title="Prev">‹</button>
+
+      <button class="rg-pg-btn" *ngFor="let p of pages"
+              [class.rg-pg-btn--active]="p === currentPage"
+              (click)="goToPage(p)">
+        {{ p + 1 }}
+      </button>
+
+      <button class="rg-pg-btn" (click)="goToPage(currentPage + 1)"
+              [disabled]="currentPage >= totalPages - 1" title="Next">›</button>
+      <button class="rg-pg-btn" (click)="goToPage(totalPages - 1)"
+              [disabled]="currentPage >= totalPages - 1" title="Last">»</button>
+
+      <span class="rg-pg-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+    </div>
+
   </div>
 </div>

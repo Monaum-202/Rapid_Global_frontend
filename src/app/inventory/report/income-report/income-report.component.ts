@@ -1,9 +1,21 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject, takeUntil, finalize } from 'rxjs';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { PageHeaderService } from 'src/app/core/services/page-header/page-header.service';
-import { PaymentMethod, PaymentMethodService } from 'src/app/core/services/paymentMethod/payment-method.service';
-import { IncomeReportItem, IncomeReportSummary, IncomeTrend, IncomeReportFilter, IncomeReportService } from 'src/app/core/services/Report/income-report.service';
-import { TransectionCategory, TransectionCategoryService } from 'src/app/core/services/transectionCategory/transection-category.service';
+import {
+  IncomeReportSummaryDTO,
+  IncomeReportRowDTO,
+  IncomeStatus,
+  IncomeReportService,
+  SpringPage
+} from 'src/app/core/services/Report/income-report.service';
+
+interface StatCard {
+  label: string;
+  value: string | number;
+  variant: 'default' | 'success' | 'danger' | 'warning';
+  icon: string;
+}
 
 @Component({
   selector: 'app-income-report',
@@ -11,61 +23,52 @@ import { TransectionCategory, TransectionCategoryService } from 'src/app/core/se
   styleUrls: ['./income-report.component.css']
 })
 export class IncomeReportComponent implements OnInit, OnDestroy {
+
+  // ---- Filter form ----
+  filterForm!: FormGroup;
+  readonly statusOptions = ['', 'PENDING', 'APPROVED', 'CANCELLED'];
+
+  // ---- Summary ----
+  summary: IncomeReportSummaryDTO | null = null;
+  statCards: StatCard[] = [];
+  summaryLoading = false;
+
+  // ---- Table ----
+  rows: IncomeReportRowDTO[] = [];
+  totalElements = 0;
+  totalPages    = 0;
+  currentPage   = 0;
+  pageSize      = 50;
+  tableLoading  = false;
+
+  // ---- Export ----
+  excelExporting = false;
+  pdfExporting   = false;
+
+  // ---- Error ----
+  errorMessage: string | null = null;
+
   private destroy$ = new Subject<void>();
 
-  // Loading states
-  isLoading = false;
-  isLoadingSummary = false;
-  isLoadingTrend = false;
-  isExporting = false;
-
-  // Data
-  reportItems: IncomeReportItem[] = [];
-  summary: IncomeReportSummary | null = null;
-  trends: IncomeTrend[] = [];
-
-  // Filter options
-  categories: TransectionCategory[] = [];
-  paymentMethods: PaymentMethod[] = [];
-  statusOptions = ['PENDING', 'APPROVED', 'CANCELLED'];
-  quickDateRanges: { label: string; startDate: string; endDate: string }[] = [];
-
-  // Filters
-  filters: IncomeReportFilter = {
-    startDate: this.getFirstDayOfMonth(),
-    endDate: this.getTodayDate()
-  };
-
-  // Pagination
-  currentPage = 0;
-  pageSize = 50;
-  totalElements = 0;
-  totalPages = 0;
-
-  // View toggle
-  activeView: 'table' | 'summary' | 'trend' = 'summary';
-
-  // Chart data
-  categoryChartData: any = null;
-  paymentMethodChartData: any = null;
-  trendChartData: any = null;
-
-  // Error handling
-  errorMessage = '';
-
   constructor(
-    private incomeReportService: IncomeReportService,
-    private pageHeaderService: PageHeaderService,
-    private categoryService: TransectionCategoryService,
-    private paymentMethodService: PaymentMethodService
-  ) {}
+    private fb: FormBuilder,
+    private reportService: IncomeReportService,
+    public pageHeaderService: PageHeaderService,
+  ) { }
 
   ngOnInit(): void {
     this.pageHeaderService.setTitle('Income Report');
-    this.loadCategories();
-    this.loadPaymentMethods();
-    this.quickDateRanges = this.incomeReportService.getQuickDateRanges();
-    this.loadSummary();
+    this.buildForm();
+    this.loadAll();
+
+    this.filterForm.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.currentPage = 0;
+      this.loadAll();
+    });
   }
 
   ngOnDestroy(): void {
@@ -73,332 +76,189 @@ export class IncomeReportComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // ============================================
-  // DATA LOADING
-  // ============================================
+  // ----------------------------------------------------------------
+  // Form
+  // ----------------------------------------------------------------
 
-  loadReport(): void {
-    this.isLoading = true;
-    this.errorMessage = '';
+  private buildForm(): void {
+    const now      = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    this.incomeReportService.getReport(this.filters, this.currentPage, this.pageSize)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.isLoading = false)
-      )
-      .subscribe({
-        next: (response: any) => {
-          if (response.success && response.data) {
-            this.reportItems = response.data.content || [];
-            this.totalElements = response.data.totalElements || 0;
-            this.totalPages = response.data.totalPages || 0;
-            this.currentPage = response.data.number || 0;
-          }
-        },
-        error: (error) => {
-          this.errorMessage = 'Failed to load report';
-          console.error('Error loading report:', error);
-        }
-      });
-  }
-
-  loadSummary(): void {
-    this.isLoadingSummary = true;
-    this.errorMessage = '';
-
-    this.incomeReportService.getSummary(this.filters.startDate, this.filters.endDate)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.isLoadingSummary = false)
-      )
-      .subscribe({
-        next: (response: any) => {
-          if (response.success && response.data) {
-            this.summary = response.data;
-            this.prepareCategoryChart();
-            this.preparePaymentMethodChart();
-          }
-        },
-        error: (error) => {
-          this.errorMessage = 'Failed to load summary';
-          console.error('Error loading summary:', error);
-        }
-      });
-  }
-
-  loadTrend(): void {
-    if (!this.filters.startDate || !this.filters.endDate) {
-      this.errorMessage = 'Please select start and end dates';
-      return;
-    }
-
-    this.isLoadingTrend = true;
-    this.errorMessage = '';
-
-    this.incomeReportService.getTrend(this.filters.startDate, this.filters.endDate)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.isLoadingTrend = false)
-      )
-      .subscribe({
-        next: (response: any) => {
-          if (response.success && response.data) {
-            this.trends = response.data;
-            this.prepareTrendChart();
-          }
-        },
-        error: (error) => {
-          this.errorMessage = 'Failed to load trend';
-          console.error('Error loading trend:', error);
-        }
-      });
-  }
-
-  loadCategories(): void {
-    this.categoryService.getAllActive(true).subscribe({
-      next: (res) => {
-        this.categories = res.data || [];
-      },
-      error: (err) => {
-        console.error('Failed to load categories', err);
-      }
+    this.filterForm = this.fb.group({
+      dateFrom:     [this.formatDate(firstDay)],
+      dateTo:       [this.formatDate(now)],
+      status:       [''],
+      paidFrom:     [''],
+      categoryName: [''],
     });
   }
 
-  loadPaymentMethods(): void {
-    this.paymentMethodService.getAllActive(true).subscribe({
-      next: (res) => {
-        this.paymentMethods = res.data || [];
-      },
-      error: (err) => {
-        console.error('Failed to load payment methods', err);
-      }
-    });
+  get f() { return this.filterForm.value; }
+
+  // ----------------------------------------------------------------
+  // Load
+  // ----------------------------------------------------------------
+
+  loadAll(): void {
+    this.loadSummary();
+    this.loadTable();
   }
 
-  // ============================================
-  // FILTER ACTIONS
-  // ============================================
+  private loadSummary(): void {
+    this.summaryLoading = true;
+    this.errorMessage   = null;
 
-  applyFilters(): void {
-    this.currentPage = 0;
-
-    if (this.activeView === 'table') {
-      this.loadReport();
-    } else if (this.activeView === 'summary') {
-      this.loadSummary();
-    } else if (this.activeView === 'trend') {
-      this.loadTrend();
-    }
+    this.reportService.getSummary(this.f)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: res => {
+          this.summary = res;
+          this.buildStatCards(res);
+          this.summaryLoading = false;
+        },
+        error: err => {
+          this.errorMessage   = err.message;
+          this.summaryLoading = false;
+        }
+      });
   }
 
-  resetFilters(): void {
-    this.filters = {
-      startDate: this.getFirstDayOfMonth(),
-      endDate: this.getTodayDate()
-    };
-    this.applyFilters();
+  private loadTable(): void {
+    this.tableLoading = true;
+
+    this.reportService.getReportPage({ ...this.f, page: this.currentPage, size: this.pageSize })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (page: SpringPage<IncomeReportRowDTO>) => {
+          this.rows          = page.content;
+          this.totalPages    = page.totalPages;
+          this.totalElements = page.totalElements;
+          this.tableLoading  = false;
+        },
+        error: err => {
+          this.errorMessage = err.message;
+          this.tableLoading = false;
+        }
+      });
   }
 
-  applyQuickDateRange(range: { label: string; startDate: string; endDate: string }): void {
-    this.filters.startDate = range.startDate;
-    this.filters.endDate = range.endDate;
-    this.applyFilters();
+  // ----------------------------------------------------------------
+  // Stat Cards
+  // ----------------------------------------------------------------
+
+  private buildStatCards(s: IncomeReportSummaryDTO): void {
+    this.statCards = [
+      { label: 'Total Records',   value: s.totalRecords,            variant: 'default', icon: '📋' },
+      { label: 'Total Income',    value: this.money(s.totalAmount),  variant: 'default', icon: '💰' },
+      { label: 'Approved Amount', value: this.money(s.totalApproved),variant: 'success', icon: '✅' },
+      { label: 'Pending Amount',  value: this.money(s.totalPending), variant: 'warning', icon: '⏳' },
+    ];
   }
 
-  // ============================================
-  // VIEW SWITCHING
-  // ============================================
-
-  switchView(view: 'table' | 'summary' | 'trend'): void {
-    this.activeView = view;
-
-    if (view === 'table' && this.reportItems.length === 0) {
-      this.loadReport();
-    } else if (view === 'summary' && !this.summary) {
-      this.loadSummary();
-    } else if (view === 'trend' && this.trends.length === 0) {
-      this.loadTrend();
-    }
-  }
-
-  // ============================================
-  // PAGINATION
-  // ============================================
+  // ----------------------------------------------------------------
+  // Pagination
+  // ----------------------------------------------------------------
 
   goToPage(page: number): void {
+    if (page < 0 || page >= this.totalPages) return;
     this.currentPage = page;
-    this.loadReport();
+    this.loadTable();
   }
 
-  nextPage(): void {
-    if (this.currentPage < this.totalPages - 1) {
-      this.currentPage++;
-      this.loadReport();
+  get pages(): number[] {
+    const total   = this.totalPages;
+    const current = this.currentPage;
+    const delta   = 2;
+    const range: number[] = [];
+    for (let i = Math.max(0, current - delta); i <= Math.min(total - 1, current + delta); i++) {
+      range.push(i);
     }
+    return range;
   }
 
-  previousPage(): void {
-    if (this.currentPage > 0) {
-      this.currentPage--;
-      this.loadReport();
-    }
-  }
-
-  onPageSizeChange(event: any): void {
-    this.pageSize = parseInt(event.target.value, 10);
+  onPageSizeChange(size: number): void {
+    this.pageSize    = size;
     this.currentPage = 0;
-    this.loadReport();
+    this.loadTable();
   }
 
-  getPageNumbers(): number[] {
-    const maxPages = 5;
-    const pages: number[] = [];
-    let startPage = Math.max(0, this.currentPage - Math.floor(maxPages / 2));
-    let endPage = Math.min(this.totalPages - 1, startPage + maxPages - 1);
+  // ----------------------------------------------------------------
+  // Exports
+  // ----------------------------------------------------------------
 
-    if (endPage - startPage < maxPages - 1) {
-      startPage = Math.max(0, endPage - maxPages + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-
-    return pages;
-  }
-
-  get canGoPrevious(): boolean {
-    return this.currentPage > 0;
-  }
-
-  get canGoNext(): boolean {
-    return this.currentPage < this.totalPages - 1;
-  }
-
-  // ============================================
-  // EXPORT
-  // ============================================
-
-  exportReport(format: 'csv' | 'json' = 'csv'): void {
-    this.isExporting = true;
-    this.errorMessage = '';
-
-    this.incomeReportService.exportReport(this.filters, format)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.isExporting = false)
-      )
-      .subscribe({
-        next: (blob: Blob) => {
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `income-report-${this.getTodayDate()}.${format}`;
-          link.click();
-          window.URL.revokeObjectURL(url);
-        },
-        error: (error) => {
-          this.errorMessage = 'Failed to export report';
-          console.error('Export error:', error);
-        }
-      });
-  }
-
-  // ============================================
-  // CHART PREPARATION
-  // ============================================
-
-  prepareCategoryChart(): void {
-    if (!this.summary?.categoryBreakdowns || this.summary.categoryBreakdowns.length === 0) {
-      this.categoryChartData = null;
+  exportExcel(): void {
+    if (!this.f.dateFrom || !this.f.dateTo) {
+      this.errorMessage = 'Please select a date range before exporting.';
       return;
     }
-
-    this.categoryChartData = {
-      labels: this.summary.categoryBreakdowns.map(c => c.categoryName),
-      datasets: [{
-        data: this.summary.categoryBreakdowns.map(c => c.totalAmount),
-        backgroundColor: [
-          '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-          '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384'
-        ]
-      }]
-    };
+    this.excelExporting = true;
+    setTimeout(() => {
+      this.reportService.downloadExcel(this.f);
+      setTimeout(() => this.excelExporting = false, 2000);
+    }, 50);
   }
 
-  preparePaymentMethodChart(): void {
-    if (!this.summary?.paymentMethodBreakdowns || this.summary.paymentMethodBreakdowns.length === 0) {
-      this.paymentMethodChartData = null;
+  exportPdf(): void {
+    if (!this.f.dateFrom || !this.f.dateTo) {
+      this.errorMessage = 'Please select a date range before exporting.';
       return;
     }
-
-    this.paymentMethodChartData = {
-      labels: this.summary.paymentMethodBreakdowns.map(p => p.paymentMethodName),
-      datasets: [{
-        data: this.summary.paymentMethodBreakdowns.map(p => p.totalAmount),
-        backgroundColor: [
-          '#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0', '#9966FF',
-          '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384'
-        ]
-      }]
-    };
-  }
-
-  prepareTrendChart(): void {
-    if (!this.trends || this.trends.length === 0) {
-      this.trendChartData = null;
+    if (this.totalElements > 5000) {
+      this.errorMessage = `PDF is limited to 5,000 rows. Your query has ${this.totalElements} rows. Use Excel instead.`;
       return;
     }
+    this.pdfExporting = true;
+    setTimeout(() => {
+      this.reportService.downloadPdf(this.f);
+      setTimeout(() => this.pdfExporting = false, 2000);
+    }, 50);
+  }
 
-    this.trendChartData = {
-      labels: this.trends.map(t => t.date),
-      datasets: [{
-        label: 'Daily Income',
-        data: this.trends.map(t => t.totalAmount),
-        borderColor: '#36A2EB',
-        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-        tension: 0.4,
-        fill: true
-      }]
+  // ----------------------------------------------------------------
+  // Reset
+  // ----------------------------------------------------------------
+
+  resetFilters(): void {
+    this.buildForm();
+    this.currentPage = 0;
+    this.loadAll();
+  }
+
+  // ----------------------------------------------------------------
+  // Helpers
+  // ----------------------------------------------------------------
+
+  money(val: number): string {
+    return (val ?? 0).toLocaleString('en-BD', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  private formatDate(d: Date): string {
+    return d.toISOString().split('T')[0];
+  }
+
+  statusClass(status: IncomeStatus): string {
+    const map: Record<IncomeStatus, string> = {
+      APPROVED:  'badge-success',
+      CANCELLED: 'badge-danger',
+      PENDING:   'badge-warning',
     };
+    return map[status] ?? 'badge-secondary';
   }
 
-  // ============================================
-  // UTILITY METHODS
-  // ============================================
-
-  getFirstDayOfMonth(): string {
-    const today = new Date();
-    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-    return this.formatDate(firstDay);
+  get countByStatus(): { label: string; count: number }[] {
+    if (!this.summary?.countByStatus) return [];
+    return Object.entries(this.summary.countByStatus)
+      .map(([label, count]) => ({ label, count }));
   }
 
-  getTodayDate(): string {
-    return this.formatDate(new Date());
+  get countByCategory(): { label: string; count: number }[] {
+    if (!this.summary?.countByCategory) return [];
+    return Object.entries(this.summary.countByCategory)
+      .map(([label, count]) => ({ label, count }));
   }
 
-  formatDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-
-  clearError(): void {
-    this.errorMessage = '';
-  }
-
-  getStatusBadgeClass(status: string): string {
-    switch (status?.toUpperCase()) {
-      case 'APPROVED':
-        return 'bg-success';
-      case 'PENDING':
-        return 'bg-warning';
-      case 'CANCELLED':
-        return 'bg-danger';
-      default:
-        return 'bg-secondary';
-    }
-  }
+  trackById(_: number, row: IncomeReportRowDTO): number { return row.id; }
 }
