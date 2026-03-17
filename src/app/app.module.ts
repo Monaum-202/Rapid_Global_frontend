@@ -21,7 +21,6 @@ import { SalesReportsComponent } from './inventory/report/sales-reports/sales-re
 import { PaymentReportsComponent } from './inventory/report/payment-reports/payment-reports.component';
 import { StockDetailsComponent } from './inventory/inventoryMenu/stock-details/stock-details.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ProfitAndLossComponent } from './inventory/report/profit-and-loss/profit-and-loss.component';
 import { ExpensesComponent } from './inventory/accounts/expenses/expenses.component';
 import { SuppliersComponent } from './inventory/purchases/suppliers/suppliers.component';
 import { LoginComponent } from './auth/login/login.component';
@@ -47,6 +46,8 @@ import { ItemUsageComponent } from './inventory/production/item-usage/item-usage
 import { RoleComponent } from './inventory/master/role/role.component';
 import { RolePermissionComponent } from './inventory/master/role-permission/role-permission.component';
 import { SalesReportNewComponent } from './inventory/report/sales-report-new/sales-report-new.component';
+import { ExpenseReportComponent } from './inventory/report/expense-report/expense-report.component';
+import { ProfitLossReportComponent } from './inventory/report/profit-loss-report/profit-loss-report.component';
 
 @NgModule({
   declarations: [
@@ -69,7 +70,6 @@ import { SalesReportNewComponent } from './inventory/report/sales-report-new/sal
     SalesReportsComponent,
     PaymentReportsComponent,
     StockDetailsComponent,
-    ProfitAndLossComponent,
     ExpensesComponent,
     LoginComponent,
     EmployeeComponent,
@@ -90,7 +90,9 @@ import { SalesReportNewComponent } from './inventory/report/sales-report-new/sal
     ItemUsageComponent,
     RoleComponent,
     RolePermissionComponent,
-    SalesReportNewComponent
+    SalesReportNewComponent,
+    ExpenseReportComponent,
+    ProfitLossReportComponent
   ],
   imports: [
     CommonModule,
