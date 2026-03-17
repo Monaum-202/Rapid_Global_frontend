@@ -1,0 +1,310 @@
+<!-- profit-loss-report.component.html -->
+<div class="rg-report-page">
+
+  <!-- ============================================================
+       ERROR BANNER
+  ============================================================ -->
+  <div class="rg-alert rg-alert--danger" *ngIf="errorMessage">
+    <span>{{ errorMessage }}</span>
+    <button class="rg-alert__close" (click)="errorMessage = null">✕</button>
+  </div>
+
+  <!-- ============================================================
+       FILTER BAR
+  ============================================================ -->
+  <div class="rg-filter-card rg-card">
+    <div class="rg-filter-row" [formGroup]="filterForm">
+
+      <!-- Date range -->
+      <div class="rg-filter-group">
+        <span class="rg-filter-group__label">
+          <i class="fa fa-calendar-alt"></i> Period
+        </span>
+        <div class="rg-date-range">
+          <input class="rg-input" type="date" formControlName="dateFrom" />
+          <span class="rg-date-sep">–</span>
+          <input class="rg-input" type="date" formControlName="dateTo" />
+        </div>
+      </div>
+
+      <div class="rg-filter-divider"></div>
+
+      <!-- Quick presets -->
+      <div class="rg-filter-group">
+        <span class="rg-filter-group__label"><i class="fa fa-bolt"></i> Quick Select</span>
+        <div class="rg-preset-btns">
+          <button class="rg-btn rg-btn--xs rg-btn--ghost" (click)="setPreset('thisMonth')">This Month</button>
+          <button class="rg-btn rg-btn--xs rg-btn--ghost" (click)="setPreset('lastMonth')">Last Month</button>
+          <button class="rg-btn rg-btn--xs rg-btn--ghost" (click)="setPreset('thisYear')">This Year</button>
+          <button class="rg-btn rg-btn--xs rg-btn--ghost" (click)="setPreset('lastYear')">Last Year</button>
+        </div>
+      </div>
+
+      <div class="rg-filter-divider"></div>
+
+      <!-- Actions -->
+      <div class="rg-filter-actions">
+        <button class="rg-btn rg-btn--primary" (click)="loadReport()" [disabled]="loading">
+          <i class="fa fa-chart-line"></i>
+          <span *ngIf="!loading">Generate</span>
+          <span *ngIf="loading" class="rg-spinner-xs"></span>
+        </button>
+        <button class="rg-btn rg-btn--outline" (click)="exportPdf()"
+                [disabled]="pdfExporting || loading || !report">
+          <i class="fa fa-file-pdf"></i>
+          <span *ngIf="!pdfExporting">PDF</span>
+          <span *ngIf="pdfExporting" class="rg-spinner-xs"></span>
+        </button>
+        <button class="rg-btn rg-btn--success" (click)="exportExcel()"
+                [disabled]="excelExporting || loading || !report">
+          <i class="fa fa-file-excel"></i>
+          <span *ngIf="!excelExporting">Excel</span>
+          <span *ngIf="excelExporting" class="rg-spinner-xs"></span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================================================
+       LOADING SKELETON
+  ============================================================ -->
+  <div *ngIf="loading" class="rg-pl-loading">
+    <div class="rg-spinner rg-spinner--lg"></div>
+    <p>Building report…</p>
+  </div>
+
+  <!-- ============================================================
+       REPORT BODY
+  ============================================================ -->
+  <ng-container *ngIf="!loading && report">
+
+    <!-- ── KPI HERO CARDS ───────────────────────────────────────── -->
+    <div class="rg-pl-kpi-row">
+
+      <div class="rg-pl-kpi rg-pl-kpi--income">
+        <div class="rg-pl-kpi__icon"><i class="fa fa-arrow-down-to-bracket"></i></div>
+        <div class="rg-pl-kpi__body">
+          <div class="rg-pl-kpi__label">Total Income</div>
+          <div class="rg-pl-kpi__value">{{ money(report.totalIncome) }}</div>
+          <div class="rg-pl-kpi__sub">{{ report.incomeByCategory.length }} categories</div>
+        </div>
+      </div>
+
+      <div class="rg-pl-kpi rg-pl-kpi--expense">
+        <div class="rg-pl-kpi__icon"><i class="fa fa-arrow-up-from-bracket"></i></div>
+        <div class="rg-pl-kpi__body">
+          <div class="rg-pl-kpi__label">Total Expenses</div>
+          <div class="rg-pl-kpi__value">{{ money(report.totalExpense) }}</div>
+          <div class="rg-pl-kpi__sub">{{ report.expenseByCategory.length }} categories</div>
+        </div>
+      </div>
+
+      <div class="rg-pl-kpi" [ngClass]="isProfit() ? 'rg-pl-kpi--profit' : 'rg-pl-kpi--loss'">
+        <div class="rg-pl-kpi__icon">
+          <i class="fa" [ngClass]="isProfit() ? 'fa-trending-up' : 'fa-trending-down'"></i>
+        </div>
+        <div class="rg-pl-kpi__body">
+          <div class="rg-pl-kpi__label">{{ report.netLabel }}</div>
+          <div class="rg-pl-kpi__value">{{ money(absVal(report.netProfit)) }}</div>
+          <div class="rg-pl-kpi__sub">
+            Net margin: <strong>{{ pct(report.netMarginPct) }}</strong>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── P&L STATEMENT TABLE ───────────────────────────────────── -->
+    <div class="rg-card rg-pl-statement-card">
+
+      <!-- Statement header -->
+      <div class="rg-pl-statement-header">
+        <div>
+          <h3 class="rg-pl-statement-title">Profit &amp; Loss Statement</h3>
+          <p class="rg-pl-statement-sub">
+            Period: <strong>{{ report.dateFrom | date:'dd MMM yyyy' }}</strong>
+            &nbsp;→&nbsp;
+            <strong>{{ report.dateTo | date:'dd MMM yyyy' }}</strong>
+            &nbsp;&nbsp;|&nbsp;&nbsp;Generated: {{ report.generatedAt }}
+          </p>
+        </div>
+      </div>
+
+      <table class="rg-pl-table">
+        <thead>
+          <tr>
+            <th class="rg-pl-table__desc">Description</th>
+            <th class="rg-pl-table__amt">Amount (BDT)</th>
+            <th class="rg-pl-table__pct">% Share</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let item of report.lineItems">
+
+            <!-- SECTION_HEADER -->
+            <tr *ngIf="item.lineType === 'SECTION_HEADER'" class="rg-pl-section-hdr">
+              <td colspan="3">{{ item.label }}</td>
+            </tr>
+
+            <!-- CATEGORY -->
+            <tr *ngIf="item.lineType === 'CATEGORY'" class="rg-pl-cat-row">
+              <td class="rg-pl-table__desc rg-pl-cat-label">{{ item.label }}</td>
+              <td class="rg-pl-table__amt"
+                  [class.rg-text-success]="item.positive"
+                  [class.rg-text-danger]="!item.positive">
+                {{ money(item.amount) }}
+              </td>
+              <td class="rg-pl-table__pct">
+                <div class="rg-pl-bar-wrap">
+                  <div class="rg-pl-bar"
+                       [ngClass]="item.positive ? 'rg-pl-bar--grn' : 'rg-pl-bar--red'"
+                       [style.width.%]="item.percentage ?? 0"></div>
+                  <span>{{ pct(item.percentage) }}</span>
+                </div>
+              </td>
+            </tr>
+
+            <!-- SUBTOTAL -->
+            <tr *ngIf="item.lineType === 'SUBTOTAL'"
+                class="rg-pl-subtotal"
+                [ngClass]="item.positive ? 'rg-pl-subtotal--grn' : 'rg-pl-subtotal--red'">
+              <td class="rg-pl-table__desc">{{ item.label }}</td>
+              <td class="rg-pl-table__amt">{{ money(item.amount) }}</td>
+              <td></td>
+            </tr>
+
+            <!-- SPACER -->
+            <tr *ngIf="item.lineType === 'SPACER'" class="rg-pl-spacer">
+              <td colspan="3"></td>
+            </tr>
+
+            <!-- NET -->
+            <tr *ngIf="item.lineType === 'NET'"
+                class="rg-pl-net"
+                [ngClass]="item.positive ? 'rg-pl-net--profit' : 'rg-pl-net--loss'">
+              <td class="rg-pl-table__desc">{{ item.label }}</td>
+              <td class="rg-pl-table__amt">{{ money(item.amount) }}</td>
+              <td class="rg-pl-table__pct">
+                <strong>{{ pct(report.netMarginPct) }}</strong> margin
+              </td>
+            </tr>
+
+          </ng-container>
+        </tbody>
+      </table>
+
+      <p class="rg-pl-note">* Includes APPROVED transactions only.</p>
+    </div>
+
+    <!-- ── TABS: MONTHLY TREND  /  CATEGORY DETAIL ───────────────── -->
+    <div class="rg-card rg-pl-bottom-card">
+
+      <div class="rg-pl-tabs">
+        <button class="rg-pl-tab" [class.rg-pl-tab--active]="activeTab === 'monthly'"
+                (click)="activeTab = 'monthly'">
+          <i class="fa fa-chart-line"></i> Monthly Trend
+        </button>
+        <button class="rg-pl-tab" [class.rg-pl-tab--active]="activeTab === 'category'"
+                (click)="activeTab = 'category'">
+          <i class="fa fa-layer-group"></i> Category Breakdown
+        </button>
+      </div>
+
+      <!-- MONTHLY TREND TABLE -->
+      <div *ngIf="activeTab === 'monthly'">
+        <table class="rg-table">
+          <thead>
+            <tr>
+              <th>Month</th>
+              <th class="rg-text-right">Income</th>
+              <th class="rg-text-right">Expenses</th>
+              <th class="rg-text-right">Net Profit / (Loss)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="report.monthlyBreakdown.length === 0">
+              <td colspan="4" class="rg-empty-state">No data for selected period.</td>
+            </tr>
+            <tr *ngFor="let m of report.monthlyBreakdown; trackBy: trackBySortKey">
+              <td class="rg-fw-bold">{{ m.monthLabel }}</td>
+              <td class="rg-text-right rg-text-success">{{ money(m.totalIncome) }}</td>
+              <td class="rg-text-right rg-text-danger">{{ money(m.totalExpense) }}</td>
+              <td class="rg-text-right rg-fw-bold"
+                  [class.rg-text-success]="m.netProfit >= 0"
+                  [class.rg-text-danger]="m.netProfit < 0">
+                {{ m.netProfit >= 0 ? '' : '(' }}{{ money(absVal(m.netProfit)) }}{{ m.netProfit < 0 ? ')' : '' }}
+              </td>
+            </tr>
+          </tbody>
+          <tfoot *ngIf="report.monthlyBreakdown.length > 0">
+            <tr class="rg-totals-row">
+              <td class="rg-fw-bold">Total</td>
+              <td class="rg-text-right rg-fw-bold rg-text-success">{{ money(report.totalIncome) }}</td>
+              <td class="rg-text-right rg-fw-bold rg-text-danger">{{ money(report.totalExpense) }}</td>
+              <td class="rg-text-right rg-fw-bold"
+                  [class.rg-text-success]="report.netProfit >= 0"
+                  [class.rg-text-danger]="report.netProfit < 0">
+                {{ money(absVal(report.netProfit)) }}
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <!-- CATEGORY BREAKDOWN (side-by-side) -->
+      <div *ngIf="activeTab === 'category'" class="rg-pl-cat-grid">
+
+        <!-- Income categories -->
+        <div class="rg-pl-cat-col">
+          <h4 class="rg-pl-cat-col__title rg-pl-cat-col__title--income">
+            <i class="fa fa-circle-arrow-down"></i> Income by Category
+          </h4>
+          <div class="rg-pl-cat-item" *ngFor="let c of report.incomeByCategory; trackBy: trackByLabel">
+            <div class="rg-pl-cat-item__top">
+              <span class="rg-pl-cat-item__name">{{ c.categoryName }}</span>
+              <span class="rg-pl-cat-item__amt rg-text-success">{{ money(c.amount) }}</span>
+            </div>
+            <div class="rg-pl-bar-track">
+              <div class="rg-pl-bar rg-pl-bar--grn"
+                   [style.width.%]="barWidth(c.amount, report.totalIncome)"></div>
+            </div>
+            <span class="rg-pl-cat-item__pct">{{ pct(c.percentage) }}</span>
+          </div>
+          <div *ngIf="!report.incomeByCategory.length" class="rg-pl-cat-empty">No income data.</div>
+        </div>
+
+        <!-- Expense categories -->
+        <div class="rg-pl-cat-col">
+          <h4 class="rg-pl-cat-col__title rg-pl-cat-col__title--expense">
+            <i class="fa fa-circle-arrow-up"></i> Expenses by Category
+          </h4>
+          <div class="rg-pl-cat-item" *ngFor="let c of report.expenseByCategory; trackBy: trackByLabel">
+            <div class="rg-pl-cat-item__top">
+              <span class="rg-pl-cat-item__name">{{ c.categoryName }}</span>
+              <span class="rg-pl-cat-item__amt rg-text-danger">{{ money(c.amount) }}</span>
+            </div>
+            <div class="rg-pl-bar-track">
+              <div class="rg-pl-bar rg-pl-bar--red"
+                   [style.width.%]="barWidth(c.amount, report.totalExpense)"></div>
+            </div>
+            <span class="rg-pl-cat-item__pct">{{ pct(c.percentage) }}</span>
+          </div>
+          <div *ngIf="!report.expenseByCategory.length" class="rg-pl-cat-empty">No expense data.</div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </ng-container>
+
+  <!-- ============================================================
+       EMPTY STATE
+  ============================================================ -->
+  <div *ngIf="!loading && !report" class="rg-pl-empty">
+    <div class="rg-empty-icon">📊</div>
+    <p>Select a period and click <strong>Generate</strong> to view the P&amp;L report.</p>
+  </div>
+
+</div>
