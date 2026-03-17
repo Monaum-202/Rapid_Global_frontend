@@ -1,0 +1,275 @@
+<!-- expense-report.component.html -->
+<div class="rg-report-page">
+
+  <!-- ========================================================
+       ERROR BANNER
+  ======================================================== -->
+  <div class="rg-alert rg-alert--danger" *ngIf="errorMessage">
+    <span>{{ errorMessage }}</span>
+    <button class="rg-alert__close" (click)="errorMessage = null">✕</button>
+  </div>
+
+  <!-- ========================================================
+       FILTERS
+  ======================================================== -->
+  <div class="rg-filter-card rg-card">
+    <div class="rg-filter-row" [formGroup]="filterForm">
+
+      <!-- Date Range -->
+      <div class="rg-filter-group">
+        <span class="rg-filter-group__label">
+          <i class="fa fa-calendar-alt"></i> Date Range
+        </span>
+        <div class="rg-date-range">
+          <input class="rg-input" type="date" formControlName="dateFrom" />
+          <span class="rg-date-sep">–</span>
+          <input class="rg-input" type="date" formControlName="dateTo" />
+        </div>
+      </div>
+
+      <div class="rg-filter-divider"></div>
+
+      <!-- Status -->
+      <div class="rg-filter-group rg-filter-group--sm">
+        <span class="rg-filter-group__label">
+          <i class="fa fa-tag"></i> Status
+        </span>
+        <select class="rg-input" formControlName="status">
+          <option value="">All Status</option>
+          <option *ngFor="let s of statusOptions.slice(1)" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+
+      <div class="rg-filter-divider"></div>
+
+      <!-- Category -->
+      <div class="rg-filter-group rg-filter-group--sm">
+        <span class="rg-filter-group__label">
+          <i class="fa fa-layer-group"></i> Category
+        </span>
+        <div class="rg-search-input-wrap">
+          <i class="fa fa-search rg-search-icon"></i>
+          <input class="rg-input rg-input--search" type="text"
+                 formControlName="categoryName"
+                 placeholder="Filter category..." />
+        </div>
+      </div>
+
+      <div class="rg-filter-divider"></div>
+
+      <!-- Paid To -->
+      <div class="rg-filter-group rg-filter-group--grow">
+        <span class="rg-filter-group__label">
+          <i class="fa fa-hand-holding-usd"></i> Paid To
+        </span>
+        <div class="rg-search-input-wrap">
+          <i class="fa fa-search rg-search-icon"></i>
+          <input class="rg-input rg-input--search" type="text"
+                 formControlName="paidTo"
+                 placeholder="Search vendor / company..." />
+        </div>
+      </div>
+
+      <div class="rg-filter-divider"></div>
+
+      <!-- Employee -->
+      <div class="rg-filter-group rg-filter-group--sm">
+        <span class="rg-filter-group__label">
+          <i class="fa fa-user-tie"></i> Employee
+        </span>
+        <div class="rg-search-input-wrap">
+          <i class="fa fa-search rg-search-icon"></i>
+          <input class="rg-input rg-input--search" type="text"
+                 formControlName="employeeName"
+                 placeholder="Filter employee..." />
+        </div>
+      </div>
+
+      <div class="rg-filter-divider"></div>
+
+      <!-- Actions -->
+      <div class="rg-filter-actions">
+        <button class="rg-btn rg-btn--ghost" title="Reset" (click)="resetFilters()">
+          <i class="fa fa-rotate-left"></i>
+        </button>
+        <button class="rg-btn rg-btn--primary" (click)="loadAll()">
+          <i class="fa fa-search"></i> Search
+        </button>
+        <button class="rg-btn rg-btn--outline" (click)="exportPdf()"
+                [disabled]="pdfExporting || tableLoading">
+          <i class="fa fa-file-pdf"></i>
+          <span *ngIf="!pdfExporting">PDF</span>
+          <span *ngIf="pdfExporting" class="rg-spinner-xs"></span>
+        </button>
+        <button class="rg-btn rg-btn--success" (click)="exportExcel()"
+                [disabled]="excelExporting || tableLoading">
+          <i class="fa fa-file-excel"></i>
+          <span *ngIf="!excelExporting">Excel</span>
+          <span *ngIf="excelExporting" class="rg-spinner-xs"></span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================
+       STAT CARDS
+  ======================================================== -->
+  <div class="rg-stat-grid" *ngIf="!summaryLoading; else statSkeleton">
+    <div class="rg-stat-card" *ngFor="let card of statCards"
+         [ngClass]="'rg-stat-card--' + card.variant">
+      <div class="rg-stat-card__body">
+        <div class="rg-stat-card__label"><b>{{ card.label }}</b></div>
+        <div class="rg-stat-card__value">{{ card.value }}</div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #statSkeleton>
+    <div class="rg-stat-grid">
+      <div class="rg-stat-card rg-skeleton" *ngFor="let i of [1,2,3,4]"></div>
+    </div>
+  </ng-template>
+
+  <!-- Status pills -->
+  <div class="rg-status-pills" *ngIf="countByStatus.length">
+    <span class="rg-pill" *ngFor="let s of countByStatus"
+          [ngClass]="'rg-pill--' + s.label.toLowerCase()">
+      {{ s.label }}: <strong>{{ s.count }}</strong>
+    </span>
+  </div>
+
+  <!-- Category pills -->
+  <div class="rg-status-pills" *ngIf="countByCategory.length">
+    <span class="rg-pill rg-pill--category" *ngFor="let c of countByCategory">
+      {{ c.label }}: <strong>{{ c.count }}</strong>
+    </span>
+  </div>
+
+  <!-- ========================================================
+       TABLE
+  ======================================================== -->
+  <div class="rg-card rg-table-card">
+
+    <!-- Toolbar -->
+    <div class="rg-table-toolbar">
+      <span class="rg-table-count" *ngIf="!tableLoading">
+        {{ totalElements | number }} records found
+      </span>
+      <div class="rg-page-size">
+        <label class="rg-label">Rows per page</label>
+        <select class="rg-input rg-input--sm"
+                (change)="onPageSizeChange(+$any($event.target).value)">
+          <option *ngFor="let s of [25, 50, 100, 200]" [value]="s"
+                  [selected]="s === pageSize">{{ s }}</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="rg-table-wrapper" [class.rg-loading]="tableLoading">
+      <div class="rg-spinner-overlay" *ngIf="tableLoading">
+        <div class="rg-spinner"></div>
+      </div>
+
+      <table class="rg-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Expense ID</th>
+            <th>Category</th>
+            <th>Payment Method</th>
+            <th>Txn ID</th>
+            <th>Paid To</th>
+            <th>Company</th>
+            <th>Employee</th>
+            <th>Invoice No</th>
+            <th class="rg-text-right">Amount</th>
+            <th>Expense Date</th>
+            <th>Description</th>
+            <th class="rg-text-center">Status</th>
+            <th>Approved At</th>
+            <th>Created By</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <!-- Empty state -->
+          <tr *ngIf="!tableLoading && rows.length === 0">
+            <td colspan="15" class="rg-empty-state">
+              <div class="rg-empty-icon">📭</div>
+              <p>No expense records found for the selected filters.</p>
+            </td>
+          </tr>
+
+          <!-- Data rows -->
+          <tr *ngFor="let row of rows; let i = index; trackBy: trackById">
+            <td class="rg-text-muted">{{ currentPage * pageSize + i + 1 }}</td>
+            <td>
+              <span class="rg-invoice-no">{{ row.expenseId }}</span>
+            </td>
+            <td>{{ row.categoryName || '—' }}</td>
+            <td class="rg-text-muted">{{ row.paymentMethod || '—' }}</td>
+            <td class="rg-text-muted">{{ row.transactionId || '—' }}</td>
+            <td>
+              <div class="rg-customer">{{ row.paidTo || '—' }}</div>
+            </td>
+            <td class="rg-text-muted">{{ row.paidToCompany || '—' }}</td>
+            <td class="rg-text-muted">{{ row.employeeName || '—' }}</td>
+            <td>
+              <span *ngIf="row.invoiceNo" class="rg-invoice-no">{{ row.invoiceNo }}</span>
+              <span *ngIf="!row.invoiceNo" class="rg-text-muted">—</span>
+            </td>
+            <td class="rg-text-right rg-fw-bold rg-text-danger">
+              {{ money(row.amount) }}
+            </td>
+            <td>{{ row.expenseDate | date:'dd MMM yyyy' }}</td>
+            <td class="rg-text-muted"
+                style="max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                [title]="row.description ?? ''">
+              {{ row.description || '—' }}
+            </td>
+            <td class="rg-text-center">
+              <span class="rg-badge" [ngClass]="statusClass(row.status)">{{ row.status }}</span>
+            </td>
+            <td class="rg-text-muted">
+              {{ row.approvedAt ? (row.approvedAt | date:'dd MMM yyyy HH:mm') : '—' }}
+            </td>
+            <td class="rg-text-muted">{{ row.createdByName || '—' }}</td>
+          </tr>
+        </tbody>
+
+        <!-- Totals footer -->
+        <tfoot *ngIf="summary && rows.length > 0">
+          <tr class="rg-totals-row">
+            <td colspan="9" class="rg-fw-bold">Overall Totals</td>
+            <td class="rg-text-right rg-fw-bold rg-text-danger">
+              {{ money(summary?.totalAmount ?? 0) }}
+            </td>
+            <td colspan="5"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="rg-pagination" *ngIf="totalPages > 1">
+      <button class="rg-pg-btn" (click)="goToPage(0)"
+              [disabled]="currentPage === 0" title="First">«</button>
+      <button class="rg-pg-btn" (click)="goToPage(currentPage - 1)"
+              [disabled]="currentPage === 0" title="Prev">‹</button>
+
+      <button class="rg-pg-btn" *ngFor="let p of pages"
+              [class.rg-pg-btn--active]="p === currentPage"
+              (click)="goToPage(p)">{{ p + 1 }}</button>
+
+      <button class="rg-pg-btn" (click)="goToPage(currentPage + 1)"
+              [disabled]="currentPage >= totalPages - 1" title="Next">›</button>
+      <button class="rg-pg-btn" (click)="goToPage(totalPages - 1)"
+              [disabled]="currentPage >= totalPages - 1" title="Last">»</button>
+
+      <span class="rg-pg-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+    </div>
+
+  </div>
+</div>
